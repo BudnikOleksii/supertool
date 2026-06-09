@@ -2,7 +2,7 @@
 title: "PRD: supertool — Money Tracker v1"
 status: final
 created: 2026-06-09
-updated: 2026-06-09
+updated: 2026-06-10
 ---
 
 # PRD: supertool — Money Tracker v1
@@ -18,14 +18,14 @@ Source inputs: product brief and addendum at `_bmad-output/planning-artifacts/br
 ## Goals
 
 1. **Daily-use tracker**: Oleksii records transactions daily and reviews a month at a glance — fast entry, monthly view, stats.
-2. **Platform foundation**: a shell, package structure, and single login that let tool #2 (planner/notes) be added later without reworking tool #1.
+2. **Platform foundation**: a shell, package structure, and single account that let tool #2 (planner/notes) be added later without reworking tool #1.
 3. **Pitch-grade process**: every feature lands as a story-mapped commit with tests; a reviewer can trace idea → brief → PRD → architecture → stories → commits.
 
 ### Success metrics
 
 - **Product**: Oleksii uses the tracker daily after v1 (≥5 transactions/week sustained); monthly review answers "where did money go" in one screen without exporting anywhere.
 - **Process**: 100% of commits on `main` map to a planned story; CI (lint, fmt, type-check, stylelint, build, tests, i18n parity) green on every merge; every feature merged with its tests.
-- **Platform**: adding a second app requires no changes to auth, shell, or shared packages beyond registering the new tool. Verified at architecture time by the FR4 acceptance check, not by building tool #2 in v1.
+- **Platform**: adding a second app requires no changes to auth, shell, or shared packages beyond registering the new tool. Verified at architecture time by the FR4 acceptance check (passed 2026-06-10), not by building tool #2 in v1.
 
 ### Counter-metrics
 
@@ -49,10 +49,11 @@ Source inputs: product brief and addendum at `_bmad-output/planning-artifacts/br
 ### F1 — Platform shell & identity
 
 - **FR1**: A user can sign up and sign in with email + password (better-auth). No email verification, OAuth, or password recovery in v1 — acceptable for a single known operator.
-- **FR2**: One session works across all platform apps — signing in once grants access to every tool (single account, shared session).
+- **FR2**: All tool apps share a single account store — one email + password works everywhere — but sessions are per-app: a user signs in to each tool app separately, and multiple concurrent sessions per user are supported. (Supersedes the original cross-app shared session — operator override at architecture; see `architecture.md`, decision D5.)
 - **FR3**: A shared shell wraps every tool app: tool navigation, user menu (profile, sign out), and locale switcher. v1 renders one tool entry (Money Tracker).
-- **FR4**: The shell, auth, and shared packages are structured so a second tool app can be added by registering it — no rework of existing apps. Acceptance (checked in the architecture phase): a hypothetical `apps/planner` would consume the shell, auth, and shared packages without modifying them, and appears in navigation via configuration only.
+- **FR4**: The shell, auth, and shared packages are structured so a second tool app can be added by registering it — no rework of existing apps. Acceptance (verified at architecture via the "register tool #2" walkthrough): adding `apps/planner` requires only (a) the new app itself, (b) one entry in the shared tool registry — shell navigation renders it automatically, and (c) infrastructure additions (docker-compose service, env example). Zero diffs to the shell, shared UI/widgets, auth, or existing apps; new API modules are additive only.
 - **FR5**: A user can view and edit minimal profile settings: name, default currency, locale. Default currency drives the dashboard's initial currency filter. (This deliberately supersedes the brief's blanket "settings deferred" — only this minimal subset ships; full settings remain out of scope.)
+- **FR21**: Every user has a role — `user` or `admin` — from day one. v1 ships no admin-facing features: everyone signs up as `user`, and promotion is an operational act (seed/DB only). The role model exists so a future admin capability (e.g. default-category management) lands as an additive epic. All data access is scoped to the authenticated user; there are no cross-user access paths in v1. (Added at architecture — operator decision D6.)
 
 ### F2 — Transactions
 
@@ -71,7 +72,7 @@ Source inputs: product brief and addendum at `_bmad-output/planning-artifacts/br
 
 - **FR13**: The dashboard shows, for a selected period (default: current month) and selected currency: total income, total expense, and net.
 - **FR14**: A currency filter scopes all dashboard figures to one currency at a time; no cross-currency aggregation in v1. The filter offers only currencies present in the user's data, defaulting to the profile's default currency.
-- **FR15**: The dashboard shows an expense breakdown by category for the selected period and currency, grouped by top-level category where a hierarchy exists. [ASSUMPTION]
+- **FR15**: The dashboard shows an expense breakdown by category for the selected period and currency, grouped by top-level category where a hierarchy exists.
 - **FR16**: The dashboard shows a month-over-month trend (income/expense) across a trailing 12-month window.
 
 ### F5 — Data seeding & integrity
@@ -86,14 +87,14 @@ Source inputs: product brief and addendum at `_bmad-output/planning-artifacts/br
 
 ## Non-functional requirements
 
-- **NFR1 — Tests per feature**: every feature merges with its tests in the same story; CI runs them as a required check. Priority test targets: money math, seed/import integrity, auth/session sharing.
+- **NFR1 — Tests per feature**: every feature merges with its tests in the same story; CI runs them as a required check. Priority test targets: money math, seed/import integrity, auth/sessions and per-user data scoping.
 - **NFR2 — Quality gates**: oxlint, oxfmt, type-check, stylelint, commitlint (conventional commits), and CodeRabbit review on every PR. Backend uses oxlint/oxfmt — no eslint/prettier anywhere in the monorepo.
 - **NFR3 — Local-first runtime**: the entire platform runs locally via Docker (PostgreSQL + apps) with a documented single-command startup. No deployment in v1.
 - **NFR4 — Privacy posture**: the repository is private; the real seed file is committed. Nothing in v1 may expose the data beyond the local environment (no analytics, no external telemetry).
 - **NFR5 — Entry speed**: the daily-entry flow (FR6) is the performance budget anchor — transaction form reachable in one interaction from the tracker's main view, submit-to-visible-in-list without full page reload.
 - **NFR6 — API contract**: the frontend consumes the API exclusively through a client generated from the NestJS OpenAPI spec; hand-written fetch calls to API routes are a defect.
 - **NFR7 — Design system**: UI is built from the carried-over design-system approach (shared UI package + Storybook); tracker screens follow the example app's UX patterns, which the operator has approved as-is.
-- **NFR8 — Mobile-usable**: the product replaces a mobile-first app and entry happens daily, wherever the spend happens — the daily-entry flow and transaction list must be fully usable in a mobile browser (responsive layout). No native app or PWA in v1. [ASSUMPTION]
+- **NFR8 — Mobile-usable**: the product replaces a mobile-first app and entry happens daily, wherever the spend happens — the daily-entry flow and transaction list must be fully usable in a mobile browser (responsive layout). No native app or PWA in v1.
 
 ## Engineering & delivery requirements
 
@@ -111,21 +112,21 @@ These are product requirements here, because the development process is half the
 
 ## Out of scope for v1 (future epics)
 
-Recurring transactions · Budgets · Accounts/wallets and transfers · Onboarding flow · CSV import/export UI · OAuth (Google/GitHub), email verification, password recovery · Full settings (password change, account deletion) · Multi-currency exchange rates and cross-currency aggregation · Redis caching · Deployment (Vercel/Railway) · Additional locales · Sharing/multi-tenant features · Native/PWA mobile · Tool #2 (planner/notes).
+Recurring transactions · Budgets · Accounts/wallets and transfers · Onboarding flow · CSV import/export UI · OAuth (Google/GitHub), email verification, password recovery · Full settings (password change, account deletion) · Cross-app shared session / single sign-on across tools (superseded by FR2's per-app sessions) · Admin features (role infrastructure ships in FR21; admin panel is a future epic) · Multi-currency exchange rates and cross-currency aggregation · Redis caching · Deployment (Vercel/Railway) · Additional locales · Sharing/multi-tenant features · Native/PWA mobile · Tool #2 (planner/notes).
 
 Each deferred item is a candidate future epic, intentionally extending the feature-by-feature commit narrative.
 
 ## Risks & open questions
 
-- **better-auth × NestJS boundary** (open — architecture phase): better-auth is Next.js-centric; the API is NestJS. Where auth lives and how the API validates the shared session is the top architecture decision and blocks auth stories. Cross-app single login (FR2) must be designed in the same decision.
+- **better-auth × NestJS boundary** (resolved at architecture, 2026-06-10): auth is mounted in the NestJS API via better-auth's Nest integration; each tool app proxies its API calls same-origin, which yields FR2's per-app sessions by construction. Details in `architecture.md` (decision D5).
 - **oxlint on NestJS** (risk): decorator-heavy backend code is the likely migration friction; budget a story.
 - **Seed category fidelity** (risk): category strings in the seed may contain duplicates/variants needing normalization rules — surface them at import, don't silently merge.
 - **Scope gravity** (risk): the examples are ~80% complete and tempting to copy; ED1 is the guardrail.
 
 ### Assumptions status
 
-All draft assumptions were reviewed with the operator on 2026-06-09 and confirmed (no password recovery, unrestricted sign-up, minimal profile settings, note field, delete-requires-reassignment, 12-month trend, design-verified platform readiness); their tags have been resolved into plain requirements above. Two remain open, tagged inline: **FR15** (breakdown grouped by top-level category) and **NFR8** (mobile-browser usability) — both added after the review and awaiting operator confirmation. Full audit trail in `.decision-log.md`.
+All draft assumptions were reviewed with the operator on 2026-06-09 and confirmed (no password recovery, unrestricted sign-up, minimal profile settings, note field, delete-requires-reassignment, 12-month trend, design-verified platform readiness); their tags have been resolved into plain requirements above. The two that remained open — **FR15** (breakdown grouped by top-level category) and **NFR8** (mobile-browser usability) — were confirmed by the operator on 2026-06-10 during the architecture-sync update. No open assumptions remain. Full audit trail in `.decision-log.md`.
 
 ## Next steps
 
-`bmad-create-architecture` (resolves the auth boundary, monorepo layout, seed strategy) → `bmad-create-epics-and-stories` → `bmad-check-implementation-readiness` → sprint planning. A UX phase (`bmad-ux`) is likely skippable: UI mirrors the approved example patterns (NFR7).
+Architecture is complete (`architecture.md`, finalized 2026-06-10; this PRD synced to it the same day). Next: `bmad-create-epics-and-stories` → `bmad-check-implementation-readiness` → sprint planning. A UX phase (`bmad-ux`) is likely skippable: UI mirrors the approved example patterns (NFR7).

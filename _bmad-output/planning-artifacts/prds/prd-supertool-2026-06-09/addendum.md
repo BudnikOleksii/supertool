@@ -6,7 +6,7 @@ Technical depth and rationale for downstream phases (architecture, epics). The b
 
 - Tools are **separate apps** in the monorepo (e.g. `apps/money-tracker`, later `apps/planner`), not routes in one app.
 - Shared shell is a package consumed by every tool app (navigation, user menu, locale switcher).
-- Single login = one user account + one session valid across all tool apps. With separate Next.js apps, this implies a shared session mechanism (e.g. shared cookie scope and a shared better-auth instance/package) — design in architecture together with the better-auth × NestJS question.
+- Single login = one user account + one session valid across all tool apps — *as originally stated*. **Superseded at architecture (2026-06-10, operator override, decision D5)**: one shared account store, but sessions are per-app (each app proxies the API same-origin, so cookies — and therefore sessions — are per-app by construction). The shared-session sketch in this bullet is retained for the record only; `architecture.md` is canonical.
 
 ## Currency-filter mechanics (FR13–FR16)
 
