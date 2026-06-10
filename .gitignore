@@ -1,2 +1,56 @@
-.idea/
+# Reference repos — never committed (ED1)
 example/
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Production
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local env files
+.env
+.env*.local
+
+# Turbo
+.turbo
+
+# Storybook
+storybook-static
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.idea/
+.vscode
+*.swp
+*.swo
+*~
+
+# AI
+**/settings.local.json

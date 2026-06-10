@@ -1,0 +1,26 @@
+name: Set up pnpm, Node.js, install dependencies
+
+description: Set up pnpm (version from the root packageManager field), Node.js, install dependencies
+
+inputs:
+  node_version:
+    description: Node.js version
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        cache: pnpm
+        node-version: ${{ inputs.node_version }}
+        cache-dependency-path: ./pnpm-lock.yaml
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pnpm install --frozen-lockfile

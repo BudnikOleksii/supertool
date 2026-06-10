@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "extends": ["./library.json"],
+  "plugins": ["typescript", "import", "react", "react-perf", "nextjs"],
+  "rules": {
+    "nextjs/no-html-link-for-pages": "error",
+    "nextjs/no-img-element": "error",
+    "nextjs/no-sync-scripts": "error",
+    "nextjs/no-head-element": "error",
+    "nextjs/no-page-custom-font": "warn"
+  },
+  "ignorePatterns": [".next/**", "next-env.d.ts"]
+}

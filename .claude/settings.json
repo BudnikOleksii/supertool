@@ -1,0 +1,58 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:localhost)",
+      "Bash(pnpm type-check:*)",
+      "Bash(pnpm stylelint:*)",
+      "Bash(pnpm turbo:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm lint)",
+      "Bash(pnpm lint:fix)",
+      "Bash(pnpm stylelint:fix)",
+      "Bash(pnpm fmt:*)",
+      "Bash(pnpm fmt:check)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm test)",
+      "Bash(gh api:*)",
+      "Bash(gh issue:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(cp:*)",
+      "Bash(head:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir -p *)",
+      "Bash(tree -L *)",
+      "Bash(find:*)",
+      "Bash(wc:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(mv *)"
+    ],
+    "deny": [
+      "Read(**/.next/**)",
+      "Read(.idea/**)",
+      "Read(.npmrc)",
+      "Read(.turbo/**)",
+      "Read(.vscode/**)",
+      "Read(**/.env)",
+      "Read(**/.env.local)",
+      "Read(**/.env.*.local)",
+      "Read(**/.env.development)",
+      "Read(**/.env.production)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/format.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+name: Env Versions
+
+description: Single source of truth for the Node.js version used in CI. Must match the root package.json engines field. The pnpm version is read from the packageManager field by pnpm/action-setup.
+
+outputs:
+  node_version:
+    description: The version of Node.js to use
+    value: 22.15.0
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set Node.js version
+      id: set-env
+      shell: bash
+      run: |
+        echo "Passing environment Node.js version"

@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Merged from the frontend + backend example configs (ED3), adapted to the supertool monorepo.
+language: 'en'
+early_access: true
+reviews:
+  request_changes_workflow: true
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  path_filters:
+    - '!**/node_modules/**'
+    - '!**/dist/**'
+    - '!**/coverage/**'
+    - '!_bmad/**'
+    - '!_bmad-output/**'
+    - '!example/**'
+    - '!packages/shared/src/generated/**'
+  path_instructions:
+    - path: '**/*.{ts,tsx}'
+      instructions: |
+        Project-wide invariants (architecture.md) — flag violations as defects:
+        - Money amounts must be strings end-to-end; an amount typed as `number` or float arithmetic on money is a defect (D1).
+        - Frontend code must call the API only through the generated client from @supertool/shared; a hand-written fetch to '/api/*' is a defect (NFR6).
+        - Database access only inside repository classes; controllers and services must never touch Drizzle/SQL directly (D7).
+        - Every user-facing string must exist in both en.json and uk.json in the same PR (FR20).
+        - Dependencies must be pinned exactly (no ^ or ~); eslint and prettier must never be introduced (NFR2).
+        - Nothing may be imported or copied from the example/ directory (ED1).
+        - Files and directories must be kebab-case; no PascalCase filenames.
+    - path: 'apps/money-tracker/**/*'
+      instructions: |
+        Confirm that the code adheres to the following:
+        - NextJS best practices, including file structure, API routes, and static generation methods.
+        - Efficient state management and server-side rendering techniques (RSC reads via fetch-* actions, mutations via server actions, revalidatePath after mutations).
+        - Optimal use of TypeScript for component and utility type safety.
+    - path: 'apps/api/**/*'
+      instructions: |
+        Review the NestJS code for best practices, dependency injection, module structure, and potential bugs.
+        Enforce controller → service → repository layering; repositories are the only DB-touching layer.
+        Errors must be thrown as HttpException subclasses with shared error codes; the global exception filter is the only place shaping error JSON.
+    - path: '**/*.spec.ts'
+      instructions: 'Review the unit tests, ensuring proper NestJS testing techniques (using TestingModule, mocks, etc.). Check for completeness and coverage.'
+    - path: 'packages/shared/**/*'
+      instructions: |
+        Confirm that the code adheres to the following:
+        - Cross-application utility functions, types, and constants.
+        - TypeScript best practices to ensure type safety and reusability.
+        - Documentation and examples for library consumers.
+    - path: 'packages/ui/**/*'
+      instructions: |
+        Confirm that the code adheres to the following:
+        - Reusability of components across different React or NextJS apps; this package must stay framework-pure (no next-intl, no API awareness).
+        - TypeScript usage for defining props and exporting types.
+        - Effective tree-shaking and bundling practices.
+    - path: '**/.env*'
+      instructions: 'Check that sensitive data is not stored in the repository.'
+    - path: '**/Dockerfile'
+      instructions: 'Review the Dockerfile for best practices in building, optimizing, and running the application.'
+    - path: '**/docker-compose*.{yml,yaml}'
+      instructions: 'Review Docker Compose configurations for environment setup, ensuring proper service configuration, network setup, and environment variables handling.'
+    - path: '**/*.md'
+      instructions: 'Ensure the documentation is clear, concise, and up-to-date.'
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - 'main'
+chat:
+  auto_reply: true

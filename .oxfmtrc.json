@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": true,
+  "singleQuote": true,
+  "printWidth": 100,
+  "experimentalSortImports": {
+    "newlinesBetween": true,
+    "customGroups": [
+      {
+        "groupName": "monorepo",
+        "elementNamePattern": ["@supertool/**"]
+      }
+    ],
+    "groups": [
+      "type-import",
+      ["value-builtin", "value-external"],
+      "type-internal",
+      "value-internal",
+      "monorepo",
+      ["type-parent", "type-sibling", "type-index"],
+      ["value-parent", "value-sibling", "value-index"],
+      "unknown"
+    ]
+  },
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    "**/dist/**",
+    "**/*.html",
+    "**/*.jsonc",
+    "**/*.scss",
+    "_bmad/**",
+    "_bmad-output/**",
+    "example/**",
+    "docs/**",
+    ".claude/**",
+    ".agents/**"
+  ]
+}

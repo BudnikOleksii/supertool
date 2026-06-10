@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "extends": ["./packages/lint-config/configs/base.json"],
+  "ignorePatterns": [
+    "node_modules/**",
+    "dist/**",
+    ".next/**",
+    "storybook-static/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.next/**",
+    "**/storybook-static/**",
+    "packages/stylelint-config/**",
+    "**/stylelint.config.js",
+    ".claude/**",
+    ".agents/**",
+    "_bmad/**",
+    "_bmad-output/**",
+    "example/**"
+  ]
+}

@@ -1,0 +1,11 @@
+example/
+node_modules/
+dist/
+.next/
+storybook-static/
+coverage/
+_bmad/
+_bmad-output/
+.claude/
+.agents/
+docs/

@@ -1,0 +1,43 @@
+{
+  "name": "supertool",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Personal tool platform — Money Tracker and future tool apps on a shared shell",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "build:packages": "turbo run build --filter='./packages/*'",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "type-check": "tsc -p tsconfig.json && turbo run type-check",
+    "lint": "oxlint && turbo run lint",
+    "lint:fix": "oxlint --fix && turbo run lint:fix",
+    "stylelint": "stylelint \"**/*.{css,scss}\" --allow-empty-input && turbo run stylelint",
+    "stylelint:fix": "stylelint \"**/*.{css,scss}\" --fix --allow-empty-input && turbo run stylelint:fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "commitlint": "commitlint --edit",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.0.2",
+    "@commitlint/config-conventional": "21.0.2",
+    "@commitlint/types": "21.0.1",
+    "@supertool/lint-config": "workspace:*",
+    "@supertool/stylelint-config": "workspace:*",
+    "@supertool/typescript-config": "workspace:*",
+    "husky": "9.1.7",
+    "lint-staged": "17.0.7",
+    "oxfmt": "0.54.0",
+    "oxlint": "1.69.0",
+    "stylelint": "17.13.0",
+    "turbo": "2.9.17",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": "22.15.0",
+    "pnpm": "11.5.2"
+  },
+  "packageManager": "pnpm@11.5.2"
+}
