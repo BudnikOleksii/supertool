@@ -6,7 +6,8 @@
   "exports": {
     "./base": "./configs/base.json",
     "./next-js": "./configs/next.json",
-    "./library": "./configs/library.json"
+    "./library": "./configs/library.json",
+    "./nest": "./configs/nest.json"
   },
   "devDependencies": {
     "oxlint": "1.69.0"

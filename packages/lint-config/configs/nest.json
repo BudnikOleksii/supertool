@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "extends": ["./base.json"],
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "new-cap": "off",
+    "no-magic-numbers": "off",
+    "import/no-nodejs-modules": "off",
+    "typescript/parameter-properties": "off",
+    "typescript/no-extraneous-class": ["error", { "allowWithDecorator": true }],
+    "typescript/consistent-type-imports": "off"
+  }
+}
