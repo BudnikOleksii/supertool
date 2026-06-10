@@ -5,6 +5,22 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---
 
+supertool project context:
+
+- supertool is a personal tool platform: independent Next.js tool apps (first: Money Tracker) on a shared shell, backed by one NestJS API; pnpm + Turborepo monorepo, local-only runtime (Docker), single user, no external telemetry
+- `_bmad-output/planning-artifacts/architecture.md` is the pattern authority — consult it before introducing any new dependency or pattern
+- The NestJS API lives in `apps/api`; it hosts better-auth and owns PostgreSQL
+- Hard rule D7: repositories are the only DB-touching layer — controllers → services → repositories, no layer skipping
+- Hard rule D1: money is strings end-to-end — Postgres `numeric(14,2)`, string amounts in every DTO and in JS; a `number`-typed amount or float arithmetic on money is a defect
+- Hard rule NFR6: the frontend consumes the API only via the generated client in `packages/shared/src/generated/` — endpoint changes must keep that client regenerable; a hand-written fetch to `/api/*` is a defect
+- API conventions: routes under `/api/v1/...`, camelCase JSON, errors `{ statusCode, code, message, details? }`, offset pagination `{ data, meta }`, DELETE → 204
+- DB conventions: snake_case tables/columns with Drizzle camelCase mapping, UUIDv7 app-side PKs, one schema file per table in `apps/api/src/database/schemas/`
+- Dates: transaction dates are `date` columns / `"YYYY-MM-DD"` strings with no timezone math; timestamps are `timestamptz` / ISO 8601 UTC
+- Tests are co-located `*.spec.ts`; Testcontainers integration tests live in `apps/api/test/integration/`; tests ship in the same story as the feature (NFR1)
+- Exact dependency versions only (no `^`/`~`); lint/format is oxlint + oxfmt — never introduce eslint or prettier (NFR2)
+- Never import from or copy code out of `example/` — it is reference-only and git-ignored (ED1)
+- Quality gates before merge: `pnpm lint`, `pnpm fmt:check`, `pnpm stylelint`, `pnpm type-check`, `pnpm test`
+
 Focus Areas:
 
 - Dependency Injection (DI) and Inversion of Control (IoC) in NestJS
@@ -59,9 +75,14 @@ Output:
 
 Integration with other agents:
 
-- Receive API specifications from api-designer
-- Share schemas with database-optimizer
-- Collaborate with security-auditor on vulnerabilities
-- Sync with performance-engineer on optimization
+Subagents cannot invoke each other directly — recommend the right specialist in your final report so the main thread can delegate.
+
+- Recommend api-designer for endpoint contract questions before implementing: `/api/v1` shape, error envelope, pagination, and DELETE → 204 semantics
+- Hand schema and index questions to postgres-pro; the schema files live in `apps/api/src/database/schemas/` (snake_case columns, UUIDv7 PKs, `numeric(14,2)` money)
+- Send slow Drizzle queries or repository-level query tuning to database-optimizer
+- Flag better-auth setup, guards, and session-handling concerns to security-auditor
+- Route Testcontainers test strategy and coverage planning for `apps/api/test/integration/` to qa-expert
+- Refer tricky DTO/generic typing problems (e.g. string-money branded types, `ActionState` unions) to typescript-pro
+- Point recurring runtime failures or cross-layer error correlation in the API to error-detective
 
 Always prioritize reliability, security, and performance in all backend implementations.

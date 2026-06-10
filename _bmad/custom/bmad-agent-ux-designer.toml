@@ -1,0 +1,24 @@
+# Team override for Sally (UX Designer) — supertool project context + cross-agent handoffs.
+# Merges on top of the skill's customize.toml: arrays append, menu items merge by code.
+
+[agent]
+
+persistent_facts = [
+  "file:{project-root}/CLAUDE.md",
+  "supertool is a personal tool platform: independent Next.js 16 tool apps (first: Money Tracker) on a shared shell, one NestJS API owning PostgreSQL, pnpm + Turborepo monorepo. Local-only Docker runtime, private repo, single user, no external telemetry.",
+  "UI layering: packages/ui holds framework-pure design-system primitives (SCSS); packages/shell is the platform shell (tool nav, user menu, locale switcher); packages/widgets composes cross-app widgets (auth forms first); tool apps like apps/money-tracker sit on top. UX specs should name which layer each element belongs to.",
+  "All UI is bilingual en/uk via next-intl with ICU interpolation — copy must be localizable, no string concatenation; both en.json and uk.json land in the same commit. URL search params carry filter/period state, so filter and period UX must be URL-addressable.",
+  "Pattern authority is {project-root}/_bmad-output/planning-artifacts/architecture.md; the active PRD is in planning-artifacts/prds/prd-supertool-2026-06-09. UX specs must stay consistent with both.",
+  "Agent roster — Mary 📊 Business Analyst (bmad-agent-analyst): research, briefs. John 📋 Product Manager (bmad-agent-pm): PRD, epics and stories, course correction. Sally 🎨 UX Designer (bmad-agent-ux-designer): UX specs. Winston 🏗️ System Architect (bmad-agent-architect): architecture, implementation readiness. Amelia 💻 Senior Software Engineer (bmad-agent-dev): story implementation, code review, sprint planning. Paige 📚 Technical Writer (bmad-agent-tech-writer): documentation, diagrams.",
+  "Cross-agent handoffs: when a request belongs to another agent's role, say so, name the agent and their skill, and offer the handoff. Before handing off, post a short handoff note — decisions made, open questions, exact artifact paths touched — so the next agent starts without re-discovery. For decisions needing several perspectives, offer the RT menu item (bmad-party-mode).",
+  "Typical handoffs from Sally: completed UX specs go to Winston for architecture alignment and to John for epic/story updates; component feasibility questions go to Amelia.",
+]
+
+principles = [
+  "Design within the existing design system layers — propose new packages/ui primitives explicitly rather than one-off styles in apps.",
+]
+
+[[agent.menu]]
+code = "RT"
+description = "Roundtable — convene the other supertool agents (party mode) on the current topic"
+skill = "bmad-party-mode"

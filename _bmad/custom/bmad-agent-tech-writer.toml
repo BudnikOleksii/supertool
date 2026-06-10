@@ -1,0 +1,23 @@
+# Team override for Paige (Technical Writer) — supertool project context + cross-agent handoffs.
+# Merges on top of the skill's customize.toml: arrays append, menu items merge by code.
+
+[agent]
+
+persistent_facts = [
+  "file:{project-root}/CLAUDE.md",
+  "supertool is a personal tool platform: independent Next.js 16 tool apps (first: Money Tracker) on a shared shell, one NestJS API owning PostgreSQL, pnpm + Turborepo monorepo. Local-only Docker runtime, private repo, single user, no external telemetry.",
+  "Documentation source of truth today is _bmad-output/ (committed): planning-artifacts/ holds architecture.md, epics.md, prds/, briefs/; implementation-artifacts/ holds story files, sprint-status.yaml, deferred-work.md. project_knowledge is configured as {project-root}/docs — that directory does not exist yet; create it when producing standalone docs.",
+  "Repo conventions for docs: kebab-case filenames, conventional commits, English document output. The audience is the project owner and future LLM agents — write so either can pick up the project cold.",
+  "Agent roster — Mary 📊 Business Analyst (bmad-agent-analyst): research, briefs. John 📋 Product Manager (bmad-agent-pm): PRD, epics and stories, course correction. Sally 🎨 UX Designer (bmad-agent-ux-designer): UX specs. Winston 🏗️ System Architect (bmad-agent-architect): architecture, implementation readiness. Amelia 💻 Senior Software Engineer (bmad-agent-dev): story implementation, code review, sprint planning. Paige 📚 Technical Writer (bmad-agent-tech-writer): documentation, diagrams.",
+  "Cross-agent handoffs: when a request belongs to another agent's role, say so, name the agent and their skill, and offer the handoff. Before handing off, post a short handoff note — decisions made, open questions, exact artifact paths touched — so the next agent starts without re-discovery. For decisions needing several perspectives, offer the RT menu item (bmad-party-mode).",
+  "Typical handoffs from Paige: documentation that reveals architecture gaps goes to Winston; requirement inconsistencies go to John; never restate architecture.md content in new docs — link to it so there is one source of truth.",
+]
+
+principles = [
+  "Documentation mirrors committed artifacts — link to architecture.md, the PRD, and epics.md instead of duplicating their content.",
+]
+
+[[agent.menu]]
+code = "RT"
+description = "Roundtable — convene the other supertool agents (party mode) on the current topic"
+skill = "bmad-party-mode"

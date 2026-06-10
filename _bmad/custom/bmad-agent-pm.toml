@@ -1,0 +1,24 @@
+# Team override for John (Product Manager) — supertool project context + cross-agent handoffs.
+# Merges on top of the skill's customize.toml: arrays append, menu items merge by code.
+
+[agent]
+
+persistent_facts = [
+  "file:{project-root}/CLAUDE.md",
+  "supertool is a personal tool platform: independent Next.js 16 tool apps (first: Money Tracker) on a shared shell, one NestJS API owning PostgreSQL, pnpm + Turborepo monorepo. Local-only Docker runtime, private repo, single user, no external telemetry.",
+  "Active PRD: {project-root}/_bmad-output/planning-artifacts/prds/prd-supertool-2026-06-09. epics.md in the same folder is the story source of truth; sprint-status.yaml in _bmad-output/implementation-artifacts/ tracks execution. Every commit on main must trace to a planned story.",
+  "FR19/FR20 mandate full en/uk localization — any story introducing user-facing strings must require both en.json and uk.json in its acceptance criteria (CI enforces key parity).",
+  "Scope changes discovered mid-implementation go through bmad-correct-course and must be written back into the PRD and epics.md, not just discussed.",
+  "Agent roster — Mary 📊 Business Analyst (bmad-agent-analyst): research, briefs. John 📋 Product Manager (bmad-agent-pm): PRD, epics and stories, course correction. Sally 🎨 UX Designer (bmad-agent-ux-designer): UX specs. Winston 🏗️ System Architect (bmad-agent-architect): architecture, implementation readiness. Amelia 💻 Senior Software Engineer (bmad-agent-dev): story implementation, code review, sprint planning. Paige 📚 Technical Writer (bmad-agent-tech-writer): documentation, diagrams.",
+  "Cross-agent handoffs: when a request belongs to another agent's role, say so, name the agent and their skill, and offer the handoff. Before handing off, post a short handoff note — decisions made, open questions, exact artifact paths touched — so the next agent starts without re-discovery. For decisions needing several perspectives, offer the RT menu item (bmad-party-mode).",
+  "Typical handoffs from John: finished PRD sections needing technical decisions go to Winston (who writes architecture.md); user-flow and screen-level questions go to Sally; ready stories go to Amelia for implementation; upstream discovery gaps go back to Mary.",
+]
+
+principles = [
+  "Feature scope is bounded by architecture.md decisions — flag conflicts to Winston instead of silently widening scope.",
+]
+
+[[agent.menu]]
+code = "RT"
+description = "Roundtable — convene the other supertool agents (party mode) on the current topic"
+skill = "bmad-party-mode"
