@@ -1,18 +1,19 @@
 import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 
-import { Catch, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { Catch, HttpException, Inject } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 
-import { ErrorCode } from '../enums/error-codes';
+import { ErrorCode } from '@supertool/shared/constants/error-codes';
+import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
 
 const STATUS_CODE_MAP: Readonly<Record<number, ErrorCode>> = {
-  [HttpStatus.BAD_REQUEST]: ErrorCode.ValidationError,
-  [HttpStatus.UNAUTHORIZED]: ErrorCode.Unauthorized,
-  [HttpStatus.FORBIDDEN]: ErrorCode.Forbidden,
-  [HttpStatus.NOT_FOUND]: ErrorCode.NotFound,
-  [HttpStatus.CONFLICT]: ErrorCode.Conflict,
-  [HttpStatus.UNPROCESSABLE_ENTITY]: ErrorCode.UnprocessableEntity,
-  [HttpStatus.TOO_MANY_REQUESTS]: ErrorCode.TooManyRequests,
+  [HTTP_STATUS_CODE.BadRequest]: ErrorCode.ValidationError,
+  [HTTP_STATUS_CODE.Unauthorized]: ErrorCode.Unauthorized,
+  [HTTP_STATUS_CODE.Forbidden]: ErrorCode.Forbidden,
+  [HTTP_STATUS_CODE.NotFound]: ErrorCode.NotFound,
+  [HTTP_STATUS_CODE.Conflict]: ErrorCode.Conflict,
+  [HTTP_STATUS_CODE.UnprocessableEntity]: ErrorCode.UnprocessableEntity,
+  [HTTP_STATUS_CODE.TooManyRequests]: ErrorCode.TooManyRequests,
 };
 
 const ERROR_CODE_SET: ReadonlySet<string> = new Set(Object.values(ErrorCode));
@@ -62,7 +63,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<HttpRequestLike>();
     const envelope = this.toEnvelope(exception);
 
-    if (envelope.statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
+    if (envelope.statusCode >= HTTP_STATUS_CODE.InternalServerError) {
       this.logger.error(
         { err: exception, method: request.method, url: request.url },
         'Unhandled exception',
@@ -82,7 +83,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     return {
-      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      statusCode: HTTP_STATUS_CODE.InternalServerError,
       code: ErrorCode.InternalError,
       message: SANITIZED_INTERNAL_ERROR_MESSAGE,
     };

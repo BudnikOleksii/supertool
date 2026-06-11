@@ -1,0 +1,25 @@
+{
+  "name": "@supertool/shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "supertool cross-app primitives — constants, types, generated API client",
+  "exports": {
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.generated.json",
+    "generate:client": "openapi-ts",
+    "type-check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.generated.json",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.98.2",
+    "@supertool/typescript-config": "workspace:*",
+    "oxlint": "1.69.0",
+    "typescript": "6.0.3"
+  }
+}
