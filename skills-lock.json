@@ -7,7 +7,7 @@
       "computedHash": "8df9b47092524833138b58682d03f2e153a242e550d1693657afdbee0cc9cdb0"
     },
     "create-pr": {
-      "source": "homegrown (converted from .claude/commands/create-pr.md)",
+      "source": "homegrown (converted from the legacy create-pr command)",
       "sourceType": "local"
     },
     "frontend-design": {

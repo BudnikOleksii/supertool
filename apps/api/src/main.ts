@@ -1,9 +1,10 @@
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 
 import { AppModule } from './app/app.module';
+import { configureAppRouting } from './app/configure-app-routing';
 import { parseEnv } from './app/env.schema';
 import { buildOpenApiDocument } from './app/openapi';
 
@@ -14,8 +15,7 @@ const bootstrap = async (): Promise<void> => {
 
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
-  app.setGlobalPrefix('api');
-  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+  configureAppRouting(app);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.enableShutdownHooks();
 

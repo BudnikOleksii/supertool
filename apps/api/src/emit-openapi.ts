@@ -1,9 +1,9 @@
-import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { AppModule } from './app/app.module';
+import { configureAppRouting } from './app/configure-app-routing';
 import { buildOpenApiDocument } from './app/openapi';
 
 const JSON_INDENT = 2;
@@ -11,8 +11,7 @@ const EXIT_FAILURE = 1;
 
 const emitOpenApi = async (): Promise<void> => {
   const app = await NestFactory.create(AppModule, { logger: false });
-  app.setGlobalPrefix('api');
-  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+  configureAppRouting(app);
 
   const document = buildOpenApiDocument(app);
   const outputPath = join(__dirname, '..', 'openapi.json');

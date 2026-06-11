@@ -22,7 +22,7 @@ ARGUMENTS: optional story/ticket number (e.g. `1-2` or `TOOLS-1-2`). If omitted,
    - Labels: only from the repository's existing label set (`gh label list`) — do not invent new labels
    - Assignee: the current user
 
-```
+```markdown
 ## Summary
 <bullet points summarizing the changes>
 
