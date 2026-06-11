@@ -15,6 +15,24 @@ const STATUS_CODE_MAP: Readonly<Record<number, ErrorCode>> = {
   [HttpStatus.TOO_MANY_REQUESTS]: ErrorCode.TooManyRequests,
 };
 
+const ERROR_CODE_SET: ReadonlySet<string> = new Set(Object.values(ErrorCode));
+
+const checkIsRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const checkIsErrorCode = (value: unknown): value is ErrorCode =>
+  typeof value === 'string' && ERROR_CODE_SET.has(value);
+
+const getExplicitCode = (record: Record<string, unknown>): ErrorCode | undefined => {
+  const rawCode = record['code'];
+  return checkIsErrorCode(rawCode) ? rawCode : undefined;
+};
+
+const getCallerDetails = (record: Record<string, unknown>): Record<string, unknown> | undefined => {
+  const rawDetails = record['details'];
+  return checkIsRecord(rawDetails) ? rawDetails : undefined;
+};
+
 interface ErrorEnvelope {
   statusCode: number;
   code: ErrorCode;
@@ -81,8 +99,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const statusCode = exception.getStatus();
     const body = exception.getResponse();
 
-    if (typeof body === 'object' && body !== null) {
-      return this.fromExceptionBody(exception, statusCode, body as Record<string, unknown>);
+    if (checkIsRecord(body)) {
+      return this.fromExceptionBody(exception, statusCode, body);
     }
 
     return {
@@ -97,8 +115,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     statusCode: number,
     record: Record<string, unknown>,
   ): ErrorEnvelope {
-    const explicitCode = this.asErrorCode(record['code']);
-    const callerDetails = this.asDetailsRecord(record['details']);
+    const explicitCode = getExplicitCode(record);
+    const callerDetails = getCallerDetails(record);
 
     // ValidationPipe puts class-validator messages into a string array.
     if (Array.isArray(record['message'])) {
@@ -120,21 +138,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       envelope.details = callerDetails;
     }
     return envelope;
-  }
-
-  private asErrorCode(value: unknown): ErrorCode | undefined {
-    if (typeof value === 'string' && (Object.values(ErrorCode) as string[]).includes(value)) {
-      return value as ErrorCode;
-    }
-    return undefined;
-  }
-
-  private asDetailsRecord(value: unknown): Record<string, unknown> | undefined {
-    // Arrays are typeof 'object' but would emit a malformed envelope details field.
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      return value as Record<string, unknown>;
-    }
-    return undefined;
   }
 
   private codeForStatus(statusCode: number): ErrorCode {

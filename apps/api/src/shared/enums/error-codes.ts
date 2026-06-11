@@ -1,8 +1,12 @@
+import type { ObjectValuesUnion } from '../types/object-values-union';
+
 /**
  * Shared error codes carried in every error envelope (architecture D7).
- * Frontends resolve user-facing i18n messages by `code` — never by `message`.
- * One code per HTTP client-error status the API can emit; INTERNAL_ERROR
- * covers 5xx and anything unmapped.
+ * `statusCode` is transport-level; `code` is the application-level
+ * discriminator the frontend maps to i18n messages — never the raw `message`.
+ * Domain codes (e.g. category-reassignment failures, FR12) join HTTP-derived
+ * ones from Story 2.x on; the whole object moves to `packages/shared` in 1.3
+ * so the frontend consumes the same source of truth.
  */
 export const ErrorCode = {
   InternalError: 'INTERNAL_ERROR',
@@ -15,4 +19,4 @@ export const ErrorCode = {
   TooManyRequests: 'TOO_MANY_REQUESTS',
 } as const;
 
-export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
+export type ErrorCode = ObjectValuesUnion<typeof ErrorCode>;
