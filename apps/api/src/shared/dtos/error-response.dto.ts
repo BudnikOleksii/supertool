@@ -2,7 +2,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { ErrorCode } from '../enums/error-codes';
 
-/** Error envelope emitted by the global exception filter (architecture D7). */
 export class ErrorResponseDto {
   @ApiProperty({ example: 404 })
   statusCode!: number;

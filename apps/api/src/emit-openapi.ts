@@ -9,10 +9,6 @@ import { buildOpenApiDocument } from './app/openapi';
 const JSON_INDENT = 2;
 const EXIT_FAILURE = 1;
 
-/**
- * Build-time OpenAPI emission (D8): bootstraps the app without listening and
- * writes `apps/api/openapi.json` for Story 1.3's client-generation turbo task.
- */
 const emitOpenApi = async (): Promise<void> => {
   const app = await NestFactory.create(AppModule, { logger: false });
   app.setGlobalPrefix('api');

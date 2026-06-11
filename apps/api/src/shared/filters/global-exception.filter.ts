@@ -17,6 +17,8 @@ const STATUS_CODE_MAP: Readonly<Record<number, ErrorCode>> = {
 
 const ERROR_CODE_SET: ReadonlySet<string> = new Set(Object.values(ErrorCode));
 
+const SANITIZED_INTERNAL_ERROR_MESSAGE = 'Internal server error';
+
 const checkIsRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -50,10 +52,6 @@ interface HttpRequestLike {
   url?: string;
 }
 
-/**
- * The single place that shapes error JSON (architecture D7):
- * `{ statusCode, code, message, details? }` with `code` from the shared enum.
- */
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   constructor(@Inject(Logger) private readonly logger: Logger) {}
@@ -71,10 +69,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       );
     }
 
-    /*
-     * A response that already started streaming cannot be reshaped — writing
-     * would throw ERR_HTTP_HEADERS_SENT inside the filter itself.
-     */
     if (response.headersSent === true) {
       return;
     }
@@ -87,11 +81,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       return this.fromHttpException(exception);
     }
 
-    // Unknown errors never leak internals into the response body — they go to the logger.
     return {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       code: ErrorCode.InternalError,
-      message: 'Internal server error',
+      message: SANITIZED_INTERNAL_ERROR_MESSAGE,
     };
   }
 
@@ -117,14 +110,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   ): ErrorEnvelope {
     const explicitCode = getExplicitCode(record);
     const callerDetails = getCallerDetails(record);
+    const validationMessageList = record['message'];
 
-    // ValidationPipe puts class-validator messages into a string array.
-    if (Array.isArray(record['message'])) {
+    if (Array.isArray(validationMessageList)) {
       return {
         statusCode,
         code: explicitCode ?? ErrorCode.ValidationError,
         message: 'Validation failed',
-        details: { ...callerDetails, messages: record['message'] },
+        details: { ...callerDetails, messages: validationMessageList },
       };
     }
 

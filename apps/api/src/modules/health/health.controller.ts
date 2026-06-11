@@ -9,7 +9,6 @@ import { HealthService } from './health.service';
 export class HealthController {
   constructor(@Inject(HealthService) private readonly healthService: HealthService) {}
 
-  /** Liveness probe including database connectivity status. */
   @Get()
   @ApiOkResponse({ type: HealthResponseDto })
   async check(): Promise<HealthResponseDto> {

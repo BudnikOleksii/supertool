@@ -10,7 +10,6 @@ import { buildOpenApiDocument } from './app/openapi';
 const EXIT_FAILURE = 1;
 
 const bootstrap = async (): Promise<void> => {
-  // Fail fast on invalid env before any module initializes (AC 1 — no partial boot).
   const env = parseEnv();
 
   const app = await NestFactory.create(AppModule, { bufferLogs: true });

@@ -19,8 +19,5 @@ services:
       timeout: 5s
       retries: 10
 
-  # slot: api service (Story 1.7 — entrypoint runs migrate → [seed] → listen)
-  # slot: money-tracker service (Story 1.7)
-
 volumes:
   postgres-data:

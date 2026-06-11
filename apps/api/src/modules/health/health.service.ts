@@ -8,7 +8,6 @@ import { HealthRepository } from './health.repository';
 export class HealthService {
   constructor(@Inject(HealthRepository) private readonly healthRepository: HealthRepository) {}
 
-  /** Reports API liveness plus database connectivity; never throws (AC 2 — the endpoint reports, it doesn't crash). */
   async check(): Promise<HealthResponseDto> {
     try {
       await this.healthRepository.ping();

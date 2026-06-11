@@ -10,7 +10,6 @@ import { EnvModule } from './env.module';
 @Module({
   imports: [
     EnvModule,
-    // Pino to stdout only — no transports, no file/network sinks (NFR4).
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
