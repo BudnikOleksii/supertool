@@ -242,6 +242,10 @@ So that the frontend can only ever speak to the API through the contract (NFR6, 
 **When** called through the generated client in a test,
 **Then** a typed response is returned — proving spec → client → call end-to-end.
 
+**Given** `packages/shared` is scaffolded by this story,
+**When** shared primitives are placed,
+**Then** the cross-app primitives that temporarily live in `apps/api/src/shared/` move into the package — `ErrorCode` constants → `packages/shared/src/constants/error-codes.ts`, the `ObjectValuesUnion` type utility → `packages/shared/src/types/object-values-union.ts` — plus new `HTTP_STATUS_CODE` constants (`packages/shared/src/constants/http-status-code.ts`), with the API consuming them from `@supertool/shared` (carried-over task from Story 1.2 review).
+
 ### Story 1.4: Money Tracker Shell, Design System & i18n Foundation
 
 As Oleksii,

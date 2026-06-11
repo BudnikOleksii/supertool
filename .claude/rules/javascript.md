@@ -11,6 +11,8 @@ paths:
 ## General
 
 - Never re-export variables, types, functions. Do not create barrel files.
+- Do NOT leave comments. Write self-documenting code with clear variable and function names — if a block needs explaining, extract it into a well-named function instead.
+- Follow-up work belongs in story files / epics / deferred-work.md, never in TODO comments.
 
 ## Variables
 

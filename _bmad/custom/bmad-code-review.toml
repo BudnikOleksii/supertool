@@ -1,0 +1,12 @@
+# Team override for bmad-code-review — supertool layer-to-agent delegation.
+# Merges on top of the skill's customize.toml: arrays append, scalars override.
+
+[workflow]
+
+persistent_facts = [
+  "Subagent delegation (supertool): launch the review layers as Claude Code agents so the orchestrating context stays clean. Edge Case Hunter and Acceptance Auditor run as the `code-reviewer` agent type (its system prompt carries the supertool hard rules D1/D7/NFR1/NFR2/NFR6/ED1 and conventions). The Blind Hunter MUST stay a generic, context-free subagent — the code-reviewer agent embeds project context, which would defeat the blind layer's purpose. Only triage and presentation happen in the orchestrator.",
+  "Story branches are named `TOOLS-<story number>/<brief description>`. Review the diff against `main` (`git diff main...HEAD`).",
+  "Review layers are READ-ONLY and static: subagent prompts must forbid running lint/type-check/tests/builds or any package scripts. The ORCHESTRATOR runs the quality gates once (root `pnpm` scripts only) and passes the results into the layer prompts as stated facts.",
+]
+
+on_complete = "If the review outcome is Approve (or all blocking findings are resolved) and the work sits on a `TOOLS-*` branch, suggest invoking the `create-pr` skill to push the branch and open the pull request."

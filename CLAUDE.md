@@ -48,9 +48,12 @@ pnpm type-check         # tsc (root config) + per-package type-check tasks
 ## Conventions
 
 - Files/dirs: kebab-case always; components export PascalCase from kebab-case dirs.
+- Do NOT leave comments — write self-documenting code; names describe what the code does. Tracked work goes into story files/epics, never code comments.
+- NestJS DI: explicit `@Inject(ClassName)` on every constructor param; never `import type` an injectable — tsc resurrects type-only imports for decorator metadata but SWC under Vitest does not, so DI breaks in tests (`typescript/consistent-type-imports` stays enabled).
 - DB: snake_case tables/columns, Drizzle camelCase mapping; UUIDv7 app-side PKs; one schema file per table in `apps/api/src/database/schemas/`.
 - API: `/api/v1/...`, camelCase JSON, errors `{ statusCode, code, message, details? }`, offset pagination `{ data, meta }`, DELETE → 204.
 - Dates: transaction dates are `date` columns / `"YYYY-MM-DD"` strings — no timezone math; timestamps are `timestamptz` / ISO 8601 UTC.
 - Frontend: RSC reads via `fetch-*` actions, mutations via `'use server'` actions returning discriminated `ActionState`, `revalidatePath` after mutations; URL search params carry filter/period state; react-hook-form + zod; next-intl with ICU interpolation (no string concatenation).
 - Tests co-located (`*.spec.ts` API, `*.test.ts(x)` frontend); Testcontainers integration tests in `apps/api/test/integration/`.
 - Commits: conventional commits, enforced by commitlint.
+- Branches: story/feature work happens on `TOOLS-<story number>/<brief-kebab-description>` (e.g. `TOOLS-1-2/api-foundation-health-check`) — never commit directly to `main`. `main` receives PR merges only, after local code review + CI + CodeRabbit (NFR2). Open PRs via the `create-pr` skill.

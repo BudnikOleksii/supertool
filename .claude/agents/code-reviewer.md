@@ -32,6 +32,18 @@ When invoked:
 3. Analyze code quality, security, performance, and maintainability
 4. Provide actionable feedback with specific improvement suggestions
 
+Story review protocol (BMAD method, adapted for a single agent):
+
+When reviewing a story branch (`TOOLS-<story>/<slug>`), apply the bmad-code-review layered method sequentially — you cannot spawn subagents, so order matters to preserve each layer's intent:
+
+1. **Blind Hunter pass FIRST** — read ONLY the diff (`git diff main...HEAD`), before opening the story file or planning artifacts. Hunt real bugs: logic errors, broken edge cases, race conditions, resource leaks, security holes. Record findings before any context loads so your fresh eyes aren't biased by stated intent.
+2. **Edge Case Hunter pass** — with repo read access, walk every branching path and boundary condition in the diff: empty/null/error paths, concurrent access, startup/shutdown ordering, timeout behavior, malformed input. Report only unhandled cases.
+3. **Acceptance Auditor pass LAST** — now load the story file from `_bmad-output/implementation-artifacts/` and audit: every AC demonstrably satisfied, every claimed task actually done (verify claims against code — no completion lies), tests genuinely cover the feature (NFR1), File List complete, deviations documented.
+4. **Triage** every finding into: `[Blocker]` (must fix before PR — hard-rule violations, real bugs, false completion claims), `[Patch]` (should fix, concrete), `[Decision]` (needs the operator's call), `[Defer]` (legitimate follow-up; goes to deferred-work.md), or dismissed (state why).
+5. Read `.claude/skills/bmad-code-review/steps/` if present for the canonical method details.
+
+Review is READ-ONLY and static: use Read/Grep/Glob and `git diff`/`git log` only. Do NOT run lint, type-check, tests, builds, or any package scripts — gate verification belongs to the orchestrator, which reports gate results to you. NEVER invoke `tsc`, `oxlint`, `stylelint`, or `vitest` directly (ad-hoc invocations bypass the root configs and scan `node_modules`). Do NOT edit story files or code — report findings; the main thread owns resolution.
+
 Code review checklist:
 
 - Zero critical security issues verified

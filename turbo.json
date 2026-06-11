@@ -1,7 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": ["**/.env.*local"],
-  "globalEnv": ["NODE_ENV", "PORT", "HOST"],
+  "globalEnv": ["NODE_ENV", "PORT", "HOST", "DATABASE_URL"],
   "tasks": {
     "dev": {
       "cache": false,
@@ -9,7 +9,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**", "storybook-static/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "storybook-static/**", "openapi.json"]
     },
     "type-check": {
       "dependsOn": ["^build"]
