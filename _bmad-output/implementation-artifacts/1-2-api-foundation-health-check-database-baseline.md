@@ -4,7 +4,7 @@ baseline_commit: edf5f76be4db61f91b6271b4a6e9fa002803917e
 
 # Story 1.2: API Foundation — Health Check & Database Baseline
 
-Status: review
+Status: done
 
 <!-- context-engine: exhaustive analysis of epics.md, architecture.md (D1–D10, patterns, tree), story 1.1 record, deferred-work.md, live repo state, and npm version re-verification completed 2026-06-10 -->
 
@@ -71,6 +71,20 @@ so that every feature module lands on identical rails (D7) and the database is o
   - [x] Boot sequence proof: postgres up → API boots → health returns `database: 'up'`; stop postgres → health returns `database: 'down'`; missing/invalid env → fast failure with readable message (record all three in Dev Agent Record)
   - [x] No `^`/`~` in `apps/api/package.json`; no eslint/prettier anywhere; nothing imported from `example/` (ED1)
   - [x] Update sprint-status.yaml on status transitions
+
+### Review Findings
+
+- [x] [Review][Decision] Unmapped 4xx statuses fall back to `INTERNAL_ERROR` code — `codeForStatus` only maps 404/400; a 401/403/409/429 `HttpException` (none throwable until Story 1.5 auth, but standard Nest exceptions) would emit `{ statusCode: 401, code: 'INTERNAL_ERROR' }`, and clients resolve i18n by `code` — a 4xx would render as an internal error. Options: defer to 1.5 (codes added with auth), per-status codes now, or a generic 4xx fallback code.
+- [x] [Review][Patch] Production must not silently fall back to the default `DATABASE_URL` (hardcoded local creds) — require it explicitly when `NODE_ENV=production` [apps/api/src/app/env.schema.ts]
+- [x] [Review][Patch] Exception filter: validation branch drops a caller-supplied `details` object, and an array slips through the `typeof details === 'object'` check into the envelope — preserve details and exclude arrays; add specs [apps/api/src/shared/filters/global-exception.filter.ts]
+- [x] [Review][Patch] Exception filter: no `headersSent` guard — an error after the response starts streaming throws `ERR_HTTP_HEADERS_SENT` inside the filter [apps/api/src/shared/filters/global-exception.filter.ts]
+- [x] [Review][Patch] Pool shutdown: `pool.end()` rejects if called twice — guard `onApplicationShutdown` with the pool `ended` flag [apps/api/src/database/database.module.ts]
+- [x] [Review][Patch] Add server-side `statement_timeout` to the Pool config — `query_timeout` is client-side only; a hung statement keeps running on the server [apps/api/src/database/database.module.ts]
+- [x] [Review][Patch] `operationIdFactory` discards the resource — as the reference implementation, a future `transactions.controller.ts#create()` would emit `create`, not the architecture-mandated `transactionsCreate` (wrong generated-client names in 1.3). Compose `<resource><Action>` from controllerKey+methodKey and rename `healthCheck()` → `check()` so the emitted id stays `healthCheck` [apps/api/src/app/openapi.ts, apps/api/src/modules/health/health.controller.ts]
+- [x] [Review][Patch] Add `.lintstagedrc` (oxfmt whitespace reformat) to the File List [story file]
+- [x] [Review][Defer] Health returns HTTP 200 with `database: 'down'` (documented AC-literal decision) — no machine-readable unhealthy signal for container healthchecks; revisit in Story 1.7 [apps/api/src/modules/health/health.service.ts] — deferred, lands with 1.7 docker healthchecks
+- [x] [Review][Defer] `db:migrate` invokes drizzle-kit's internal `bin.cjs` path (env-file loading workaround) — stable under the exact 0.31.10 pin + pnpm direct-dep layout; re-evaluate on any drizzle-kit upgrade [apps/api/package.json] — deferred, upgrade-time concern
+- [x] [Review][Defer] Error envelope exposed via `extraModels` only — no per-operation `@ApiResponse` error decoration, so the 1.3 generated client won't type error responses per endpoint; add when real failure modes land [apps/api/src/app/openapi.ts] — deferred to Story 1.5+
 
 ## Dev Notes
 
@@ -215,9 +229,10 @@ Claude Fable 5 (claude-fable-5)
 **API app (new):** `apps/api/package.json`, `apps/api/nest-cli.json`, `apps/api/tsconfig.json`, `apps/api/tsconfig.build.json`, `apps/api/vitest.config.ts`, `apps/api/drizzle.config.ts`, `apps/api/.env.example`, `apps/api/.oxlintrc.json`
 **API src (new):** `apps/api/src/main.ts`, `apps/api/src/emit-openapi.ts`, `apps/api/src/app/app.module.ts`, `apps/api/src/app/env.module.ts`, `apps/api/src/app/env.schema.ts`, `apps/api/src/app/env.schema.spec.ts`, `apps/api/src/app/openapi.ts`, `apps/api/src/database/database.module.ts`, `apps/api/src/database/database.constants.ts`, `apps/api/src/database/database.types.ts`, `apps/api/src/database/schemas/.gitkeep`, `apps/api/src/database/migrations/meta/_journal.json`, `apps/api/src/modules/health/health.module.ts`, `apps/api/src/modules/health/health.controller.ts`, `apps/api/src/modules/health/health.controller.spec.ts`, `apps/api/src/modules/health/health.service.ts`, `apps/api/src/modules/health/health.service.spec.ts`, `apps/api/src/modules/health/health.repository.ts`, `apps/api/src/modules/health/dtos/health-response.dto.ts`, `apps/api/src/shared/enums/error-codes.ts`, `apps/api/src/shared/filters/global-exception.filter.ts`, `apps/api/src/shared/filters/global-exception.filter.spec.ts`, `apps/api/src/shared/dtos/error-response.dto.ts`
 **Lint config (new/modified):** `packages/lint-config/configs/nest.json` (new), `packages/lint-config/configs/base.json` (dropped 2 inert type-aware rules), `packages/lint-config/package.json` (`./nest` export)
-**Root (modified):** `turbo.json` (globalEnv +DATABASE_URL, build outputs +openapi.json), `.gitignore` (+apps/api/openapi.json), `pnpm-workspace.yaml` (allowBuilds decisions), `pnpm-lock.yaml`
+**Root (modified):** `turbo.json` (globalEnv +DATABASE_URL, build outputs +openapi.json), `.gitignore` (+apps/api/openapi.json), `pnpm-workspace.yaml` (allowBuilds decisions), `pnpm-lock.yaml`, `.lintstagedrc` (oxfmt reformat only)
 **Story tracking (modified):** `_bmad-output/implementation-artifacts/1-2-api-foundation-health-check-database-baseline.md`, `_bmad-output/implementation-artifacts/sprint-status.yaml`, `_bmad-output/implementation-artifacts/deferred-work.md`
 
 ## Change Log
 
+- 2026-06-11: Code review complete (BMAD 3-layer: Blind Hunter, Edge Case Hunter, Acceptance Auditor) — 1 decision (resolved: per-status error codes now) + 7 patches applied (production DATABASE_URL guard, filter details preservation + array exclusion + headersSent guard, pool double-end guard + statement_timeout, `<resource><Action>` operationIdFactory with `check()` rename, File List fix), 3 deferred to deferred-work.md, 12 dismissed. 6 new specs (18 total). Magic-number constants introduced after `no-magic-numbers` was re-enabled for the api (operator edit), rule configured with `ignore: [0,1]` + array indexes. All gates green. Status → done.
 - 2026-06-10: Story 1.2 implemented — NestJS API foundation (env fail-fast, Pino console-only, D7 rails: /api/v1 versioning + health module on full layering + global exception filter with shared error codes), drizzle-kit migration pipeline proven end-to-end with scratch-table test, OpenAPI build emission + dev Swagger UI, Vitest+SWC with 12 green specs, oxlint nest config resolving the budgeted decorator friction, postgres-only docker compose. Pool crash bug found and fixed during boot proofs. Status → review.

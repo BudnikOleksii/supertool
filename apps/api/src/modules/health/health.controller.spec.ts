@@ -14,7 +14,7 @@ describe('HealthController', () => {
 
     const controller = moduleRef.get(HealthController);
 
-    await expect(controller.healthCheck()).resolves.toEqual({ status: 'ok', database: 'up' });
+    await expect(controller.check()).resolves.toEqual({ status: 'ok', database: 'up' });
     expect(check).toHaveBeenCalledTimes(1);
   });
 });

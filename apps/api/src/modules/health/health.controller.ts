@@ -12,7 +12,7 @@ export class HealthController {
   /** Liveness probe including database connectivity status. */
   @Get()
   @ApiOkResponse({ type: HealthResponseDto })
-  async healthCheck(): Promise<HealthResponseDto> {
+  async check(): Promise<HealthResponseDto> {
     return this.healthService.check();
   }
 }

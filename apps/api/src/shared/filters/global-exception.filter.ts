@@ -5,6 +5,16 @@ import { Logger } from 'nestjs-pino';
 
 import { ErrorCode } from '../enums/error-codes';
 
+const STATUS_CODE_MAP: Readonly<Record<number, ErrorCode>> = {
+  [HttpStatus.BAD_REQUEST]: ErrorCode.ValidationError,
+  [HttpStatus.UNAUTHORIZED]: ErrorCode.Unauthorized,
+  [HttpStatus.FORBIDDEN]: ErrorCode.Forbidden,
+  [HttpStatus.NOT_FOUND]: ErrorCode.NotFound,
+  [HttpStatus.CONFLICT]: ErrorCode.Conflict,
+  [HttpStatus.UNPROCESSABLE_ENTITY]: ErrorCode.UnprocessableEntity,
+  [HttpStatus.TOO_MANY_REQUESTS]: ErrorCode.TooManyRequests,
+};
+
 interface ErrorEnvelope {
   statusCode: number;
   code: ErrorCode;
@@ -13,6 +23,7 @@ interface ErrorEnvelope {
 }
 
 interface HttpResponseLike {
+  headersSent?: boolean;
   status: (code: number) => { json: (body: unknown) => void };
 }
 
@@ -35,11 +46,19 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<HttpRequestLike>();
     const envelope = this.toEnvelope(exception);
 
-    if (envelope.statusCode >= 500) {
+    if (envelope.statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
         { err: exception, method: request.method, url: request.url },
         'Unhandled exception',
       );
+    }
+
+    /*
+     * A response that already started streaming cannot be reshaped — writing
+     * would throw ERR_HTTP_HEADERS_SENT inside the filter itself.
+     */
+    if (response.headersSent === true) {
+      return;
     }
 
     response.status(envelope.statusCode).json(envelope);
@@ -79,6 +98,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     record: Record<string, unknown>,
   ): ErrorEnvelope {
     const explicitCode = this.asErrorCode(record['code']);
+    const callerDetails = this.asDetailsRecord(record['details']);
 
     // ValidationPipe puts class-validator messages into a string array.
     if (Array.isArray(record['message'])) {
@@ -86,7 +106,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         statusCode,
         code: explicitCode ?? ErrorCode.ValidationError,
         message: 'Validation failed',
-        details: { messages: record['message'] },
+        details: { ...callerDetails, messages: record['message'] },
       };
     }
 
@@ -96,9 +116,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       code: explicitCode ?? this.codeForStatus(statusCode),
       message,
     };
-    const { details } = record;
-    if (typeof details === 'object' && details !== null) {
-      envelope.details = details as Record<string, unknown>;
+    if (callerDetails !== undefined) {
+      envelope.details = callerDetails;
     }
     return envelope;
   }
@@ -110,13 +129,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return undefined;
   }
 
+  private asDetailsRecord(value: unknown): Record<string, unknown> | undefined {
+    // Arrays are typeof 'object' but would emit a malformed envelope details field.
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+    return undefined;
+  }
+
   private codeForStatus(statusCode: number): ErrorCode {
-    if (statusCode === HttpStatus.NOT_FOUND) {
-      return ErrorCode.NotFound;
-    }
-    if (statusCode === HttpStatus.BAD_REQUEST) {
-      return ErrorCode.ValidationError;
-    }
-    return ErrorCode.InternalError;
+    return STATUS_CODE_MAP[statusCode] ?? ErrorCode.InternalError;
   }
 }

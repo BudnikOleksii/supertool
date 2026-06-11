@@ -7,6 +7,8 @@ import { AppModule } from './app/app.module';
 import { parseEnv } from './app/env.schema';
 import { buildOpenApiDocument } from './app/openapi';
 
+const EXIT_FAILURE = 1;
+
 const bootstrap = async (): Promise<void> => {
   // Fail fast on invalid env before any module initializes (AC 1 — no partial boot).
   const env = parseEnv();
@@ -27,5 +29,5 @@ const bootstrap = async (): Promise<void> => {
 
 bootstrap().catch((error: unknown) => {
   process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
-  process.exit(1);
+  process.exit(EXIT_FAILURE);
 });
