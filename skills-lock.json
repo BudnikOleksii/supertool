@@ -6,6 +6,10 @@
       "sourceType": "github",
       "computedHash": "8df9b47092524833138b58682d03f2e153a242e550d1693657afdbee0cc9cdb0"
     },
+    "create-pr": {
+      "source": "homegrown (converted from .claude/commands/create-pr.md)",
+      "sourceType": "local"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",

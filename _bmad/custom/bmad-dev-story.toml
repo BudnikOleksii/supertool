@@ -1,0 +1,13 @@
+# Team override for bmad-dev-story — branch-first story workflow (supertool).
+# Merges on top of the skill's customize.toml: arrays append.
+
+[workflow]
+
+activation_steps_append = [
+  "Branch guard: run `git branch --show-current`. If on `main`, create and switch to a story branch named `TOOLS-<epic>-<story>/<brief-kebab-slug>` (e.g. `TOOLS-1-2/api-foundation-health-check`) BEFORE writing any code or story-file updates. Never commit story work to `main`.",
+]
+
+persistent_facts = [
+  "Branch naming convention: `TOOLS-<story number>/<brief description of what is being done>` — e.g. `TOOLS-1-2/api-foundation-health-check`. All story implementation happens on such a branch.",
+  "`main` only receives PR merges — the NFR2 CodeRabbit review gate and CI primarily run on pull requests. Story flow: implement on the TOOLS branch → status `review` → run code review locally → after review passes, invoke the `create-pr` skill to push and open the PR.",
+]

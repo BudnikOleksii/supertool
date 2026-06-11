@@ -54,3 +54,4 @@ pnpm type-check         # tsc (root config) + per-package type-check tasks
 - Frontend: RSC reads via `fetch-*` actions, mutations via `'use server'` actions returning discriminated `ActionState`, `revalidatePath` after mutations; URL search params carry filter/period state; react-hook-form + zod; next-intl with ICU interpolation (no string concatenation).
 - Tests co-located (`*.spec.ts` API, `*.test.ts(x)` frontend); Testcontainers integration tests in `apps/api/test/integration/`.
 - Commits: conventional commits, enforced by commitlint.
+- Branches: story/feature work happens on `TOOLS-<story number>/<brief-kebab-description>` (e.g. `TOOLS-1-2/api-foundation-health-check`) — never commit directly to `main`. `main` receives PR merges only, after local code review + CI + CodeRabbit (NFR2). Open PRs via the `create-pr` skill.
