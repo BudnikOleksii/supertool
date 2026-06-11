@@ -1,0 +1,30 @@
+{
+  "name": "@supertool/next-shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "supertool Next-specific shared code — API client factories",
+  "exports": {
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "type-check": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@supertool/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@supertool/typescript-config": "workspace:*",
+    "@types/node": "22.19.20",
+    "oxlint": "1.69.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  }
+}
