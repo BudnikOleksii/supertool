@@ -9,7 +9,6 @@
     "no-magic-numbers": ["error", { "ignore": [0, 1], "ignoreArrayIndexes": true }],
     "import/no-nodejs-modules": "off",
     "typescript/parameter-properties": "off",
-    "typescript/no-extraneous-class": ["error", { "allowWithDecorator": true }],
-    "typescript/consistent-type-imports": "off"
+    "typescript/no-extraneous-class": ["error", { "allowWithDecorator": true }]
   }
 }

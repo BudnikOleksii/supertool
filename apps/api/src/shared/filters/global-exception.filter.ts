@@ -1,6 +1,6 @@
 import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 
-import { Catch, HttpException, HttpStatus } from '@nestjs/common';
+import { Catch, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 
 import { ErrorCode } from '../enums/error-codes';
@@ -56,7 +56,7 @@ interface HttpRequestLike {
  */
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  constructor(private readonly logger: Logger) {}
+  constructor(@Inject(Logger) private readonly logger: Logger) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
