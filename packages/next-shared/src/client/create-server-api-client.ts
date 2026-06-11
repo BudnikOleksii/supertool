@@ -6,7 +6,7 @@ export interface CreateServerApiClientOptions {
 }
 
 export const createServerApiClient = ({ cookieHeader }: CreateServerApiClientOptions): Client => {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = process.env.API_URL?.trim();
 
   if (apiUrl === undefined || apiUrl === '') {
     throw new Error(

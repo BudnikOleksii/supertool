@@ -47,4 +47,10 @@ describe('createServerApiClient', () => {
 
     expect(() => createServerApiClient({ cookieHeader: COOKIE_HEADER })).toThrow('API_URL');
   });
+
+  it('throws when API_URL is whitespace only', () => {
+    vi.stubEnv('API_URL', '   ');
+
+    expect(() => createServerApiClient({ cookieHeader: COOKIE_HEADER })).toThrow('API_URL');
+  });
 });

@@ -4,7 +4,7 @@ baseline_commit: a2051e0ba30be38a3a45db28bb53b14eb9788c30
 
 # Story 1.3: OpenAPI → Generated Client Pipeline
 
-Status: review
+Status: done
 
 <!-- context-engine: exhaustive analysis of epics.md, architecture.md (D5, D7, D8, D9, patterns, tree), story 1.2 record + review findings, deferred-work.md, live repo state (api shared layer, emitted openapi.json, turbo graph, CI workflow), and @hey-api/openapi-ts 0.98.x docs verification completed 2026-06-11 -->
 
@@ -263,3 +263,9 @@ Deleted:
 ## Change Log
 
 - 2026-06-11: Story 1.3 implemented — shared + next-shared packages, openapi-ts generation pipeline with turbo ordering, CI client-drift gate, D5+D9 client factories, typed e2e health proof. SDK shape changed to service classes (byTags/`{{name}}ApiService`) per user decision during implementation; lint-staged moved to .lintstagedrc.mjs for generated-dir byte-exactness. Status → review.
+
+## Review Findings
+
+Code review 2026-06-11 (gates all green: lint, fmt:check, type-check, stylelint, test 25/25, type-check; AC1–AC5 all met). Three review layers run inline (Blind Hunter, Edge Case Hunter, Acceptance Auditor).
+
+- [x] [Review][Patch] `createServerApiClient` fail-fast guard misses whitespace-only `API_URL` [packages/next-shared/src/client/create-server-api-client.ts:10] — guard is `apiUrl === undefined || apiUrl === ''`; `API_URL="   "` passes it, becomes the `baseUrl`, and requests fail at dispatch with an opaque fetch error instead of the intended clear "API_URL is not set" message. FIXED 2026-06-11: read `process.env.API_URL?.trim()` so whitespace-only collapses to `''` and hits the clear throw; added regression test `throws when API_URL is whitespace only`.
