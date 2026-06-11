@@ -117,6 +117,12 @@ Generate code, corrections, and refactorings that comply with the following guid
   - Utilities
   - Shared business logic
 
+### Dependency Injection
+
+- Every constructor injection uses an explicit `@Inject(ClassNameOrToken)` decorator — never rely on `emitDecoratorMetadata` alone.
+- Never use `import type` for an injectable (service, repository, Logger): tsc resurrects type-only imports referenced in decorator metadata, but SWC under Vitest erases them and emits `Object` paramtypes — DI then fails in specs and Testcontainers integration tests. With explicit `@Inject`, the import is value-position usage, `typescript/consistent-type-imports` stays satisfied, and a regression to `import type` becomes a compile error.
+- Non-class providers (drizzle instance, env) use `Symbol` tokens from a `*.constants.ts` file (`DRIZZLE`, `PG_POOL`, `ENV`); their TypeScript types may be `import type` since the token, not the type, drives resolution.
+
 ## Architecture Principles
 
 - Organize code by feature, not by file type
