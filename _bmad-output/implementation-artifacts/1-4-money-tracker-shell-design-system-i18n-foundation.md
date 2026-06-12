@@ -256,6 +256,7 @@ New:
 - apps/money-tracker/src/app/[locale]/layout.tsx
 - apps/money-tracker/src/app/[locale]/page.tsx
 - apps/money-tracker/src/env.ts
+- apps/money-tracker/src/global.d.ts
 - apps/money-tracker/src/i18n/request.ts
 - apps/money-tracker/src/proxy.ts
 - apps/money-tracker/tsconfig.json
@@ -352,6 +353,8 @@ Code review 2026-06-12 (bmad-code-review: Blind Hunter + Edge Case Hunter + Acce
 Dismissed (11): missing `messages` prop on `NextIntlClientProvider` (false positive — next-intl v4 inherits messages from `getRequestConfig` when rendered server-side, verified vs docs); `env.ts` throws on invalid `API_URL` (intentional fail-fast config validation); NavigationLink object-form `href` (registry paths are strings — unreachable); LocaleSwitcher dead defensive guard (type-narrowing only — unreachable); parity array-flatten (messages are not arrays — unreachable); Dialog empty-string title (type contract requires a string; caller misuse); proxy matcher excludes dotted paths (documented standard Next/next-intl middleware matcher); `shell.nav.label` not enumerated in Task 5 (benign correct addition, present in both locales); `page.tsx` `use()` vs `await` for params (compiles & works, cosmetic); two Blind Hunter items self-dismissed.
 
 ## Change Log
+
+- 2026-06-12 (CI fix, post-review): PR #4 `type-check` job failed (TS2882/TS2307 — `*.scss`/`*.module.scss` declarations unresolved in `apps/money-tracker`). Root cause: under the source-consumption model `money-tracker` compiles `shell`/`ui` `.tsx` directly, but the SCSS ambient declarations were only supplied locally by Next's gitignored `next-env.d.ts` (`/// <reference types="next" />`); CI lacks that file and the `type-check` job does not run `next build` first. Fix: added `apps/money-tracker/src/global.d.ts` declaring `*.module.scss` + `*.scss`, making type-check deterministic and independent of Next's generated file (matches the per-package `global.d.ts` pattern in `ui`/`shell`/`storybook`). The earlier local "all gates green" was a turbo cache hit replaying stale logs; re-verified with `turbo run type-check --force` (8/8), `lint --force` (7/7), `test --force` (5/5 packages).
 
 - 2026-06-12 (post-implementation, user-requested convention change): component files and their co-located `.module.scss`/`.test.tsx`/`.stories.tsx` renamed kebab-case → PascalCase (`Button.tsx`, `AppShell.module.scss`, `Button.stories.tsx`, …; 26 files via `git mv`, dirs stay kebab-case); `unicorn/filename-case` now allows pascalCase alongside kebabCase; naming patterns updated in CLAUDE.md and architecture.md; `.claude/rules/react.md`/`styles.md` examples restored to PascalCase and the NavigationLink path reference updated. All root gates re-verified green.
 
