@@ -1,7 +1,6 @@
 # Merged CI (ED3): frontend + backend quality gates in one workflow.
 # Job slots reserved for later stories:
 #   - i18n-parity (Story 1.4 — locale key parity, FR20)
-#   - client-drift (Story 1.3 — OpenAPI generated-client drift gate, D8)
 name: CI
 
 on:
@@ -127,3 +126,23 @@ jobs:
       - name: Run tests
         run: |
           pnpm test
+
+  client-drift:
+    needs: [init-env]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up environment
+        uses: ./.github/actions/setup-pnpm-node-deps
+        with:
+          node_version: ${{ needs.init-env.outputs.node_version }}
+
+      - name: Regenerate API client
+        run: |
+          pnpm turbo run generate:client
+
+      - name: Fail on generated-client drift
+        run: |
+          test -z "$(git status --porcelain -- packages/shared/src/generated)"

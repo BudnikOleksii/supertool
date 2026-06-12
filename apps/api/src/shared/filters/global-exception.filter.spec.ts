@@ -10,7 +10,8 @@ import {
 } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ErrorCode } from '../enums/error-codes';
+import { ErrorCode } from '@supertool/shared/constants/error-codes';
+
 import { GlobalExceptionFilter } from './global-exception.filter';
 
 const createFilter = ({ headersSent = false }: { headersSent?: boolean } = {}) => {

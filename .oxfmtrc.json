@@ -33,6 +33,7 @@
     "example/**",
     "docs/**",
     ".claude/**",
-    ".agents/**"
+    ".agents/**",
+    "packages/shared/src/generated/**"
   ]
 }

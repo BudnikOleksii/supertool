@@ -16,6 +16,7 @@
     ".agents/**",
     "_bmad/**",
     "_bmad-output/**",
-    "example/**"
+    "example/**",
+    "packages/shared/src/generated/**"
   ]
 }

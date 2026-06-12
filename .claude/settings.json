@@ -39,7 +39,8 @@
       "Bash(npm view:*)",
       "Bash(curl -s http://localhost:3001/api/v1/health)",
       "mcp__claude_ai_Notion__notion-fetch",
-      "mcp__context7__query-docs"
+      "mcp__context7__query-docs",
+      "mcp__context7__resolve-library-id"
     ],
     "deny": [
       "Read(**/.next/**)",

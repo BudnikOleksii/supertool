@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { ErrorCode } from '../enums/error-codes';
+import { ErrorCode } from '@supertool/shared/constants/error-codes';
 
 export class ErrorResponseDto {
   @ApiProperty({ example: 404 })
