@@ -110,6 +110,12 @@
   }
 }
 
+.wrapperDisabled {
+  cursor: not-allowed;
+
+  opacity: 0.5;
+}
+
 .adornment {
   flex-shrink: 0;
 

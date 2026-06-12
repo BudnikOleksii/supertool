@@ -19,14 +19,21 @@ export const Input: FC<InputProps> = ({
 }) => {
   if (startAdornment) {
     return (
-      <div className={cn(styles.wrapper, error && styles.wrapperError)}>
+      <div
+        className={cn(
+          styles.wrapper,
+          error && styles.wrapperError,
+          props.disabled && styles.wrapperDisabled,
+          className,
+        )}
+      >
         <span className={styles.adornment}>{startAdornment}</span>
         <input
           ref={ref}
           type={type}
           data-slot="input"
           aria-invalid={error || undefined}
-          className={cn(styles.adornmentInput, className)}
+          className={styles.adornmentInput}
           {...props}
         />
       </div>

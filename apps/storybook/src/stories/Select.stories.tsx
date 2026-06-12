@@ -52,6 +52,7 @@ export const Error: Story = {
     ariaLabel: 'Category',
     error: true,
   },
+  render: (args) => <ControlledSelect {...args} />,
 };
 
 export const Disabled: Story = {
