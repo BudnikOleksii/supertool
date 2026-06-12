@@ -37,7 +37,29 @@ Review PR comments — fix valid issues, reply to non-actionable ones, commit an
    - Run `pnpm type-check`, `pnpm lint`, `pnpm stylelint` to verify
    - If checks fail, fix until they pass
 
-4. **Reply to all comments on GitHub**
+4. **Present summary table and ask for approval**
+
+   Display a markdown table of all planned actions and **stop**:
+
+   ```
+   | # | File | Comment | Planned action |
+   |---|------|---------|----------------|
+   | 1 | path/to/file.ts:42 | Brief description | **Fix.** What will be changed |
+   | 2 | path/to/other.ts:15 | Brief description | **Reply.** Why it follows existing pattern |
+   ```
+
+   Ask: "Approve these changes? (yes / adjust before proceeding)"
+
+   Do not apply any fixes, reply to any comments, or commit anything until the user approves.
+
+5. **Apply fixes** (after approval)
+
+   For each valid comment:
+   - Make the code change
+   - Run `pnpm type-check`, `pnpm lint`, `pnpm stylelint` to verify
+   - If checks fail, fix until they pass
+
+6. **Reply to all comments on GitHub**
 
    For each comment, reply via:
 
@@ -48,14 +70,14 @@ Review PR comments — fix valid issues, reply to non-actionable ones, commit an
    - **Fixed comments**: Briefly describe what was changed
    - **Not applicable comments**: Explain which existing code uses the same pattern and why changing only this instance would create inconsistency
 
-5. **Commit and push**
+7. **Commit and push**
 
    If any fixes were made:
    - Stage all changed files
    - Commit with message: `fix: address PR review — <brief summary of changes>`
    - Push to the current branch
 
-6. **Return summary table**
+8. **Return final summary table**
 
    Display a markdown table:
 
