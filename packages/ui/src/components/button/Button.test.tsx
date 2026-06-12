@@ -7,7 +7,7 @@ describe('Button', () => {
   it('renders its children inside a button role', () => {
     render(<Button>Save</Button>);
 
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDefined();
+    screen.getByRole('button', { name: 'Save' });
   });
 
   it('defaults to type button', () => {

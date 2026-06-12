@@ -47,6 +47,10 @@ const flattenKeyList = (value, prefix) => {
 const readKeySet = (filePath) => {
   const parsed = JSON.parse(readFileSync(filePath, 'utf8'));
 
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new Error(`${filePath}: locale files must contain a top-level JSON object`);
+  }
+
   return new Set(flattenKeyList(parsed, ''));
 };
 

@@ -1,19 +1,24 @@
 export const withCache = <TArgs extends unknown[], TResult>(
   fn: (...args: TArgs) => Promise<TResult>,
 ): ((...args: TArgs) => Promise<TResult>) => {
-  const cache = new Map<string, TResult>();
+  const cache = new Map<string, Promise<TResult>>();
 
-  return async (...args: TArgs): Promise<TResult> => {
+  return (...args: TArgs): Promise<TResult> => {
     const key = JSON.stringify(args);
+
     const cached = cache.get(key);
 
-    if (cached !== undefined) {
+    if (cached) {
       return cached;
     }
 
-    const result = await fn(...args);
-    cache.set(key, result);
+    const inFlight = fn(...args).catch((error) => {
+      cache.delete(key);
+      throw error;
+    });
 
-    return result;
+    cache.set(key, inFlight);
+
+    return inFlight;
   };
 };
