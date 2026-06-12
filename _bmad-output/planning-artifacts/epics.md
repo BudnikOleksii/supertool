@@ -387,6 +387,80 @@ So that every feature that follows builds on polished, themeable UI instead of c
 **When** they are added to `packages/ui` following the reference atoms,
 **Then** they ship with stories and smoke tests like the existing primitives (NFR1).
 
+### Story 1.9: Design System Structure & Visual QA Baseline
+
+> Added 2026-06-12 (sprint change): Story 1.8 repaired token usage and theming but its verification was mechanical (tests, axe, attribute checks) — nobody **looked** at the rendered components, and Select shipped visibly broken again. The reference also organizes `packages/ui` into `atoms/` and `molecules/`, which supertool never adopted. This story restructures the package, fixes the diagnosed defects, and establishes the screenshot-based visual QA protocol every later design-system story must pass. Scheduled BEFORE 1.5.
+
+As Oleksii,
+I want `packages/ui` restructured into atoms/molecules with every existing component visually verified against the reference,
+So that the design system has the reference's shape and a repeatable visual QA gate before more components pile on.
+
+**Acceptance Criteria:**
+
+**Given** `packages/ui/src/components`,
+**When** the story completes,
+**Then** components live in `components/atoms/{button,input,label,select,typography}` and `components/molecules/{dialog,table}` mirroring `example/track-my-life/packages/ui/src/components` (PascalCase filenames kept), every import across shell/apps/stories is updated, and no compatibility re-exports remain (no barrels).
+
+**Given** the Select defects diagnosed 2026-06-12,
+**When** the Select story renders with the dropdown OPEN,
+**Then** items span the full content panel (root cause: `.popperViewport` pins `width: var(--radix-select-trigger-width)` — 75px — while the panel is `min-width: 8rem` — 128px; the fix moves trigger-width matching to a `min-width` on the content so items fill it), the check indicator sits at the panel's right edge, and the highlight pill covers the full item row — verified by screenshot in both themes. (The reference carries the same latent bug masked by full-width usage — documented improvement, like the 1.8 `color-mix` focus rings.)
+
+**Given** Storybook,
+**When** any story renders,
+**Then** Poppins is actually loaded in the Storybook preview (today it silently falls back to the system font, which masked every typography judgment; the reference does not load it either — documented improvement), and the docs/canvas render the true type system.
+
+**Given** EVERY component in `packages/ui` (the five 1.8 primitives plus typography/label),
+**When** the story completes,
+**Then** the Dev Agent Record contains side-by-side visual evidence per component: Storybook screenshots in light AND dark, including OPEN/interactive states (select expanded, dialog open), compared against the reference rendering, with every divergence either fixed or recorded as a documented API divergence. A story claiming "displays correctly" without screenshots in the record is incomplete.
+
+### Story 1.10: Design System Atom Parity
+
+> Added 2026-06-12 (sprint change): the reference atom catalog is 15 components; supertool has 5. This story closes the atom gap. Runs after 1.9 (structure + QA protocol in place).
+
+As Oleksii,
+I want every reference atom available in `packages/ui/src/components/atoms`,
+So that feature stories compose existing primitives instead of inventing one-off UI.
+
+**Acceptance Criteria:**
+
+**Given** the reference atoms missing from supertool (`alert`, `aspect-ratio`, `avatar`, `badge`, `checkbox`, `radio-group`, `separator`, `skeleton`, `time-picker`, `underline-link`),
+**When** each is added under `components/atoms/` following its `example/track-my-life/packages/ui/src/components/atoms/<name>/` counterpart (adapted, never copied — ED1),
+**Then** each ships with its `.module.scss` (token-only values), a co-located smoke test, and a CSF3 story showing all variants (NFR1).
+
+**Given** the new Radix primitives these atoms need (`@radix-ui/react-checkbox`, `@radix-ui/react-radio-group`, `@radix-ui/react-separator`, `@radix-ui/react-aspect-ratio`, `@radix-ui/react-avatar`),
+**When** they are added to `packages/ui` dependencies,
+**Then** they are exact-pinned, sanctioned by this story, and recorded in the Dev Agent Record (architecture.md new-dependency rule).
+
+**Given** every new atom,
+**When** the story completes,
+**Then** the 1.9 visual QA protocol has been executed for it (light + dark screenshots incl. interactive states, reference comparison in the Dev Agent Record) and the Storybook a11y addon passes in both themes.
+
+### Story 1.11: Design System Molecule Parity
+
+> Added 2026-06-12 (sprint change): closes the molecule gap against the reference (`accordion`, `alert-dialog`, `breadcrumb`, `card`, `combobox`, `dropdown-menu`, `error-state`, `field`, `pagination`, `toaster`). Runs after 1.10; `field`/`alert-dialog` feed the 1.5 auth forms and the 2.x delete confirmations.
+
+As Oleksii,
+I want the reference molecules available in `packages/ui/src/components/molecules`,
+So that forms, confirmations, navigation, and feedback UI in feature stories are composed from the design system.
+
+**Acceptance Criteria:**
+
+**Given** the reference molecules missing from supertool (`accordion`, `alert-dialog`, `breadcrumb`, `card`, `combobox`, `dropdown-menu`, `error-state`, `field`, `pagination`, `toaster`),
+**When** each is added under `components/molecules/` following its reference counterpart (adapted, never copied — ED1),
+**Then** each ships with token-only styles, a co-located smoke test, and a CSF3 story (NFR1), and the existing `Dialog` keeps its API alongside the new reference-style `alert-dialog` (documented divergence from 1.8 stands).
+
+**Given** the new dependencies these molecules need (`@radix-ui/react-accordion`, `@radix-ui/react-alert-dialog`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-popover` for combobox, `sonner` for toaster),
+**When** they are added to `packages/ui` dependencies,
+**Then** they are exact-pinned, sanctioned by this story, and recorded in the Dev Agent Record.
+
+**Given** the reference toaster imports `next-themes` inside the ui package,
+**When** the supertool toaster is implemented,
+**Then** `packages/ui` stays framework-pure — the theme reaches the toaster via prop from the shell (documented divergence; architecture boundary holds).
+
+**Given** every new molecule,
+**When** the story completes,
+**Then** the 1.9 visual QA protocol has been executed for it (light + dark screenshots incl. OPEN states — combobox expanded, dropdown open, toast visible — reference comparison in the Dev Agent Record) and the Storybook a11y addon passes in both themes.
+
 ## Epic 2: Transactions & Categories
 
 A user can record and browse real money data daily: the idempotent seed lands first so every subsequent story works against the 1,880 real records, then fast entry, month-windowed browsing, editing, filtering, and full hierarchical category management.
