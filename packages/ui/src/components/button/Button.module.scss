@@ -1,0 +1,108 @@
+@use "../../styles/mixins";
+
+.button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+
+  font-family: var(--default-font-family);
+  font-size: var(--font-body-m-size);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  line-height: var(--font-body-m-line-height);
+  white-space: nowrap;
+
+  cursor: pointer;
+  outline: none;
+
+  border: none;
+  border-radius: var(--radius-md);
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.5;
+  }
+}
+
+.primary {
+  color: var(--on-primary);
+
+  background-color: var(--primary);
+
+  @include mixins.hover {
+    color: var(--on-primary-container);
+
+    background-color: var(--primary-container);
+  }
+
+  &:active {
+    background-color: var(--primary-container);
+  }
+}
+
+.secondary {
+  color: var(--on-secondary);
+
+  background-color: var(--secondary);
+
+  @include mixins.hover {
+    color: var(--on-secondary-container);
+
+    background-color: var(--secondary-container);
+  }
+
+  &:active {
+    background-color: var(--secondary-container);
+  }
+}
+
+.ghost {
+  color: var(--on-surface);
+
+  background-color: transparent;
+
+  @include mixins.hover {
+    background-color: var(--surface-container);
+  }
+
+  &:active {
+    background-color: var(--surface-container-high);
+  }
+}
+
+.sm {
+  height: 32px;
+
+  padding: 0 var(--spacing-3);
+
+  font-size: var(--font-body-s-size);
+}
+
+.md {
+  height: 40px;
+
+  padding: 0 var(--spacing-4);
+}
+
+.lg {
+  height: 48px;
+
+  padding: 0 var(--spacing-6);
+
+  font-size: var(--font-body-l-size);
+}

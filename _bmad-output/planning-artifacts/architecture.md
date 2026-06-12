@@ -240,8 +240,8 @@ packages/
 - OpenAPI `operationId`: `<resource><Action>` camelCase — `transactionsCreate`, `transactionsFindAll` (drives generated client method names)
 
 **Code:**
-- Files & directories: **kebab-case always** — `transaction-form.tsx`, `format-category-display-name.ts`; no PascalCase filenames anywhere
-- Components: PascalCase export, one component per kebab-case directory — `components/transaction-form/` exporting `TransactionForm`
+- Files & directories: **kebab-case** — `format-category-display-name.ts`; exception: component files and their co-located `.module.scss`/`.test.tsx`/`.stories.tsx` are PascalCase after the component — `TransactionForm.tsx`, `TransactionForm.module.scss`
+- Components: PascalCase export AND PascalCase file, one component per kebab-case directory — `components/transaction-form/TransactionForm.tsx` exporting `TransactionForm`
 - Backend modules: `<module>.module.ts` / `.controller.ts` / `.service.ts` / `.repository.ts` / `.types.ts` / `.constants.ts`, `dtos/` subfolder
 - Functions/variables: camelCase; constants UPPER_SNAKE_CASE; types/interfaces PascalCase, no `I` prefix
 - Server actions: verb-first kebab-case files — `create-transaction.ts`; read functions `fetch-*` (plain async), mutations `'use server'`

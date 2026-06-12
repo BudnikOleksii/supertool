@@ -1,0 +1,159 @@
+/*
+* Main sources:
+* - Reset.css - https://gist.github.com/DavidWells/18e73022e723037a50d6
+* - modern-normalize v3.0.1 | MIT License | https://github.com/sindresorhus/modern-normalize
+*/
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.15;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family:
+    var(--default-font-family),
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  font-size: var(--font-body-m-size, 14px);
+  line-height: var(--font-body-m-line-height, 20px);
+  color: var(--on-surface, #3d3d3d);
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+figure,
+dl,
+dd,
+ul,
+ol,
+pre,
+hr,
+fieldset {
+  margin: 0;
+}
+
+ul,
+ol,
+fieldset {
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+img,
+picture,
+video,
+canvas {
+  display: block;
+
+  max-width: 100%;
+}
+
+a {
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid #005fcc;
+  outline-offset: 2px;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+b,
+strong {
+  font-weight: 700;
+}
+
+table {
+  border-color: currentcolor;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  margin: 0;
+  padding: 0;
+
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+}
+
+fieldset {
+  border: none;
+}
+
+button {
+  border: none;
+}
+
+::placeholder {
+  color: inherit;
+
+  opacity: 1;
+}
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  appearance: auto;
+  cursor: pointer;
+}
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+[type="search"] {
+  appearance: textfield;
+  outline-offset: -2px;
+}
+
+::-webkit-search-decoration {
+  appearance: none;
+}
+
+::-webkit-file-upload-button {
+  font: inherit;
+
+  appearance: auto;
+}

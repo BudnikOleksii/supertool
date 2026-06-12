@@ -17,6 +17,7 @@
     "_bmad/**",
     "_bmad-output/**",
     "example/**",
-    "packages/shared/src/generated/**"
+    "packages/shared/src/generated/**",
+    "**/*.mjs"
   ]
 }

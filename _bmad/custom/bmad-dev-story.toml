@@ -10,4 +10,5 @@ activation_steps_append = [
 persistent_facts = [
   "Branch naming convention: `TOOLS-<story number>/<brief description of what is being done>` — e.g. `TOOLS-1-2/api-foundation-health-check`. All story implementation happens on such a branch.",
   "`main` only receives PR merges — the NFR2 CodeRabbit review gate and CI primarily run on pull requests. Story flow: implement on the TOOLS branch → status `review` → run code review locally → after review passes, invoke the `create-pr` skill to push and open the PR.",
+  "Reference-first implementation: before implementing each task, fully read the `example/track-my-life` files the story cites for it. When a story task is silent on references, proactively look up the counterpart in `example/track-my-life` (components in `packages/ui/src/components/`, i18n in `apps/money-tracker/src/i18n/` + `messages/`, styles in `packages/ui/src/styles/`) and follow its pattern. The example is USED AS REFERENCE for patterns and code style, adapted to supertool conventions — never import from or literally copy `example/` code (ED1).",
 ]

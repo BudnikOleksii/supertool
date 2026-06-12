@@ -1,6 +1,4 @@
 # Merged CI (ED3): frontend + backend quality gates in one workflow.
-# Job slots reserved for later stories:
-#   - i18n-parity (Story 1.4 — locale key parity, FR20)
 name: CI
 
 on:
@@ -126,6 +124,22 @@ jobs:
       - name: Run tests
         run: |
           pnpm test
+
+  i18n-parity:
+    needs: [init-env]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up environment
+        uses: ./.github/actions/setup-pnpm-node-deps
+        with:
+          node_version: ${{ needs.init-env.outputs.node_version }}
+
+      - name: Run i18n key-parity check
+        run: |
+          pnpm i18n:parity
 
   client-drift:
     needs: [init-env]

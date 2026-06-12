@@ -1,0 +1,14 @@
+{
+  "label": "Tools",
+  "tools": {
+    "moneyTracker": "Money Tracker"
+  },
+  "userMenu": {
+    "label": "Account"
+  },
+  "localeSwitcher": {
+    "label": "Language",
+    "en": "English",
+    "uk": "Ukrainian"
+  }
+}

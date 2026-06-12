@@ -27,8 +27,10 @@ paths:
 
 ## React Conventions
 
+- Type every component as `FC<Props>`: `export const Button: FC<ButtonProps> = ({ ... }) => ...` — never bare `(props: ButtonProps)` parameter typing. Use `PropsWithChildren` for components accepting children.
+- Before building a component or feature, check `example/track-my-life` for its counterpart and use it as the pattern reference (adapted to supertool conventions — never copy or import from `example/`).
 - Use all simple UI components (Typography, Button, Input, etc.) from `packages/ui`.
-- Use `NavigationLink` from `packages/next-shared/src/i18n/navigation/navigation-link.tsx` instead of Next.js default `Link` for navigation links that need active state tracking.
+- Use `NavigationLink` from `packages/next-shared/src/i18n/navigation/NavigationLink.tsx` instead of Next.js default `Link` for navigation links that need active state tracking.
 - Use `redirect`, `usePathname`, `useRouter` from `packages/next-shared/src/i18n/navigation/navigation.ts` instead of Next.js default `next/link` and `next/navigation` to ensure proper i18n routing.
 - Use the `cn` utility from `packages/ui/src/lib/utils.ts` for conditional class composition instead of ternary operators or string concatenation.
 
@@ -63,7 +65,7 @@ const searchParams = await props.searchParams;
 
 ```text
 my-component/
-├── MyComponent.tsx
+├── MyComponent.tsx       # PascalCase component file exporting `MyComponent`
 ├── types.ts              # Shared types (optional)
 ├── constants.ts          # Component constants (optional)
 ├── hooks/                # Component-specific hooks (optional)

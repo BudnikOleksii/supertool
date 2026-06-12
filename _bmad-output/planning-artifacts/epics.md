@@ -361,6 +361,32 @@ So that the whole stack runs locally without ceremony (NFR3).
 **When** network traffic is inspected,
 **Then** no external calls leave the environment — telemetry disabled everywhere (NFR4).
 
+### Story 1.8: Design System Repair & Theming
+
+> Added 2026-06-12 (sprint change): Story 1.4 shipped the ui package with visually broken/incomplete primitives; this story repairs the design system against the `example/track-my-life` reference and brings in runtime theming. Scheduled BEFORE 1.5 — the auth widgets build on these primitives.
+
+As Oleksii,
+I want the design-system primitives to render correctly on the generated token system with light/dark theming,
+So that every feature that follows builds on polished, themeable UI instead of compounding visual debt.
+
+**Acceptance Criteria:**
+
+**Given** the `packages/ui` primitives (button, input, select, dialog, table),
+**When** each renders in Storybook and in the money-tracker shell,
+**Then** it displays correctly and consistently on the M3 token system (`tokens/{palette,theme,metrics,shadows,fonts}.scss`), with the visual defects introduced in 1.4 identified and fixed — `example/track-my-life/packages/ui` is the reference for markup, styling, and component APIs (used as reference, never copied).
+
+**Given** the app shell,
+**When** the user switches theme (light/dark/system),
+**Then** `next-themes` drives the `[data-theme]` attribute (new sanctioned dependency, exact pin), the choice persists across reloads, and the hardcoded `data-theme="light"` in the locale layout is gone — theme switcher control in the shell header, localized in both locales.
+
+**Given** Storybook,
+**When** stories render,
+**Then** a theme toolbar switches every story between light and dark, and the a11y addon passes for both themes.
+
+**Given** the primitives the upcoming auth forms need (typography, label),
+**When** they are added to `packages/ui` following the reference atoms,
+**Then** they ship with stories and smoke tests like the existing primitives (NFR1).
+
 ## Epic 2: Transactions & Categories
 
 A user can record and browse real money data daily: the idempotent seed lands first so every subsequent story works against the 1,880 real records, then fast entry, month-windowed browsing, editing, filtering, and full hierarchical category management.

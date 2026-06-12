@@ -2,16 +2,9 @@
   "name": "@supertool/next-shared",
   "version": "0.0.0",
   "private": true,
-  "description": "supertool Next-specific shared code — API client factories",
-  "exports": {
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "default": "./dist/*.js"
-    }
-  },
+  "description": "supertool Next-specific shared code — API client factories, i18n routing",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "type-check": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json",
+    "type-check": "tsc --noEmit -p tsconfig.json",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "test": "vitest run",
@@ -23,8 +16,19 @@
   "devDependencies": {
     "@supertool/typescript-config": "workspace:*",
     "@types/node": "22.19.20",
+    "@types/react": "19.2.17",
+    "next": "16.2.7",
+    "next-intl": "4.13.0",
     "oxlint": "1.69.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "typescript": "6.0.3",
     "vitest": "4.1.8"
+  },
+  "peerDependencies": {
+    "next": "16.2.7",
+    "next-intl": "4.13.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
   }
 }

@@ -4,6 +4,7 @@
   "globalEnv": ["NODE_ENV", "PORT", "HOST", "DATABASE_URL", "API_URL"],
   "tasks": {
     "dev": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },

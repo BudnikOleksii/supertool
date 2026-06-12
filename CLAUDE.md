@@ -47,7 +47,7 @@ pnpm type-check         # tsc (root config) + per-package type-check tasks
 
 ## Conventions
 
-- Files/dirs: kebab-case always; components export PascalCase from kebab-case dirs.
+- Files/dirs: kebab-case, except component files and their co-located `.module.scss`/`.test.tsx`/`.stories.tsx`, which are PascalCase after the component (`components/app-shell/AppShell.tsx` exporting `AppShell`); dirs stay kebab-case.
 - Do NOT leave comments — write self-documenting code; names describe what the code does. Tracked work goes into story files/epics, never code comments.
 - NestJS DI: explicit `@Inject(ClassName)` on every constructor param; never `import type` an injectable — tsc resurrects type-only imports for decorator metadata but SWC under Vitest does not, so DI breaks in tests (`typescript/consistent-type-imports` stays enabled).
 - DB: snake_case tables/columns, Drizzle camelCase mapping; UUIDv7 app-side PKs; one schema file per table in `apps/api/src/database/schemas/`.
