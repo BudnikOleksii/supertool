@@ -25,7 +25,6 @@
       "Bash(git stash *)",
       "Bash(git checkout:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)",
       "Bash(cp:*)",
       "Bash(head:*)",
       "Bash(grep:*)",

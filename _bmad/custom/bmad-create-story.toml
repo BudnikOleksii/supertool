@@ -1,0 +1,9 @@
+# Team override for bmad-create-story — reference-first story authoring (supertool).
+# Merges on top of the skill's customize.toml: arrays append.
+
+[workflow]
+
+persistent_facts = [
+  "Reference repo: `example/track-my-life` (git-ignored, reference-only — ED1). It is the binding source for frontend patterns and code style: component typing (`Component: FC<Props>`), i18n namespace-file structure (`messages/{locale}/{namespace}.json` + `I18N_NAMESPACE` constants + `getMessagesByLocale` loader), the M3 design-token system (`packages/ui/src/styles/tokens/`), SCSS conventions, and package layout. Patterns are USED AS REFERENCE and adapted to supertool conventions (@supertool scope, PascalCase component filenames, `translate` not `t`) — never copied or imported literally.",
+  "Every story task that touches frontend code, i18n, styling, or package/module structure MUST cite its concrete counterpart in `example/track-my-life` by exact file or directory path (e.g. `example/track-my-life/packages/ui/src/components/atoms/button/button.tsx`) so the developer studies the reference pattern before implementing. When no counterpart exists, the task must state that explicitly ('no reference counterpart — new ground'). Add a 'Reference patterns' subsection to Dev Notes collecting these citations.",
+]
