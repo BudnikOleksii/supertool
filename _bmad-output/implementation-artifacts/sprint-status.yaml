@@ -49,7 +49,7 @@ development_status:
   1-3-openapi-generated-client-pipeline: done
   1-4-money-tracker-shell-design-system-i18n-foundation: done
   # 1-8 runs before 1-5: auth widgets build on the repaired design system
-  1-8-design-system-repair-theming: review
+  1-8-design-system-repair-theming: done
   # 1-9 → 1-10 → 1-11 run before 1-5 (sprint change 2026-06-12): atoms/molecules
   # restructure, screenshot-based visual QA gate, and full reference component
   # parity — auth widgets (1-5) compose field/label/checkbox/alert-dialog

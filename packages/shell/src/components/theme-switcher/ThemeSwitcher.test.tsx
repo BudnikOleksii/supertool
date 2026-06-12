@@ -4,10 +4,13 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ThemeSwitcher } from './ThemeSwitcher';
 
-const { setThemeMock } = vi.hoisted(() => ({ setThemeMock: vi.fn() }));
+const { setThemeMock, themeState } = vi.hoisted(() => ({
+  setThemeMock: vi.fn(),
+  themeState: { current: 'light' },
+}));
 
 vi.mock('next-themes', () => ({
-  useTheme: () => ({ theme: 'light', setTheme: setThemeMock }),
+  useTheme: () => ({ theme: themeState.current, setTheme: setThemeMock }),
 }));
 
 const TEST_MESSAGES = {
@@ -32,6 +35,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   setThemeMock.mockClear();
+  themeState.current = 'light';
 });
 
 describe('ThemeSwitcher', () => {
@@ -48,6 +52,14 @@ describe('ThemeSwitcher', () => {
     fireEvent.click(screen.getByRole('option', { name: 'Dark' }));
 
     expect(setThemeMock).toHaveBeenCalledWith('dark');
+  });
+
+  it('falls back to the system option when the stored theme is not a known option', () => {
+    themeState.current = 'neon';
+
+    renderThemeSwitcher();
+
+    expect(screen.getByRole('combobox', { name: 'Theme' }).textContent).toContain('System');
   });
 
   it('offers the system preference option', () => {

@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Select } from '@supertool/ui/src/components/select/Select';
 
 import { checkIsThemeOption, THEME_OPTION, THEME_OPTION_LIST } from './constants';
+import styles from './ThemeSwitcher.module.scss';
 
 export const ThemeSwitcher: FC = () => {
   const translate = useTranslations('navigation.themeSwitcher');
@@ -18,10 +19,6 @@ export const ThemeSwitcher: FC = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  if (!mounted) {
-    return null;
-  }
 
   const handleThemeChange = (value: string) => {
     if (!checkIsThemeOption(value)) {
@@ -36,9 +33,24 @@ export const ThemeSwitcher: FC = () => {
     label: translate(themeOption),
   }));
 
+  if (!mounted) {
+    return (
+      <span className={styles.placeholder}>
+        <Select
+          value={THEME_OPTION.System}
+          onValueChange={handleThemeChange}
+          optionList={optionList}
+          ariaLabel={translate('label')}
+        />
+      </span>
+    );
+  }
+
+  const selectedTheme = theme && checkIsThemeOption(theme) ? theme : THEME_OPTION.System;
+
   return (
     <Select
-      value={theme ?? THEME_OPTION.System}
+      value={selectedTheme}
       onValueChange={handleThemeChange}
       optionList={optionList}
       ariaLabel={translate('label')}

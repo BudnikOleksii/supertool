@@ -4,7 +4,7 @@ baseline_commit: 7cbf632886be649731f644c4d99a3089ac6f657c
 
 # Story 1.8: Design System Repair & Theming
 
-Status: review
+Status: done
 
 <!-- context-engine: exhaustive analysis of epics.md (sprint-change story added 2026-06-12), architecture.md (boundaries, patterns, version table, new-dependency rule), story 1.4 record + review findings + change log, live repo survey (packages/ui, shell, storybook, money-tracker layout/i18n, turbo/CI), full example/track-my-life reference survey (tokens, atoms, next-themes mounting, storybook theme toolbar), npm verification of next-themes 0.4.6 + @storybook/addon-themes 10.4.4 completed 2026-06-12 -->
 
@@ -56,6 +56,16 @@ so that every feature that follows builds on polished, themeable UI instead of c
   - [x] Drift gate untouched by construction (frontend-only story — no API/DTO change): `pnpm turbo run generate:client` leaves git status clean; `openapi.json` byte-identical
   - [x] Hygiene greps: no `^`/`~` in changed package.json files; nothing imported from `example/`; no hand-written `fetch`; no literal hex/rgb colors left in `packages/ui/src/components/**/*.module.scss` (grep for `#` and `rgb(` — token files are the only sanctioned home for literals)
   - [x] Update sprint-status.yaml on status transitions; branch `TOOLS-1-8/design-system-repair-theming`; conventional commits; PR via `create-pr` skill after local code review — never commit to main
+
+### Review Findings
+
+- [x] [Review][Decision→Defer] Visual evidence gate FAILS (blocking per project rule) — Dev Agent Record contains only mechanical verification: playwright attribute checks for AC-2 and an axe scan of closed/default story states for AC-3. No both-theme Storybook screenshots, no open/interactive states, no side-by-side against `example/track-my-life`. DEFERRED 2026-06-12 per review decision: Story 1.9 (screenshot-based visual QA baseline) absorbs the evidence work; 1.8's AC-1/AC-3 acceptance re-scoped to mechanism + token purity.
+- [x] [Review][Decision→Defer] Select open-state width defect makes AC-1 false for Select — `.content { min-width: 8rem }` plus `.popperViewport { width: var(--radix-select-trigger-width) }` clips items, check indicator, and highlight in the open panel (`packages/ui/src/components/select/Select.module.scss:68,87`; defect faithfully carried from the reference, which has the same latent bug). DEFERRED 2026-06-12 per review decision: Story 1.9 AC-2 already diagnoses and schedules this exact fix.
+- [x] [Review][Patch] ThemeSwitcher displayed value unguarded — `value={theme ?? THEME_OPTION.System}` renders a blank select when localStorage holds a value outside the option list; guard reads with `checkIsThemeOption` like writes [packages/shell/src/components/theme-switcher/ThemeSwitcher.tsx:41] — FIXED 2026-06-12 (guarded `selectedTheme` + regression test)
+- [x] [Review][Patch] ThemeSwitcher pre-mount `return null` pops the control in after hydration, shifting the header layout — render a layout-preserving hidden placeholder during the mounted guard [packages/shell/src/components/theme-switcher/ThemeSwitcher.tsx:22-24] — FIXED 2026-06-12 (visibility-hidden placeholder Select with fixed `system` value, hydration-safe)
+- [x] [Review][Patch] File List incomplete — `_bmad-output/planning-artifacts/epics.md` and `_bmad/custom/{bmad-code-review,bmad-create-story,bmad-dev-story}.toml` changed in the branch but absent from File List [this story file] — FIXED 2026-06-12
+- [x] [Review][Defer] Select empty `optionList` renders an empty panel with no affordance [packages/ui/src/components/select/Select.tsx] — deferred, pre-existing (tracked in deferred-work.md since the 1.4 review)
+- [x] [Review][Defer] No gate links switcher constants to message keys — `THEME_OPTION_LIST` ↔ `navigation.json` drift is undetected (i18n parity only checks en↔uk symmetry) [packages/shell/src/components/theme-switcher/constants.ts] — deferred, pre-existing tooling gap shared with LocaleSwitcher
 
 ## Dev Notes
 
@@ -204,6 +214,11 @@ claude-fable-5 (Claude Fable 5)
 
 - `_bmad-output/implementation-artifacts/1-8-design-system-repair-theming.md` (story tracking)
 - `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `_bmad-output/implementation-artifacts/deferred-work.md` (review deferrals)
+- `_bmad-output/planning-artifacts/epics.md` (sprint change: stories 1.9–1.11 added)
+- `_bmad/custom/bmad-code-review.toml`
+- `_bmad/custom/bmad-create-story.toml`
+- `_bmad/custom/bmad-dev-story.toml`
 - `apps/money-tracker/package.json`
 - `apps/money-tracker/messages/en/navigation.json`
 - `apps/money-tracker/messages/uk/navigation.json`
@@ -220,6 +235,7 @@ claude-fable-5 (Claude Fable 5)
 - `packages/shell/src/components/app-shell/AppShell.tsx`
 - `packages/shell/src/components/app-shell/AppShell.test.tsx`
 - `packages/shell/src/components/theme-switcher/ThemeSwitcher.tsx` (new)
+- `packages/shell/src/components/theme-switcher/ThemeSwitcher.module.scss` (new, review fix)
 - `packages/shell/src/components/theme-switcher/ThemeSwitcher.test.tsx` (new)
 - `packages/shell/src/components/theme-switcher/constants.ts` (new)
 - `packages/ui/src/components/button/Button.tsx`
@@ -245,4 +261,5 @@ claude-fable-5 (Claude Fable 5)
 
 ## Change Log
 
+- 2026-06-12: Adversarial code review (Blind Hunter + Edge Case Hunter + Acceptance Auditor, opus) — 2 decisions deferred to Story 1.9 per Oleksii (visual evidence gate + Select open-panel width defect; 1.8 accepted on mechanism + token purity), 3 patches applied (ThemeSwitcher guarded `selectedTheme` with regression test, layout-preserving pre-mount placeholder + `ThemeSwitcher.module.scss`, File List completed), 2 pre-existing items logged in deferred-work.md. Gates re-verified green (forced). Status → done.
 - 2026-06-12: Story 1.8 implemented on `TOOLS-1-8/design-system-repair-theming` — five primitives repaired against `example/track-my-life` (Button full variant/size set + polymorphic `component`, Input error/adornment, Select error + reference markup, Dialog typography via Typography atom, Table audited clean); token-based `color-mix` focus rings replace the hardcoded light-purple literals; Typography + Label atoms added with tests and stories; `next-themes@0.4.6` runtime theming (ThemeProvider in locale layout, ThemeSwitcher in shell header, en/uk messages); `@storybook/addon-themes@10.4.4` theme toolbar + next-themes decorator + `a11y: { test: 'error' }`; themed body background added to normalize. All gates green (forced), AC-2 browser-verified 12/12, AC-3 axe-verified 0 violations across 32 stories × 2 themes. Status → review.
