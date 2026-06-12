@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
-} from '@supertool/ui/src/components/table/table';
+} from '@supertool/ui/src/components/table/Table';
 
 const meta = {
   title: 'Primitives/Table',

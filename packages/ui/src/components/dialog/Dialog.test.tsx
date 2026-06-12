@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { Button } from '../button/button';
-import { Dialog } from './dialog';
+import { Button } from '../button/Button';
+import { Dialog } from './Dialog';
 
 const DIALOG_TRIGGER = <Button>Open settings</Button>;
 

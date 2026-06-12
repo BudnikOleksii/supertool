@@ -14,7 +14,7 @@ import {
 } from '@radix-ui/react-dialog';
 
 import { cn } from '../../lib/utils';
-import styles from './dialog.module.scss';
+import styles from './Dialog.module.scss';
 
 export interface DialogProps {
   trigger: ReactNode;

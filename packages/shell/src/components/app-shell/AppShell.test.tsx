@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { ToolRegistryEntry } from '@supertool/shared/constants/tools';
 
-import { AppShell } from './app-shell';
+import { AppShell } from './AppShell';
 
 vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
   Link: (props: AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />,

@@ -1,9 +1,9 @@
 import { useTranslations } from 'next-intl';
 
-import { NavigationLink } from '@supertool/next-shared/src/i18n/navigation/navigation-link';
+import { NavigationLink } from '@supertool/next-shared/src/i18n/navigation/NavigationLink';
 import type { ToolRegistryEntry } from '@supertool/shared/constants/tools';
 
-import styles from './tool-nav.module.scss';
+import styles from './ToolNav.module.scss';
 
 export interface ToolNavProps {
   tools: ToolRegistryEntry[];

@@ -56,7 +56,8 @@
       "error",
       {
         "cases": {
-          "kebabCase": true
+          "kebabCase": true,
+          "pascalCase": true
         }
       }
     ]

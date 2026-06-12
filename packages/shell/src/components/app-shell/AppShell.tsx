@@ -2,10 +2,10 @@ import type { ReactNode } from 'react';
 
 import type { ToolRegistryEntry } from '@supertool/shared/constants/tools';
 
-import { LocaleSwitcher } from '../locale-switcher/locale-switcher';
-import { ToolNav } from '../tool-nav/tool-nav';
-import { UserMenu } from '../user-menu/user-menu';
-import styles from './app-shell.module.scss';
+import { LocaleSwitcher } from '../locale-switcher/LocaleSwitcher';
+import { ToolNav } from '../tool-nav/ToolNav';
+import { UserMenu } from '../user-menu/UserMenu';
+import styles from './AppShell.module.scss';
 
 export interface AppShellProps {
   tools: ToolRegistryEntry[];

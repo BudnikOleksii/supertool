@@ -265,13 +265,13 @@ New:
 - apps/storybook/.storybook/preview.ts
 - apps/storybook/package.json
 - apps/storybook/src/global.d.ts
-- apps/storybook/src/stories/button.stories.tsx
-- apps/storybook/src/stories/dialog.stories.tsx
-- apps/storybook/src/stories/input.stories.tsx
-- apps/storybook/src/stories/select.stories.tsx
-- apps/storybook/src/stories/table.stories.tsx
+- apps/storybook/src/stories/Button.stories.tsx
+- apps/storybook/src/stories/Dialog.stories.tsx
+- apps/storybook/src/stories/Input.stories.tsx
+- apps/storybook/src/stories/Select.stories.tsx
+- apps/storybook/src/stories/Table.stories.tsx
 - apps/storybook/tsconfig.json
-- packages/next-shared/src/i18n/navigation/navigation-link.tsx
+- packages/next-shared/src/i18n/navigation/NavigationLink.tsx
 - packages/next-shared/src/i18n/navigation/navigation.ts
 - packages/next-shared/src/i18n/routing.test.ts
 - packages/next-shared/src/i18n/routing.ts
@@ -279,31 +279,31 @@ New:
 - packages/shared/src/constants/tools.ts
 - packages/shell/.oxlintrc.json
 - packages/shell/package.json
-- packages/shell/src/components/app-shell/app-shell.module.scss
-- packages/shell/src/components/app-shell/app-shell.test.tsx
-- packages/shell/src/components/app-shell/app-shell.tsx
-- packages/shell/src/components/locale-switcher/locale-switcher.test.tsx
-- packages/shell/src/components/locale-switcher/locale-switcher.tsx
-- packages/shell/src/components/tool-nav/tool-nav.module.scss
-- packages/shell/src/components/tool-nav/tool-nav.tsx
-- packages/shell/src/components/user-menu/user-menu.tsx
+- packages/shell/src/components/app-shell/AppShell.module.scss
+- packages/shell/src/components/app-shell/AppShell.test.tsx
+- packages/shell/src/components/app-shell/AppShell.tsx
+- packages/shell/src/components/locale-switcher/LocaleSwitcher.test.tsx
+- packages/shell/src/components/locale-switcher/LocaleSwitcher.tsx
+- packages/shell/src/components/tool-nav/ToolNav.module.scss
+- packages/shell/src/components/tool-nav/ToolNav.tsx
+- packages/shell/src/components/user-menu/UserMenu.tsx
 - packages/shell/src/global.d.ts
 - packages/shell/tsconfig.json
 - packages/shell/vitest.config.ts
 - packages/ui/.oxlintrc.json
 - packages/ui/package.json
-- packages/ui/src/components/button/button.module.scss
-- packages/ui/src/components/button/button.test.tsx
-- packages/ui/src/components/button/button.tsx
-- packages/ui/src/components/dialog/dialog.module.scss
-- packages/ui/src/components/dialog/dialog.test.tsx
-- packages/ui/src/components/dialog/dialog.tsx
-- packages/ui/src/components/input/input.module.scss
-- packages/ui/src/components/input/input.tsx
-- packages/ui/src/components/select/select.module.scss
-- packages/ui/src/components/select/select.tsx
-- packages/ui/src/components/table/table.module.scss
-- packages/ui/src/components/table/table.tsx
+- packages/ui/src/components/button/Button.module.scss
+- packages/ui/src/components/button/Button.test.tsx
+- packages/ui/src/components/button/Button.tsx
+- packages/ui/src/components/dialog/Dialog.module.scss
+- packages/ui/src/components/dialog/Dialog.test.tsx
+- packages/ui/src/components/dialog/Dialog.tsx
+- packages/ui/src/components/input/Input.module.scss
+- packages/ui/src/components/input/Input.tsx
+- packages/ui/src/components/select/Select.module.scss
+- packages/ui/src/components/select/Select.tsx
+- packages/ui/src/components/table/Table.module.scss
+- packages/ui/src/components/table/Table.tsx
 - packages/ui/src/global.d.ts
 - packages/ui/src/lib/utils.ts
 - packages/ui/src/styles/_breakpoints.scss
@@ -319,6 +319,9 @@ New:
 Modified:
 
 - .claude/rules/react.md
+- CLAUDE.md
+- _bmad-output/planning-artifacts/architecture.md
+- packages/lint-config/configs/base.json
 - .claude/rules/styles.md
 - .github/workflows/ci.yml
 - .oxlintrc.json
@@ -338,5 +341,7 @@ Deleted:
 - packages/next-shared/tsconfig.test.json
 
 ## Change Log
+
+- 2026-06-12 (post-implementation, user-requested convention change): component files and their co-located `.module.scss`/`.test.tsx`/`.stories.tsx` renamed kebab-case → PascalCase (`Button.tsx`, `AppShell.module.scss`, `Button.stories.tsx`, …; 26 files via `git mv`, dirs stay kebab-case); `unicorn/filename-case` now allows pascalCase alongside kebabCase; naming patterns updated in CLAUDE.md and architecture.md; `.claude/rules/react.md`/`styles.md` examples restored to PascalCase and the NavigationLink path reference updated. All root gates re-verified green.
 
 - 2026-06-12: Story 1.4 implemented — shared locale constants + tool registry; next-shared converted to source-consumed with next-intl routing/navigation (+NavigationLink); new @supertool/ui design system (button, input, select, dialog, table + SCSS tokens/breakpoints/mixins); new @supertool/shell (AppShell, ToolNav, UserMenu placeholder, LocaleSwitcher) with AC-6 tests; new apps/money-tracker (Next 16, app/[locale] routing, proxy.ts, /api rewrite, en/uk messages) and apps/storybook (10.4.4, five primitive stories); i18n key-parity script + CI job; rules-file kebab-case examples aligned. All root gates green; generated client byte-identical.

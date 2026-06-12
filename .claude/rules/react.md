@@ -28,7 +28,7 @@ paths:
 ## React Conventions
 
 - Use all simple UI components (Typography, Button, Input, etc.) from `packages/ui`.
-- Use `NavigationLink` from `packages/next-shared/src/i18n/navigation/navigation-link.tsx` instead of Next.js default `Link` for navigation links that need active state tracking.
+- Use `NavigationLink` from `packages/next-shared/src/i18n/navigation/NavigationLink.tsx` instead of Next.js default `Link` for navigation links that need active state tracking.
 - Use `redirect`, `usePathname`, `useRouter` from `packages/next-shared/src/i18n/navigation/navigation.ts` instead of Next.js default `next/link` and `next/navigation` to ensure proper i18n routing.
 - Use the `cn` utility from `packages/ui/src/lib/utils.ts` for conditional class composition instead of ternary operators or string concatenation.
 
@@ -63,7 +63,7 @@ const searchParams = await props.searchParams;
 
 ```text
 my-component/
-├── my-component.tsx      # exports PascalCase `MyComponent`
+├── MyComponent.tsx       # PascalCase component file exporting `MyComponent`
 ├── types.ts              # Shared types (optional)
 ├── constants.ts          # Component constants (optional)
 ├── hooks/                # Component-specific hooks (optional)

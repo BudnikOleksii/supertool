@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 
 import { routing } from '@supertool/next-shared/src/i18n/routing';
 import { TOOL_LIST } from '@supertool/shared/constants/tools';
-import { AppShell } from '@supertool/shell/src/components/app-shell/app-shell';
+import { AppShell } from '@supertool/shell/src/components/app-shell/AppShell';
 
 interface LocaleLayoutProps {
   children: ReactNode;

@@ -14,7 +14,7 @@ import {
 } from '@radix-ui/react-select';
 
 import { cn } from '../../lib/utils';
-import styles from './select.module.scss';
+import styles from './Select.module.scss';
 
 export interface SelectOption {
   value: string;

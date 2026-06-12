@@ -3,8 +3,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import type { SelectOption, SelectProps } from '@supertool/ui/src/components/select/select';
-import { Select } from '@supertool/ui/src/components/select/select';
+import type { SelectOption, SelectProps } from '@supertool/ui/src/components/select/Select';
+import { Select } from '@supertool/ui/src/components/select/Select';
 
 const OPTION_LIST: SelectOption[] = [
   { value: 'food', label: 'Food' },

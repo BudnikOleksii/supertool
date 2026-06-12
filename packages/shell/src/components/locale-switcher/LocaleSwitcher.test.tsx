@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { LocaleSwitcher } from './locale-switcher';
+import { LocaleSwitcher } from './LocaleSwitcher';
 
 const { replaceMock } = vi.hoisted(() => ({ replaceMock: vi.fn() }));
 

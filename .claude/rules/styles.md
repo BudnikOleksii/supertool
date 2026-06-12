@@ -6,7 +6,7 @@ paths:
 
 # Styles Conventions
 
-- Use SCSS modules: `component-name.module.scss` (kebab-case, co-located with the component)
+- Use SCSS modules: `ComponentName.module.scss` (PascalCase after the component, co-located with it)
 - Class names in **camelCase**
 - Use mobile-first approach for responsive design. Write base styles for mobile, then add desktop overrides with media queries.
 - When overriding `packages/ui` component styles, use double class selector
