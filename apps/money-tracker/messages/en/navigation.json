@@ -10,5 +10,11 @@
     "label": "Language",
     "en": "English",
     "uk": "Ukrainian"
+  },
+  "themeSwitcher": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   }
 }

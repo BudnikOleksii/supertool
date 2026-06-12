@@ -3,6 +3,7 @@ import type { FC, PropsWithChildren } from 'react';
 
 import { NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
+import { ThemeProvider } from 'next-themes';
 import { Poppins } from 'next/font/google';
 
 import { routing } from '@supertool/next-shared/src/i18n/routing';
@@ -30,10 +31,12 @@ const LocaleLayout: FC<Props> = async (props) => {
   setRequestLocale(params.locale);
 
   return (
-    <html lang={params.locale} data-theme="light">
+    <html lang={params.locale} suppressHydrationWarning>
       <body className={poppins.variable}>
         <NextIntlClientProvider>
-          <AppShell tools={TOOL_LIST}>{children}</AppShell>
+          <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+            <AppShell tools={TOOL_LIST}>{children}</AppShell>
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

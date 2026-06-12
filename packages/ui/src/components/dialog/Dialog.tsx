@@ -14,6 +14,7 @@ import {
 } from '@radix-ui/react-dialog';
 
 import { cn } from '../../lib/utils';
+import { Typography } from '../typography/Typography';
 import styles from './Dialog.module.scss';
 
 export interface DialogProps {
@@ -39,12 +40,30 @@ export const Dialog: FC<DialogProps> = ({
       <Overlay className={styles.overlay} />
       <Content data-slot="dialog-content" className={cn(styles.content, className)}>
         <header className={styles.header}>
-          <Title className={styles.title}>{title}</Title>
+          <Title asChild>
+            <Typography
+              tag="h2"
+              variant="title-m"
+              fontWeight="semibold"
+              data-slot="dialog-title"
+              className={styles.title}
+            >
+              {title}
+            </Typography>
+          </Title>
           <Close className={styles.close} aria-label={closeLabel}>
             ✕
           </Close>
         </header>
-        <Description className={styles.description}>{description}</Description>
+        <Description asChild>
+          <Typography
+            variant="body-m"
+            data-slot="dialog-description"
+            className={styles.description}
+          >
+            {description}
+          </Typography>
+        </Description>
         {children}
       </Content>
     </Portal>

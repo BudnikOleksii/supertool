@@ -71,6 +71,21 @@
   }
 }
 
+.outline {
+  color: var(--on-surface);
+
+  background-color: transparent;
+  border: 1px solid var(--outline);
+
+  @include mixins.hover {
+    background-color: var(--surface-container);
+  }
+
+  &:active {
+    background-color: var(--surface-container-high);
+  }
+}
+
 .ghost {
   color: var(--on-surface);
 
@@ -82,6 +97,30 @@
 
   &:active {
     background-color: var(--surface-container-high);
+  }
+}
+
+.link {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: var(--primary);
+
+  background-color: transparent;
+}
+
+.destructive {
+  color: var(--on-error);
+
+  background-color: var(--error);
+
+  @include mixins.hover {
+    color: var(--on-error-container);
+
+    background-color: var(--error-container);
+  }
+
+  &:active {
+    background-color: var(--error-container);
   }
 }
 
@@ -105,4 +144,11 @@
   padding: 0 var(--spacing-6);
 
   font-size: var(--font-body-l-size);
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+
+  padding: 0;
 }

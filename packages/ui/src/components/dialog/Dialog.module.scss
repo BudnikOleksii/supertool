@@ -52,19 +52,12 @@
 }
 
 .title {
-  margin: 0;
-
-  font-size: var(--font-title-m-size);
-  font-weight: var(--font-title-m-weight);
-  line-height: var(--font-title-m-line-height);
   color: var(--on-surface);
 }
 
-.description {
+.description.description {
   margin: 0 0 var(--spacing-4);
 
-  font-size: var(--font-body-s-size);
-  line-height: var(--font-body-s-line-height);
   color: var(--on-surface-variant);
 }
 

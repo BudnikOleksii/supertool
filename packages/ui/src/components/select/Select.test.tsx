@@ -15,6 +15,16 @@ describe('Select', () => {
     screen.getByRole('combobox', { name: 'Language' });
   });
 
+  it('marks the trigger invalid when error is set', () => {
+    render(
+      <Select value="en" onValueChange={vi.fn()} optionList={OPTIONS} ariaLabel="Language" error />,
+    );
+
+    expect(screen.getByRole('combobox', { name: 'Language' }).getAttribute('aria-invalid')).toBe(
+      'true',
+    );
+  });
+
   it('renders in disabled state when disabled prop is true', () => {
     render(
       <Select

@@ -28,6 +28,8 @@ body {
   font-size: var(--font-body-m-size, 14px);
   line-height: var(--font-body-m-line-height, 20px);
   color: var(--on-surface, #3d3d3d);
+
+  background-color: var(--background, #ffffff);
 }
 
 body,

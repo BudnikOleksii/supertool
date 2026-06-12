@@ -49,7 +49,7 @@ development_status:
   1-3-openapi-generated-client-pipeline: done
   1-4-money-tracker-shell-design-system-i18n-foundation: done
   # 1-8 runs before 1-5: auth widgets build on the repaired design system
-  1-8-design-system-repair-theming: backlog
+  1-8-design-system-repair-theming: review
   1-5-sign-up-sign-in: backlog
   1-6-profile-settings: backlog
   1-7-one-command-local-runtime: backlog
