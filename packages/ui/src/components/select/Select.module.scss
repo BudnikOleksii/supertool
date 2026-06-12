@@ -30,7 +30,7 @@
 
   &:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgb(101 85 143 / 20%);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
   }
 
   &:disabled {
@@ -43,6 +43,15 @@
     color: var(--on-surface-variant);
 
     opacity: 0.6;
+  }
+}
+
+.error {
+  border-color: var(--error);
+
+  &:focus {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--error) 20%, transparent);
   }
 }
 
@@ -78,6 +87,20 @@
   width: var(--radix-select-trigger-width);
 }
 
+.scrollButton {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  height: 24px;
+
+  font-size: 10px;
+  color: var(--on-surface-variant);
+
+  cursor: default;
+}
+
 .item {
   position: relative;
 
@@ -100,7 +123,7 @@
 
   border-radius: var(--radius-md);
 
-  &[data-highlighted] {
+  &:focus {
     background-color: var(--surface-container-highest);
   }
 
@@ -119,6 +142,4 @@
 
   align-items: center;
   justify-content: center;
-
-  color: var(--primary);
 }

@@ -44,6 +44,17 @@ export const Default: Story = {
   render: (args) => <ControlledSelect {...args} />,
 };
 
+export const Error: Story = {
+  args: {
+    value: 'food',
+    onValueChange: fn(),
+    optionList: OPTION_LIST,
+    ariaLabel: 'Category',
+    error: true,
+  },
+  render: (args) => <ControlledSelect {...args} />,
+};
+
 export const Disabled: Story = {
   args: {
     value: 'food',

@@ -15,12 +15,17 @@ vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
 
+vi.mock('next-themes', () => ({
+  useTheme: () => ({ theme: 'system', setTheme: vi.fn() }),
+}));
+
 const TEST_MESSAGES = {
   navigation: {
     label: 'Tools',
     tools: { moneyTracker: 'Money Tracker', reportHub: 'Report Hub' },
     userMenu: { label: 'Account' },
     localeSwitcher: { label: 'Language', en: 'English', uk: 'Українська' },
+    themeSwitcher: { label: 'Theme', light: 'Light', dark: 'Dark', system: 'System' },
   },
 };
 
@@ -52,6 +57,12 @@ describe('AppShell', () => {
 
     expect(screen.getByRole('button', { name: 'Account' })).toHaveProperty('disabled', true);
     expect(screen.getByRole('combobox', { name: 'Language' })).toBeDefined();
+  });
+
+  it('renders the theme switcher in the header actions', () => {
+    renderAppShell();
+
+    expect(screen.getByRole('combobox', { name: 'Theme' })).toBeDefined();
   });
 
   it('renders children inside the main landmark', () => {

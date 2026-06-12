@@ -25,4 +25,25 @@ describe('Input', () => {
 
     expect(input.className).toContain('custom');
   });
+
+  it('marks the input invalid when error is set', () => {
+    render(<Input aria-label="amount" error />);
+
+    expect(screen.getByRole('textbox', { name: 'amount' }).getAttribute('aria-invalid')).toBe(
+      'true',
+    );
+  });
+
+  it('stays valid when error is not set', () => {
+    render(<Input aria-label="amount" />);
+
+    expect(screen.getByRole('textbox', { name: 'amount' }).getAttribute('aria-invalid')).toBeNull();
+  });
+
+  it('renders the start adornment beside the input', () => {
+    render(<Input aria-label="amount" startAdornment="₴" />);
+
+    screen.getByText('₴');
+    screen.getByRole('textbox', { name: 'amount' });
+  });
 });

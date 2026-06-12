@@ -17,6 +17,14 @@ export const Default: Story = {
   args: { placeholder: 'Amount', 'aria-label': 'Amount' },
 };
 
+export const Error: Story = {
+  args: { placeholder: 'Amount', 'aria-label': 'Amount', error: true },
+};
+
+export const WithStartAdornment: Story = {
+  args: { placeholder: '0.00', 'aria-label': 'Amount', startAdornment: '₴' },
+};
+
 export const Disabled: Story = {
   args: { placeholder: 'Amount', 'aria-label': 'Amount', disabled: true },
 };

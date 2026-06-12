@@ -7,6 +7,7 @@ persistent_facts = [
   "Subagent delegation (supertool): launch the review layers as Claude Code agents so the orchestrating context stays clean. Edge Case Hunter and Acceptance Auditor run as the `code-reviewer` agent type (its system prompt carries the supertool hard rules D1/D7/NFR1/NFR2/NFR6/ED1 and conventions). The Blind Hunter MUST stay a generic, context-free subagent — the code-reviewer agent embeds project context, which would defeat the blind layer's purpose. Only triage and presentation happen in the orchestrator.",
   "Story branches are named `TOOLS-<story number>/<brief description>`. Review the diff against `main` (`git diff main...HEAD`).",
   "Review layers are READ-ONLY and static: subagent prompts must forbid running lint/type-check/tests/builds or any package scripts. The ORCHESTRATOR runs the quality gates once (root `pnpm` scripts only) and passes the results into the layer prompts as stated facts.",
+  "Visual evidence gate (lesson from 1.4/1.8): if the diff touches `packages/ui`, shell UI, or SCSS, the Acceptance Auditor MUST verify the story's Dev Agent Record contains per-component visual QA evidence — both-theme Storybook screenshots including open/interactive states, compared against `example/track-my-life`. Missing or closed-state-only evidence is a BLOCKING finding, regardless of green gates.",
 ]
 
 on_complete = "If the review outcome is Approve (or all blocking findings are resolved) and the work sits on a `TOOLS-*` branch, suggest invoking the `create-pr` skill to push the branch and open the pull request."
