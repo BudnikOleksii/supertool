@@ -4,7 +4,7 @@ baseline_commit: bf15ed4b30ed2a98bd7ec892a0700700f2ffddf1
 
 # Story 1.4: Money Tracker Shell, Design System & i18n Foundation
 
-Status: review
+Status: done
 
 <!-- context-engine: exhaustive analysis of epics.md, architecture.md (D5, D9, patterns, boundaries, tree, version table), story 1.3 record + review findings, deferred-work.md, live repo state (turbo graph, CI reserved slot, config packages, shared/next-shared end state, api env/prefix), .claude/rules conflict audit, example/track-my-life blueprint survey, and web verification of Next 16 proxy.ts / next-intl 4.13 / Storybook 10.4.x / Radix versions completed 2026-06-12 -->
 
@@ -55,7 +55,7 @@ so that the platform frame (navigation, locale, design system) exists for every 
   - [x] Tests (AC 6 contract): `app-shell.test.tsx` — render with a TWO-entry tools fixture inside `NextIntlClientProvider` (inline test messages), assert both nav items render (this IS the AC-2 proof: second entry renders with zero shell changes, by construction; do NOT commit a second entry to `tools.ts`); `locale-switcher.test.tsx` — `vi.mock` the next-shared navigation module, interact with the switcher, assert `replace` called with `{ locale: 'uk' }`
 - [x] Task 5: `apps/money-tracker` — Next.js 16 app wired to everything (AC: 1, 3)
   - [x] Scaffold `@supertool/money-tracker`: dependencies `next` 16.2.7, `react`/`react-dom` 19.2.7, `next-intl` 4.13.0, `zod` 4.4.3, `@supertool/{shared,next-shared,ui,shell}` workspace:*; devDeps `sass` 1.100.0, `typescript` 6.0.3, `oxlint` 1.69.0, `@types/react`/`@types/react-dom` (19.x exact), `@types/node` 22.19.20 (22.x-line precedent, NOT npm-latest). Scripts: `dev` (`next dev --port 3000`), `build`, `start`, `lint`, `lint:fix`, `type-check`. NO test script this story — the app has no logic yet; AC-6 tests live in shell/ui (an empty vitest run would fail CI; the script lands in 1.5 with the first app logic)
-  - [x] tsconfig extends `@supertool/typescript-config/nextjs.json` (first consumer — apply the declaration/noEmit fix from Task 2 if needed); include `next-env.d.ts`, `src`, `.next/types`; commit `next-env.d.ts`; no path aliases (deep relative imports, TS 6 has no `baseUrl`)
+  - [x] tsconfig extends `@supertool/typescript-config/nextjs.json` (first consumer — apply the declaration/noEmit fix from Task 2 if needed); include `next-env.d.ts`, `src`, `.next/types`; `next-env.d.ts` is gitignored (Next.js default) and auto-regenerated on `next dev`/`next build`, so it is NOT committed — the `include` entry is a no-op when the file is absent and tsc resolves Next types from the `next` package; no path aliases (deep relative imports, TS 6 has no `baseUrl`)
   - [x] `.oxlintrc.json` extends `../../packages/lint-config/configs/next.json`
   - [x] `src/env.ts`: zod-validated `API_URL` with `.default('http://localhost:3001')` (api listens on 3001, global prefix `api` + URI version v1 — verified live); `.env.example` committed with `API_URL=http://localhost:3001`
   - [x] `next.config.ts`: wrap with `createNextIntlPlugin` (request config default path `src/i18n/request.ts`); `transpilePackages: ['@supertool/ui', '@supertool/shell', '@supertool/next-shared']`; `rewrites()` → `{ source: '/api/:path*', destination: \`${env.API_URL}/api/:path*\` }` (D5 browser-proxy half, deferred here from 1.3 — nothing calls it yet; auth in 1.5 is its first consumer); `sassOptions` with `additionalData` injecting `@use` of ui's breakpoints + mixins (see Dev Notes "SCSS strategy" incl. the Turbopack contingency)
@@ -251,7 +251,6 @@ New:
 - apps/money-tracker/.oxlintrc.json
 - apps/money-tracker/messages/en.json
 - apps/money-tracker/messages/uk.json
-- apps/money-tracker/next-env.d.ts
 - apps/money-tracker/next.config.ts
 - apps/money-tracker/package.json
 - apps/money-tracker/src/app/[locale]/layout.tsx
@@ -339,6 +338,18 @@ Modified:
 Deleted:
 
 - packages/next-shared/tsconfig.test.json
+
+### Review Findings
+
+Code review 2026-06-12 (bmad-code-review: Blind Hunter + Edge Case Hunter + Acceptance Auditor; all root gates green at review time — type-check, oxlint, stylelint, oxfmt, i18n-parity, vitest).
+
+- [x] [Review][Decision→Resolved] `next-env.d.ts` claimed committed but is gitignored and absent from the tree — RESOLVED 2026-06-12 (option b): Task 5 and the File List corrected to note `next-env.d.ts` is gitignored (Next.js default) and auto-regenerated on build, so it is not committed; the `tsconfig.json` `include` entry is a harmless no-op when absent and Next types resolve from the `next` package. No code change.
+- [x] [Review][Defer] NavigationLink active-state is exact-match and locale-naive [packages/next-shared/src/i18n/navigation/NavigationLink.tsx:11] — deferred, latent. Correct for the single root tool (`/`) today; `pathname === href` will not set `aria-current` for nested routes or non-default-locale paths once a second tool / sub-routes land (AC-2).
+- [x] [Review][Defer] `Select` primitive has no empty-options or unmatched-value affordance [packages/ui/src/components/select/Select.tsx:42] — deferred, latent. No consumer hits it (LocaleSwitcher always has two valid options); a future `optionList={[]}` or controlled `value` absent from options renders a blank trigger with no placeholder/empty state.
+- [x] [Review][Defer] `request.ts` dynamic message import has no fallback for a missing locale file [apps/money-tracker/src/i18n/request.ts:17] — deferred, latent. Only en/uk exist today (both present, parity-gated); adding a locale to `LOCALE_CODE_LIST` without a `messages/<x>.json` would throw a runtime module-not-found before the parity gate runs.
+- [x] [Review][Defer] i18n-parity script is brittle on empty-object values and malformed JSON [scripts/check-i18n-parity.mjs:34] — deferred, latent. Works correctly for the real (string-leaf) message shape and CI still fails on bad JSON; hardening: record prefix for empty `{}` namespaces and wrap `JSON.parse` to emit the readable per-file report instead of a raw `SyntaxError`.
+
+Dismissed (11): missing `messages` prop on `NextIntlClientProvider` (false positive — next-intl v4 inherits messages from `getRequestConfig` when rendered server-side, verified vs docs); `env.ts` throws on invalid `API_URL` (intentional fail-fast config validation); NavigationLink object-form `href` (registry paths are strings — unreachable); LocaleSwitcher dead defensive guard (type-narrowing only — unreachable); parity array-flatten (messages are not arrays — unreachable); Dialog empty-string title (type contract requires a string; caller misuse); proxy matcher excludes dotted paths (documented standard Next/next-intl middleware matcher); `shell.nav.label` not enumerated in Task 5 (benign correct addition, present in both locales); `page.tsx` `use()` vs `await` for params (compiles & works, cosmetic); two Blind Hunter items self-dismissed.
 
 ## Change Log
 

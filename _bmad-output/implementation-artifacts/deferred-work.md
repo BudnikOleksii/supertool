@@ -1,5 +1,12 @@
 # Deferred Work
 
+## Deferred from: code review of 1-4-money-tracker-shell-design-system-i18n-foundation (2026-06-12)
+
+- NavigationLink active-state is exact-match and locale-naive (`packages/next-shared/src/i18n/navigation/NavigationLink.tsx:11`). `pathname === href` is correct for the single root tool (`/`) today but won't set `aria-current="page"` for nested routes (`/tool/sub`) or non-default-locale paths. Revisit when a second tool or sub-routes land (AC-2) — likely needs prefix-matching plus an exact-match special case for the home entry.
+- `Select` primitive (`packages/ui/src/components/select/Select.tsx:42`) has no empty-options or unmatched-value handling: `optionList={[]}` yields an empty popup, and a controlled `value` not present in the options renders a blank trigger (no `placeholder` wired on the Radix `Value`). No consumer hits this yet (LocaleSwitcher always has two valid options); add an empty-state / placeholder when a real consumer needs it.
+- `apps/money-tracker/src/i18n/request.ts:17` dynamic-imports `messages/${locale}.json` with no fallback. Only en/uk exist today (both present and parity-gated); adding a locale to `LOCALE_CODE_LIST` without its message file would throw a runtime module-not-found before the parity gate runs. Add a fallback-to-defaultLocale-messages guard when a third locale is introduced.
+- i18n-parity script (`scripts/check-i18n-parity.mjs:34`) is brittle on non-string message shapes: an empty `{}` namespace flattens to no key (divergence can slip through) and a malformed JSON file throws a raw `SyntaxError` instead of the readable per-file report. Works correctly for the current string-leaf messages and CI still fails on bad JSON; harden the flattener + wrap `JSON.parse` next time the gate is touched.
+
 ## Deferred from: code review of 1-2-api-foundation-health-check-database-baseline (2026-06-10)
 
 - Health endpoint returns HTTP 200 with `database: 'down'` (deliberate AC-literal reading, no @nestjs/terminus). There is no machine-readable unhealthy signal at the HTTP layer — container healthchecks and probes key on status codes. Revisit when Story 1.7 wires docker compose healthchecks for the api service.
