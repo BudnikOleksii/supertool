@@ -6,16 +6,8 @@ const buildCommandList = (fileList, commandList) => {
   if (targetList.length === EMPTY_LENGTH) {
     return [];
   }
-const quoteForShell = (filePath) => `'${filePath.replaceAll("'", "'\\''")}'`;
-
-const buildCommandList = (fileList, commandList) => {
-  const targetList = fileList.filter((file) => !file.includes(GENERATED_CLIENT_DIR));
-  if (targetList.length === EMPTY_LENGTH) {
-    return [];
-  }
-  const files = targetList.map(quoteForShell).join(' ');
+  const files = targetList.join(' ');
   return commandList.map((command) => `${command} ${files}`);
-};
 };
 
 const lintStagedConfig = {
