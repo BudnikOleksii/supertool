@@ -1,0 +1,45 @@
+.nav {
+  display: flex;
+
+  align-items: center;
+}
+
+.list {
+  display: flex;
+
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+.link {
+  display: inline-flex;
+
+  align-items: center;
+
+  height: var(--control-height-s);
+
+  padding: 0 var(--spacing-m);
+
+  font-weight: 500;
+  color: var(--color-text-muted);
+
+  border-radius: var(--radius-m);
+
+  transition: color 0.15s ease, background-color 0.15s ease;
+
+  @include hover {
+    color: var(--color-text);
+
+    background-color: var(--color-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+  }
+
+  &[aria-current="page"] {
+    color: var(--color-primary);
+
+    background-color: var(--color-primary-soft);
+  }
+}

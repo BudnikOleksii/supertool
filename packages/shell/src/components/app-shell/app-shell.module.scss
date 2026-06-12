@@ -1,0 +1,44 @@
+.shell {
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-l);
+
+  padding: var(--spacing-m) var(--spacing-l);
+
+  border-bottom: 1px solid var(--color-border);
+
+  @include media-m {
+    padding: var(--spacing-m) var(--spacing-xl);
+  }
+}
+
+.actions {
+  display: flex;
+
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+.main {
+  flex: 1;
+
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-l);
+
+  @include media-m {
+    padding: var(--spacing-2xl) var(--spacing-xl);
+  }
+}

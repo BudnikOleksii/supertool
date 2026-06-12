@@ -1,0 +1,28 @@
+$breakpoint-s: 390px;
+$breakpoint-m: 768px;
+$breakpoint-l: 1024px;
+$breakpoint-xl: 1440px;
+
+@mixin media-s {
+  @media (min-width: $breakpoint-s) {
+    @content;
+  }
+}
+
+@mixin media-m {
+  @media (min-width: $breakpoint-m) {
+    @content;
+  }
+}
+
+@mixin media-l {
+  @media (min-width: $breakpoint-l) {
+    @content;
+  }
+}
+
+@mixin media-xl {
+  @media (min-width: $breakpoint-xl) {
+    @content;
+  }
+}

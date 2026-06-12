@@ -17,6 +17,7 @@
     "stylelint:fix": "stylelint \"**/*.{css,scss}\" --fix --allow-empty-input && turbo run stylelint:fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
+    "i18n:parity": "node scripts/check-i18n-parity.mjs",
     "commitlint": "commitlint --edit",
     "prepare": "husky || true"
   },

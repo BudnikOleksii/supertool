@@ -4,7 +4,6 @@
   "plugins": ["typescript", "import", "react", "react-perf"],
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "react/prop-types": "off",
     "react/jsx-key": "error",
     "react/jsx-no-duplicate-props": "error",
     "react/jsx-no-undef": "error",

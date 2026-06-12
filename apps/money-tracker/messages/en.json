@@ -1,0 +1,22 @@
+{
+  "shell": {
+    "nav": {
+      "label": "Tools"
+    },
+    "tools": {
+      "moneyTracker": "Money Tracker"
+    },
+    "userMenu": {
+      "label": "Account"
+    },
+    "localeSwitcher": {
+      "label": "Language",
+      "en": "English",
+      "uk": "Ukrainian"
+    }
+  },
+  "home": {
+    "title": "Money Tracker",
+    "description": "Track your income and expenses in one place."
+  }
+}

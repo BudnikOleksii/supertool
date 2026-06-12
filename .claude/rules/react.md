@@ -63,7 +63,7 @@ const searchParams = await props.searchParams;
 
 ```text
 my-component/
-├── MyComponent.tsx
+├── my-component.tsx      # exports PascalCase `MyComponent`
 ├── types.ts              # Shared types (optional)
 ├── constants.ts          # Component constants (optional)
 ├── hooks/                # Component-specific hooks (optional)

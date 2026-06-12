@@ -1,0 +1,84 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-dialog);
+
+  background-color: var(--color-overlay);
+}
+
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: var(--z-index-dialog);
+
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-l);
+
+  width: calc(100vw - var(--spacing-2xl));
+  max-width: 480px;
+  max-height: 85vh;
+
+  padding: var(--spacing-xl);
+
+  overflow-y: auto;
+
+  background-color: var(--color-surface-raised);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-raised);
+
+  transform: translate(-50%, -50%);
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.header {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-l);
+}
+
+.title {
+  font-size: var(--font-size-l);
+  font-weight: 600;
+}
+
+.description {
+  font-size: var(--font-size-s);
+  color: var(--color-text-muted);
+}
+
+.close {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: var(--control-height-s);
+  height: var(--control-height-s);
+
+  color: var(--color-text-muted);
+
+  appearance: none;
+  cursor: pointer;
+
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-s);
+
+  @include hover {
+    color: var(--color-text);
+
+    background-color: var(--color-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+  }
+}
