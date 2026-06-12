@@ -1,23 +1,39 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, FC } from 'react';
 
 import { cn } from '../../lib/utils';
 import styles from './Button.module.scss';
 
+type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+type ButtonSize = 'sm' | 'md' | 'lg';
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost';
-  size?: 'small' | 'medium' | 'large';
+  variant?: ButtonVariant;
+  size?: ButtonSize;
 }
 
-export const Button = ({
+const variantToClass: Record<ButtonVariant, string> = {
+  primary: styles.primary ?? '',
+  secondary: styles.secondary ?? '',
+  ghost: styles.ghost ?? '',
+};
+
+const sizeToClass: Record<ButtonSize, string> = {
+  sm: styles.sm ?? '',
+  md: styles.md ?? '',
+  lg: styles.lg ?? '',
+};
+
+export const Button: FC<ButtonProps> = ({
   variant = 'primary',
-  size = 'medium',
+  size = 'md',
   type = 'button',
   className,
   ...props
-}: ButtonProps) => (
+}) => (
   <button
     {...props}
+    data-slot="button"
     type={type}
-    className={cn(styles.button, styles[variant], styles[size], className)}
+    className={cn(styles.button, variantToClass[variant], sizeToClass[size], className)}
   />
 );

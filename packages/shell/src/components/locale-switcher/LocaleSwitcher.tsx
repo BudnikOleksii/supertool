@@ -1,17 +1,15 @@
 'use client';
 
+import type { FC } from 'react';
+
 import { useLocale, useTranslations } from 'next-intl';
 
 import { usePathname, useRouter } from '@supertool/next-shared/src/i18n/navigation/navigation';
-import type { LocaleCode } from '@supertool/shared/constants/locales';
-import { LOCALE_CODE_LIST } from '@supertool/shared/constants/locales';
+import { checkIsLocaleCode, LOCALE_CODE_LIST } from '@supertool/shared/constants/locales';
 import { Select } from '@supertool/ui/src/components/select/Select';
 
-const checkIsLocaleCode = (value: string): value is LocaleCode =>
-  LOCALE_CODE_LIST.some((localeCode) => localeCode === value);
-
-export const LocaleSwitcher = () => {
-  const translate = useTranslations('shell.localeSwitcher');
+export const LocaleSwitcher: FC = () => {
+  const translate = useTranslations('navigation.localeSwitcher');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();

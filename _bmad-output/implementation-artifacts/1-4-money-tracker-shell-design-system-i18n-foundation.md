@@ -249,8 +249,13 @@ New:
 
 - apps/money-tracker/.env.example
 - apps/money-tracker/.oxlintrc.json
-- apps/money-tracker/messages/en.json
-- apps/money-tracker/messages/uk.json
+- apps/money-tracker/messages/en/home-page.json
+- apps/money-tracker/messages/en/navigation.json
+- apps/money-tracker/messages/uk/home-page.json
+- apps/money-tracker/messages/uk/navigation.json
+- apps/money-tracker/src/i18n/constants/i18n-namespace.ts
+- apps/money-tracker/src/i18n/constants/localization-messages-file-name-by-namespace.ts
+- apps/money-tracker/src/i18n/utils/get-messages-by-locale.ts
 - apps/money-tracker/next.config.ts
 - apps/money-tracker/package.json
 - apps/money-tracker/src/app/[locale]/layout.tsx
@@ -275,8 +280,12 @@ New:
 - packages/next-shared/src/i18n/navigation/navigation.ts
 - packages/next-shared/src/i18n/routing.test.ts
 - packages/next-shared/src/i18n/routing.ts
+- packages/next-shared/src/i18n/utils/get-translation-message-fallback.ts
+- packages/next-shared/src/i18n/utils/on-translate-error.ts
 - packages/shared/src/constants/locales.ts
 - packages/shared/src/constants/tools.ts
+- packages/shared/src/types/localization-messages.ts
+- packages/shared/src/utils/with-cache.ts
 - packages/shell/.oxlintrc.json
 - packages/shell/package.json
 - packages/shell/src/components/app-shell/AppShell.module.scss
@@ -310,8 +319,12 @@ New:
 - packages/ui/src/styles/_mixins.scss
 - packages/ui/src/styles/_normalize.scss
 - packages/ui/src/styles/index.scss
-- packages/ui/src/styles/tokens/_metrics.scss
-- packages/ui/src/styles/tokens/_palette.scss
+- packages/ui/src/styles/tokens/fonts.scss
+- packages/ui/src/styles/tokens/index.scss
+- packages/ui/src/styles/tokens/metrics.scss
+- packages/ui/src/styles/tokens/palette.scss
+- packages/ui/src/styles/tokens/shadows.scss
+- packages/ui/src/styles/tokens/theme.scss
 - packages/ui/tsconfig.json
 - packages/ui/vitest.config.ts
 - scripts/check-i18n-parity.mjs
@@ -353,6 +366,8 @@ Code review 2026-06-12 (bmad-code-review: Blind Hunter + Edge Case Hunter + Acce
 Dismissed (11): missing `messages` prop on `NextIntlClientProvider` (false positive — next-intl v4 inherits messages from `getRequestConfig` when rendered server-side, verified vs docs); `env.ts` throws on invalid `API_URL` (intentional fail-fast config validation); NavigationLink object-form `href` (registry paths are strings — unreachable); LocaleSwitcher dead defensive guard (type-narrowing only — unreachable); parity array-flatten (messages are not arrays — unreachable); Dialog empty-string title (type contract requires a string; caller misuse); proxy matcher excludes dotted paths (documented standard Next/next-intl middleware matcher); `shell.nav.label` not enumerated in Task 5 (benign correct addition, present in both locales); `page.tsx` `use()` vs `await` for params (compiles & works, cosmetic); two Blind Hunter items self-dismissed.
 
 ## Change Log
+
+- 2026-06-12 (post-implementation, user-requested alignment with the example/track-my-life reference): (1) every component is now typed `FC<Props>`; (2) messages split per namespace into `messages/{en,uk}/{navigation,home-page}.json` with `I18N_NAMESPACE` constants, `getMessagesByLocale` (deepmerge 4.3.1 + `withCache` ported to shared) and `getTranslationMessageFallback`/`onTranslateError` in next-shared — request.ts now `notFound()`s invalid locales; nameKey is `navigation.tools.moneyTracker`; (3) design tokens replaced with the reference theme system — M3 tonal `palette.scss`, `[data-theme="light"/"dark"]` semantic `theme.scss`, `fonts.scss` (Poppins type scale, loaded via next/font in the layout), `metrics.scss`, `shadows.scss`; components restyled on semantic vars; SCSS injection removed in favor of explicit `@use` (package-specifier form verified under Turbopack AND Storybook Vite); parity script now gates the per-locale-directory layout. All root gates re-verified green; EN/UK + cookie persistence + theme re-verified against the dev server.
 
 - 2026-06-12 (CI fix, post-review): PR #4 `type-check` job failed (TS2882/TS2307 — `*.scss`/`*.module.scss` declarations unresolved in `apps/money-tracker`). Root cause: under the source-consumption model `money-tracker` compiles `shell`/`ui` `.tsx` directly, but the SCSS ambient declarations were only supplied locally by Next's gitignored `next-env.d.ts` (`/// <reference types="next" />`); CI lacks that file and the `type-check` job does not run `next build` first. Fix: added `apps/money-tracker/src/global.d.ts` declaring `*.module.scss` + `*.scss`, making type-check deterministic and independent of Next's generated file (matches the per-package `global.d.ts` pattern in `ui`/`shell`/`storybook`). The earlier local "all gates green" was a turbo cache hit replaying stale logs; re-verified with `turbo run type-check --force` (8/8), `lint --force` (7/7), `test --force` (5/5 packages).
 

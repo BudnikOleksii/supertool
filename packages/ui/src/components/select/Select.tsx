@@ -1,5 +1,7 @@
 'use client';
 
+import type { FC } from 'react';
+
 import {
   Content,
   Icon,
@@ -30,28 +32,32 @@ export interface SelectProps {
   disabled?: boolean;
 }
 
-export const Select = ({
+export const Select: FC<SelectProps> = ({
   value,
   onValueChange,
   optionList,
   ariaLabel,
   className,
   disabled = false,
-}: SelectProps) => (
+}) => (
   <Root value={value} onValueChange={onValueChange} disabled={disabled}>
-    <Trigger className={cn(styles.trigger, className)} aria-label={ariaLabel}>
+    <Trigger
+      data-slot="select-trigger"
+      className={cn(styles.trigger, className)}
+      aria-label={ariaLabel}
+    >
       <Value />
       <Icon className={styles.icon} aria-hidden>
         ▾
       </Icon>
     </Trigger>
     <Portal>
-      <Content className={styles.content} position="popper" sideOffset={4}>
-        <Viewport className={styles.viewport}>
+      <Content className={cn(styles.content, styles.popper)} position="popper" sideOffset={4}>
+        <Viewport className={cn(styles.viewport, styles.popperViewport)}>
           {optionList.map((option) => (
             <Item key={option.value} value={option.value} className={styles.item}>
               <ItemText>{option.label}</ItemText>
-              <ItemIndicator className={styles.indicator} aria-hidden>
+              <ItemIndicator className={styles.itemIndicator} aria-hidden>
                 ✓
               </ItemIndicator>
             </Item>

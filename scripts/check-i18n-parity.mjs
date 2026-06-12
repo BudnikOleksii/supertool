@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { exit } from 'node:process';
 
@@ -50,15 +50,85 @@ const readKeySet = (filePath) => {
   return new Set(flattenKeyList(parsed, ''));
 };
 
-const collectLocaleList = (messagesDir) => {
-  const presentLocaleList = readdirSync(messagesDir)
-    .filter((fileName) => fileName.endsWith('.json'))
-    .map((fileName) => fileName.replace(/\.json$/, ''));
+const listJsonFileNameList = (dirPath) =>
+  readdirSync(dirPath).filter((fileName) => fileName.endsWith('.json'));
+
+const compareKeySetList = (referencePath, localePath) => {
+  const problemList = [];
+  const referenceKeySet = readKeySet(referencePath);
+  const localeKeySet = readKeySet(localePath);
+  const missingKeyList = [...referenceKeySet].filter((key) => !localeKeySet.has(key));
+  const extraKeyList = [...localeKeySet].filter((key) => !referenceKeySet.has(key));
+
+  for (const key of missingKeyList) {
+    problemList.push(`${localePath}: missing key "${key}" (present in ${referencePath})`);
+  }
+
+  for (const key of extraKeyList) {
+    problemList.push(`${localePath}: extra key "${key}" (absent from ${referencePath})`);
+  }
+
+  return problemList;
+};
+
+const collectLocaleDirList = (messagesDir) => {
+  const presentLocaleList = readdirSync(messagesDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
 
   return [...new Set([...presentLocaleList, ...REQUIRED_LOCALE_LIST])];
 };
 
-const checkMessagesDir = (messagesDir) => {
+const checkLocaleDirLayout = (messagesDir) => {
+  const problemList = [];
+  const referenceDir = join(messagesDir, REFERENCE_LOCALE);
+  const referenceFileNameList = listJsonFileNameList(referenceDir);
+  const localeList = collectLocaleDirList(messagesDir).filter(
+    (locale) => locale !== REFERENCE_LOCALE,
+  );
+
+  for (const locale of localeList) {
+    const localeDir = join(messagesDir, locale);
+
+    if (!existsSync(localeDir)) {
+      problemList.push(`${messagesDir}: locale directory ${locale}/ is missing entirely`);
+      continue;
+    }
+
+    const localeFileNameList = listJsonFileNameList(localeDir);
+
+    for (const fileName of referenceFileNameList) {
+      const localePath = join(localeDir, fileName);
+
+      if (!existsSync(localePath)) {
+        problemList.push(
+          `${localeDir}: file ${fileName} is missing (present in ${REFERENCE_LOCALE}/)`,
+        );
+        continue;
+      }
+
+      problemList.push(...compareKeySetList(join(referenceDir, fileName), localePath));
+    }
+
+    for (const fileName of localeFileNameList) {
+      if (!referenceFileNameList.includes(fileName)) {
+        problemList.push(`${localeDir}: extra file ${fileName} (absent from ${REFERENCE_LOCALE}/)`);
+      }
+    }
+  }
+
+  return problemList;
+};
+
+const collectFlatLocaleList = (messagesDir) => {
+  const presentLocaleList = listJsonFileNameList(messagesDir).map((fileName) =>
+    fileName.replace(/\.json$/, ''),
+  );
+
+  return [...new Set([...presentLocaleList, ...REQUIRED_LOCALE_LIST])];
+};
+
+const checkFlatLayout = (messagesDir) => {
   const problemList = [];
   const referencePath = join(messagesDir, `${REFERENCE_LOCALE}.json`);
 
@@ -66,8 +136,9 @@ const checkMessagesDir = (messagesDir) => {
     return [`${messagesDir}: reference locale file ${REFERENCE_LOCALE}.json is missing`];
   }
 
-  const referenceKeySet = readKeySet(referencePath);
-  const localeList = collectLocaleList(messagesDir).filter((locale) => locale !== REFERENCE_LOCALE);
+  const localeList = collectFlatLocaleList(messagesDir).filter(
+    (locale) => locale !== REFERENCE_LOCALE,
+  );
 
   for (const locale of localeList) {
     const localePath = join(messagesDir, `${locale}.json`);
@@ -77,20 +148,20 @@ const checkMessagesDir = (messagesDir) => {
       continue;
     }
 
-    const localeKeySet = readKeySet(localePath);
-    const missingKeyList = [...referenceKeySet].filter((key) => !localeKeySet.has(key));
-    const extraKeyList = [...localeKeySet].filter((key) => !referenceKeySet.has(key));
-
-    for (const key of missingKeyList) {
-      problemList.push(`${localePath}: missing key "${key}" (present in ${REFERENCE_LOCALE}.json)`);
-    }
-
-    for (const key of extraKeyList) {
-      problemList.push(`${localePath}: extra key "${key}" (absent from ${REFERENCE_LOCALE}.json)`);
-    }
+    problemList.push(...compareKeySetList(referencePath, localePath));
   }
 
   return problemList;
+};
+
+const checkMessagesDir = (messagesDir) => {
+  const referenceDir = join(messagesDir, REFERENCE_LOCALE);
+
+  if (existsSync(referenceDir) && statSync(referenceDir).isDirectory()) {
+    return checkLocaleDirLayout(messagesDir);
+  }
+
+  return checkFlatLayout(messagesDir);
 };
 
 const messagesDirList = findMessagesDirList();

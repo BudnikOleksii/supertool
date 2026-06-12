@@ -7,7 +7,7 @@ export interface ToolRegistryEntry {
 export const TOOL_LIST: ToolRegistryEntry[] = [
   {
     id: 'money-tracker',
-    nameKey: 'shell.tools.moneyTracker',
+    nameKey: 'navigation.tools.moneyTracker',
     path: '/',
   },
 ];

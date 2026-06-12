@@ -1,17 +1,19 @@
+import type { FC } from 'react';
+
 import { useTranslations } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { use } from 'react';
 
-interface HomePageProps {
+interface Props {
   params: Promise<{ locale: string }>;
 }
 
-const HomePage = (props: HomePageProps) => {
+const HomePage: FC<Props> = (props) => {
   const { locale } = use(props.params);
 
   setRequestLocale(locale);
 
-  const translate = useTranslations('home');
+  const translate = useTranslations('homePage');
 
   return (
     <section>

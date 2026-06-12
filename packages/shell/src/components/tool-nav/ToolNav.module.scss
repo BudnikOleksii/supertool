@@ -1,3 +1,5 @@
+@use "@supertool/ui/src/styles/mixins";
+
 .nav {
   display: flex;
 
@@ -8,7 +10,7 @@
   display: flex;
 
   align-items: center;
-  gap: var(--spacing-s);
+  gap: var(--spacing-2);
 }
 
 .link {
@@ -16,30 +18,34 @@
 
   align-items: center;
 
-  height: var(--control-height-s);
+  height: 32px;
 
-  padding: 0 var(--spacing-m);
+  padding: 0 var(--spacing-3);
 
-  font-weight: 500;
-  color: var(--color-text-muted);
+  font-family: var(--default-font-family);
+  font-size: var(--font-body-m-size);
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface-variant);
 
-  border-radius: var(--radius-m);
+  border-radius: var(--radius-md);
 
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 
-  @include hover {
-    color: var(--color-text);
+  @include mixins.hover {
+    color: var(--on-surface);
 
-    background-color: var(--color-surface);
+    background-color: var(--surface-container);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-focus-ring);
+    outline: 2px solid var(--primary);
   }
 
   &[aria-current="page"] {
-    color: var(--color-primary);
+    color: var(--on-primary-container);
 
-    background-color: var(--color-primary-soft);
+    background-color: var(--primary-container);
   }
 }

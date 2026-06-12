@@ -1,3 +1,5 @@
+import type { FC } from 'react';
+
 import { useTranslations } from 'next-intl';
 
 import { NavigationLink } from '@supertool/next-shared/src/i18n/navigation/NavigationLink';
@@ -9,11 +11,11 @@ export interface ToolNavProps {
   tools: ToolRegistryEntry[];
 }
 
-export const ToolNav = ({ tools }: ToolNavProps) => {
+export const ToolNav: FC<ToolNavProps> = ({ tools }) => {
   const translate = useTranslations();
 
   return (
-    <nav className={styles.nav} aria-label={translate('shell.nav.label')}>
+    <nav className={styles.nav} aria-label={translate('navigation.label')}>
       <ul className={styles.list}>
         {tools.map((tool) => (
           <li key={tool.id}>

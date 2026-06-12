@@ -147,6 +147,9 @@ importers:
       '@supertool/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      deepmerge:
+        specifier: 4.3.1
+        version: 4.3.1
       next:
         specifier: 16.2.7
         version: 16.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.100.0)

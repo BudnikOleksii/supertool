@@ -12,7 +12,7 @@ vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
 }));
 
 const TEST_MESSAGES = {
-  shell: {
+  navigation: {
     localeSwitcher: { label: 'Language', en: 'English', uk: 'Українська' },
   },
 };

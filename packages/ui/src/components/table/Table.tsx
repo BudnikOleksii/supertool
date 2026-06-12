@@ -1,29 +1,31 @@
-import type { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
+import type { FC, HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
 
 import { cn } from '../../lib/utils';
 import styles from './Table.module.scss';
 
-export const Table = ({ className, ...props }: HTMLAttributes<HTMLTableElement>) => (
+export const Table: FC<HTMLAttributes<HTMLTableElement>> = ({ className, ...props }) => (
   <div className={styles.wrapper}>
-    <table {...props} className={cn(styles.table, className)} />
+    <table {...props} data-slot="table" className={cn(styles.table, className)} />
   </div>
 );
 
-export const TableHead = (props: HTMLAttributes<HTMLTableSectionElement>) => <thead {...props} />;
+export const TableHead: FC<HTMLAttributes<HTMLTableSectionElement>> = (props) => (
+  <thead {...props} />
+);
 
-export const TableBody = (props: HTMLAttributes<HTMLTableSectionElement>) => <tbody {...props} />;
+export const TableBody: FC<HTMLAttributes<HTMLTableSectionElement>> = (props) => (
+  <tbody {...props} />
+);
 
-export const TableRow = ({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) => (
+export const TableRow: FC<HTMLAttributes<HTMLTableRowElement>> = ({ className, ...props }) => (
   <tr {...props} className={cn(styles.row, className)} />
 );
 
-export const TableHeaderCell = ({
+export const TableHeaderCell: FC<ThHTMLAttributes<HTMLTableCellElement>> = ({
   className,
   ...props
-}: ThHTMLAttributes<HTMLTableCellElement>) => (
-  <th {...props} className={cn(styles.headerCell, className)} />
-);
+}) => <th {...props} className={cn(styles.headerCell, className)} />;
 
-export const TableCell = ({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) => (
+export const TableCell: FC<TdHTMLAttributes<HTMLTableCellElement>> = ({ className, ...props }) => (
   <td {...props} className={cn(styles.cell, className)} />
 );

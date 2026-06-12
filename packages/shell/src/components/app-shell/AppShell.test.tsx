@@ -16,8 +16,8 @@ vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
 }));
 
 const TEST_MESSAGES = {
-  shell: {
-    nav: { label: 'Tools' },
+  navigation: {
+    label: 'Tools',
     tools: { moneyTracker: 'Money Tracker', reportHub: 'Report Hub' },
     userMenu: { label: 'Account' },
     localeSwitcher: { label: 'Language', en: 'English', uk: 'Українська' },
@@ -25,8 +25,8 @@ const TEST_MESSAGES = {
 };
 
 const TOOL_FIXTURE_LIST: ToolRegistryEntry[] = [
-  { id: 'money-tracker', nameKey: 'shell.tools.moneyTracker', path: '/' },
-  { id: 'report-hub', nameKey: 'shell.tools.reportHub', path: '/report-hub' },
+  { id: 'money-tracker', nameKey: 'navigation.tools.moneyTracker', path: '/' },
+  { id: 'report-hub', nameKey: 'navigation.tools.reportHub', path: '/report-hub' },
 ];
 
 const SHELL_CHILDREN = <p>Tool content</p>;

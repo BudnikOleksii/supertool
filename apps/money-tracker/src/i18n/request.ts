@@ -1,23 +1,23 @@
-import { hasLocale } from 'next-intl';
 import { getRequestConfig } from 'next-intl/server';
+import { notFound } from 'next/navigation';
 
-import { routing } from '@supertool/next-shared/src/i18n/routing';
-import type { LocaleCode } from '@supertool/shared/constants/locales';
+import { getTranslationMessageFallback } from '@supertool/next-shared/src/i18n/utils/get-translation-message-fallback';
+import { onTranslateError } from '@supertool/next-shared/src/i18n/utils/on-translate-error';
+import { checkIsLocaleCode } from '@supertool/shared/constants/locales';
 
-const resolveLocale = (requestedLocale: string | undefined): LocaleCode => {
-  if (hasLocale(routing.locales, requestedLocale)) {
-    return requestedLocale;
-  }
-
-  return routing.defaultLocale;
-};
+import { getMessagesByLocale } from './utils/get-messages-by-locale';
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  const locale = resolveLocale(await requestLocale);
-  const messagesModule = await import(`../../messages/${locale}.json`);
+  const locale = await requestLocale;
+
+  if (!locale || !checkIsLocaleCode(locale)) {
+    return notFound();
+  }
 
   return {
+    getMessageFallback: getTranslationMessageFallback,
     locale,
-    messages: messagesModule.default,
+    messages: await getMessagesByLocale(locale),
+    onError: onTranslateError,
   };
 });

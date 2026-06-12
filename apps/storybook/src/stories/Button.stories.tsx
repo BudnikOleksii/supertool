@@ -26,11 +26,11 @@ export const Ghost: Story = {
 };
 
 export const Small: Story = {
-  args: { children: 'Small action', size: 'small' },
+  args: { children: 'Small action', size: 'sm' },
 };
 
 export const Large: Story = {
-  args: { children: 'Large action', size: 'large' },
+  args: { children: 'Large action', size: 'lg' },
 };
 
 export const Disabled: Story = {

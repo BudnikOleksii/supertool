@@ -1,9 +1,13 @@
+@use "@supertool/ui/src/styles/breakpoints";
+
 .shell {
   display: flex;
 
   flex-direction: column;
 
   min-height: 100vh;
+
+  background-color: var(--background);
 }
 
 .header {
@@ -11,14 +15,15 @@
 
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-l);
+  gap: var(--spacing-4);
 
-  padding: var(--spacing-m) var(--spacing-l);
+  padding: var(--spacing-3) var(--spacing-4);
 
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--outline-variant);
 
-  @include media-m {
-    padding: var(--spacing-m) var(--spacing-xl);
+  @include breakpoints.media-m {
+    padding: var(--spacing-3) var(--spacing-6);
   }
 }
 
@@ -26,7 +31,7 @@
   display: flex;
 
   align-items: center;
-  gap: var(--spacing-s);
+  gap: var(--spacing-2);
 }
 
 .main {
@@ -36,9 +41,9 @@
   max-width: 1200px;
 
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-l);
+  padding: var(--spacing-6) var(--spacing-4);
 
-  @include media-m {
-    padding: var(--spacing-2xl) var(--spacing-xl);
+  @include breakpoints.media-m {
+    padding: var(--spacing-8) var(--spacing-6);
   }
 }

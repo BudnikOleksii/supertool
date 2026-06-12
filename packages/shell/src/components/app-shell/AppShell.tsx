@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 import type { ToolRegistryEntry } from '@supertool/shared/constants/tools';
 
@@ -7,12 +7,11 @@ import { ToolNav } from '../tool-nav/ToolNav';
 import { UserMenu } from '../user-menu/UserMenu';
 import styles from './AppShell.module.scss';
 
-export interface AppShellProps {
+export interface AppShellProps extends PropsWithChildren {
   tools: ToolRegistryEntry[];
-  children: ReactNode;
 }
 
-export const AppShell = ({ tools, children }: AppShellProps) => (
+export const AppShell: FC<AppShellProps> = ({ tools, children }) => (
   <div className={styles.shell}>
     <header className={styles.header}>
       <ToolNav tools={tools} />

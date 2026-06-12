@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 import {
   Close,
@@ -25,19 +25,19 @@ export interface DialogProps {
   className?: string;
 }
 
-export const Dialog = ({
+export const Dialog: FC<DialogProps> = ({
   trigger,
   title,
   description,
   closeLabel,
   children,
   className,
-}: DialogProps) => (
+}) => (
   <Root>
     <Trigger asChild>{trigger}</Trigger>
     <Portal>
       <Overlay className={styles.overlay} />
-      <Content className={cn(styles.content, className)}>
+      <Content data-slot="dialog-content" className={cn(styles.content, className)}>
         <header className={styles.header}>
           <Title className={styles.title}>{title}</Title>
           <Close className={styles.close} aria-label={closeLabel}>

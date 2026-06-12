@@ -7,27 +7,30 @@
 .table {
   width: 100%;
 
-  font-size: var(--font-size-m);
+  font-family: var(--default-font-family);
+  font-size: var(--font-body-m-size);
+  line-height: var(--font-body-m-line-height);
+  color: var(--on-surface);
 
   border-collapse: collapse;
 }
 
 .row {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .headerCell {
-  padding: var(--spacing-m) var(--spacing-l);
+  padding: var(--spacing-3) var(--spacing-4);
 
-  font-size: var(--font-size-s);
-  font-weight: 600;
+  font-size: var(--font-body-s-size);
+  font-weight: var(--font-weight-medium);
   text-align: left;
-  color: var(--color-text-muted);
+  color: var(--on-surface-variant);
   white-space: nowrap;
 }
 
 .cell {
-  padding: var(--spacing-m) var(--spacing-l);
+  padding: var(--spacing-3) var(--spacing-4);
 
   text-align: left;
 }

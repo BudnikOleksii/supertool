@@ -7,19 +7,6 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
-  viteFinal: (viteConfig) => ({
-    ...viteConfig,
-    css: {
-      ...viteConfig.css,
-      preprocessorOptions: {
-        ...viteConfig.css?.preprocessorOptions,
-        scss: {
-          additionalData: "@use 'breakpoints' as *;\n@use 'mixins' as *;\n",
-          loadPaths: [`${process.cwd()}/../../packages/ui/src/styles`],
-        },
-      },
-    },
-  }),
 };
 
 export default config;
