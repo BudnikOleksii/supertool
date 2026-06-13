@@ -55,7 +55,7 @@ development_status:
   # parity — auth widgets (1-5) compose field/label/checkbox/alert-dialog
   1-9-design-system-structure-visual-qa-baseline: done
   1-10-design-system-atom-parity: done
-  1-11-design-system-molecule-parity: in-progress
+  1-11-design-system-molecule-parity: review
   1-5-sign-up-sign-in: backlog
   1-6-profile-settings: backlog
   1-7-one-command-local-runtime: backlog
