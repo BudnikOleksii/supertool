@@ -16,12 +16,17 @@ const DEFAULT_VALUE = 0;
 
 const formatPadded = (value: number): string => String(value).padStart(PAD_LENGTH, '0');
 
+const clampValue = (value: number, max: number): number =>
+  Math.min(Math.max(value, MIN_VALUE), max);
+
 const parseTimeString = (value: string): { hours: number; minutes: number } => {
   const [hoursPart, minutesPart] = value.split(':');
+  const parsedHours = Number(hoursPart);
+  const parsedMinutes = Number(minutesPart);
 
   return {
-    hours: Number(hoursPart) || DEFAULT_VALUE,
-    minutes: Number(minutesPart) || DEFAULT_VALUE,
+    hours: Number.isNaN(parsedHours) ? DEFAULT_VALUE : clampValue(parsedHours, MAX_HOURS),
+    minutes: Number.isNaN(parsedMinutes) ? DEFAULT_VALUE : clampValue(parsedMinutes, MAX_MINUTES),
   };
 };
 
@@ -39,9 +44,6 @@ const wrapValue = (value: number, max: number): number => {
 
   return value;
 };
-
-const clampValue = (value: number, max: number): number =>
-  Math.min(Math.max(value, MIN_VALUE), max);
 
 export interface TimePickerProps {
   value?: string;
