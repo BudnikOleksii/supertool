@@ -1,0 +1,145 @@
+.fieldSet {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.fieldLegend {
+  margin-bottom: var(--spacing-3);
+
+  font-family: var(--default-font-family);
+  font-weight: var(--font-weight-medium);
+
+  &[data-variant="legend"] {
+    font-size: var(--font-body-l-size);
+  }
+
+  &[data-variant="label"] {
+    font-size: var(--font-body-m-size);
+  }
+}
+
+.fieldGroup {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-7);
+
+  width: 100%;
+}
+
+.field {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-3);
+
+  width: 100%;
+
+  &[data-orientation="vertical"] > * {
+    width: 100%;
+  }
+
+  &[data-orientation="horizontal"] {
+    flex-direction: row;
+    align-items: center;
+
+    [data-slot="field-label"] {
+      flex: 1 1 auto;
+    }
+  }
+
+  &[data-invalid="true"] {
+    color: var(--error);
+  }
+}
+
+.fieldContent {
+  display: flex;
+
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--spacing-2);
+
+  line-height: 1.375;
+}
+
+.fieldLabel {
+  display: flex;
+
+  gap: var(--spacing-2);
+
+  width: fit-content;
+
+  line-height: 1.375;
+}
+
+.fieldTitle {
+  display: flex;
+
+  gap: var(--spacing-2);
+
+  width: fit-content;
+
+  font-family: var(--default-font-family);
+  font-size: var(--font-body-m-size);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.375;
+}
+
+.fieldDescription {
+  font-family: var(--default-font-family);
+  font-size: var(--font-body-m-size);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+}
+
+.fieldSeparator {
+  position: relative;
+
+  height: 20px;
+
+  margin-block: calc(-1 * var(--spacing-2));
+
+  font-size: var(--font-body-m-size);
+}
+
+.fieldSeparatorLine {
+  position: absolute;
+  inset: 0;
+  top: 50%;
+}
+
+.fieldSeparatorContent {
+  position: relative;
+
+  display: block;
+
+  width: fit-content;
+
+  margin-inline: auto;
+  padding: 0 var(--spacing-2);
+
+  color: var(--on-surface-variant);
+
+  background-color: var(--surface);
+}
+
+.fieldError {
+  font-family: var(--default-font-family);
+  font-size: var(--font-body-m-size);
+  font-weight: var(--font-weight-regular);
+  color: var(--error);
+}
+
+.fieldErrorList {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-1);
+
+  margin-left: var(--spacing-4);
+
+  list-style-type: disc;
+}
