@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
-import { Select } from '@supertool/ui/src/components/select/Select';
+import { Select } from '@supertool/ui/src/components/atoms/select/Select';
 
 import { checkIsThemeOption, THEME_OPTION, THEME_OPTION_LIST } from './constants';
 import styles from './ThemeSwitcher.module.scss';

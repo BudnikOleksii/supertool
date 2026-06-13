@@ -1,3 +1,8 @@
+import '@fontsource/poppins/latin-400.css';
+import '@fontsource/poppins/latin-500.css';
+import '@fontsource/poppins/latin-600.css';
+import '@fontsource/poppins/latin-700.css';
+import '@fontsource/poppins/latin-800.css';
 import '@supertool/ui/src/styles/index.scss';
 import type { Preview } from '@storybook/react-vite';
 import type { ComponentType } from 'react';

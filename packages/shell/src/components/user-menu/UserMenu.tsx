@@ -2,7 +2,7 @@ import type { FC } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import { Button } from '@supertool/ui/src/components/button/Button';
+import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 
 export const UserMenu: FC = () => {
   const translate = useTranslations('navigation.userMenu');

@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-10
-last_updated: 2026-06-12
+last_updated: 2026-06-13
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -53,7 +53,7 @@ development_status:
   # 1-9 → 1-10 → 1-11 run before 1-5 (sprint change 2026-06-12): atoms/molecules
   # restructure, screenshot-based visual QA gate, and full reference component
   # parity — auth widgets (1-5) compose field/label/checkbox/alert-dialog
-  1-9-design-system-structure-visual-qa-baseline: backlog
+  1-9-design-system-structure-visual-qa-baseline: done
   1-10-design-system-atom-parity: backlog
   1-11-design-system-molecule-parity: backlog
   1-5-sign-up-sign-in: backlog

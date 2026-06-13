@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 
 import { usePathname, useRouter } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { checkIsLocaleCode, LOCALE_CODE_LIST } from '@supertool/shared/constants/locales';
-import { Select } from '@supertool/ui/src/components/select/Select';
+import { Select } from '@supertool/ui/src/components/atoms/select/Select';
 
 export const LocaleSwitcher: FC = () => {
   const translate = useTranslations('navigation.localeSwitcher');

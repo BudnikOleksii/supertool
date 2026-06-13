@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Typography } from '@supertool/ui/src/components/typography/Typography';
+import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
 const meta = {
   title: 'Primitives/Typography',
