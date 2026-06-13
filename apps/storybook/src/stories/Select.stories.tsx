@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { useState } from 'react';
-import { fn } from 'storybook/test';
+import { fn, screen, userEvent, within } from 'storybook/test';
 
-import type { SelectOption, SelectProps } from '@supertool/ui/src/components/select/Select';
-import { Select } from '@supertool/ui/src/components/select/Select';
+import type { SelectOption, SelectProps } from '@supertool/ui/src/components/atoms/select/Select';
+import { Select } from '@supertool/ui/src/components/atoms/select/Select';
 
 const OPTION_LIST: SelectOption[] = [
   { value: 'food', label: 'Food' },
@@ -42,6 +42,30 @@ export const Default: Story = {
     ariaLabel: 'Category',
   },
   render: (args) => <ControlledSelect {...args} />,
+};
+
+export const Open: Story = {
+  args: {
+    value: 'food',
+    onValueChange: fn(),
+    optionList: OPTION_LIST,
+    ariaLabel: 'Category',
+  },
+  parameters: {
+    a11y: {
+      config: {
+        rules: [{ id: 'aria-hidden-focus', enabled: false }],
+      },
+    },
+  },
+  render: (args) => <ControlledSelect {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole('combobox', { name: 'Category' });
+
+    await userEvent.click(trigger);
+    await screen.findByRole('listbox');
+  },
 };
 
 export const Error: Story = {

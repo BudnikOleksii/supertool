@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
-} from '@supertool/ui/src/components/table/Table';
+} from '@supertool/ui/src/components/molecules/table/Table';
 
 const meta = {
   title: 'Primitives/Table',

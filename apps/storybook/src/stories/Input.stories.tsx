@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Input } from '@supertool/ui/src/components/input/Input';
+import { Input } from '@supertool/ui/src/components/atoms/input/Input';
 
 const meta = {
   title: 'Primitives/Input',

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Input } from '@supertool/ui/src/components/input/Input';
-import { Label } from '@supertool/ui/src/components/label/Label';
+import { Input } from '@supertool/ui/src/components/atoms/input/Input';
+import { Label } from '@supertool/ui/src/components/atoms/label/Label';
 
 const meta = {
   title: 'Primitives/Label',
