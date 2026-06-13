@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, FC, Ref } from 'react';
 
 import { Content, Item, Portal, Root, Trigger } from '@radix-ui/react-dropdown-menu';
 
@@ -16,12 +16,12 @@ interface DropdownMenuContentProps extends ComponentPropsWithoutRef<typeof Conte
   ref?: Ref<ComponentRef<typeof Content>>;
 }
 
-export const DropdownMenuContent = ({
+export const DropdownMenuContent: FC<DropdownMenuContentProps> = ({
   className,
   sideOffset = DEFAULT_SIDE_OFFSET,
   ref,
   ...props
-}: DropdownMenuContentProps) => (
+}) => (
   <Portal>
     <Content
       ref={ref}
@@ -37,7 +37,7 @@ interface DropdownMenuItemProps extends ComponentPropsWithoutRef<typeof Item> {
   ref?: Ref<ComponentRef<typeof Item>>;
 }
 
-export const DropdownMenuItem = ({ className, ref, ...props }: DropdownMenuItemProps) => (
+export const DropdownMenuItem: FC<DropdownMenuItemProps> = ({ className, ref, ...props }) => (
   <Item
     ref={ref}
     data-slot="dropdown-menu-item"

@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentPropsWithoutRef, ComponentRef, HTMLAttributes, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, FC, HTMLAttributes, Ref } from 'react';
 
 import {
   Action,
@@ -25,7 +25,7 @@ interface AlertDialogOverlayProps extends ComponentPropsWithoutRef<typeof Overla
   ref?: Ref<ComponentRef<typeof Overlay>>;
 }
 
-const AlertDialogOverlay = ({ className, ref, ...props }: AlertDialogOverlayProps) => (
+const AlertDialogOverlay: FC<AlertDialogOverlayProps> = ({ className, ref, ...props }) => (
   <Overlay ref={ref} className={cn(styles.overlay, className)} {...props} />
 );
 
@@ -34,13 +34,13 @@ interface AlertDialogContentProps extends ComponentPropsWithoutRef<typeof Conten
   ref?: Ref<ComponentRef<typeof Content>>;
 }
 
-export const AlertDialogContent = ({
+export const AlertDialogContent: FC<AlertDialogContentProps> = ({
   className,
   size = 'default',
   children,
   ref,
   ...props
-}: AlertDialogContentProps) => (
+}) => (
   <Portal>
     <AlertDialogOverlay />
     <Content
@@ -54,19 +54,19 @@ export const AlertDialogContent = ({
   </Portal>
 );
 
-export const AlertDialogHeader = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
+export const AlertDialogHeader: FC<HTMLAttributes<HTMLDivElement>> = ({ className, ...props }) => (
   <div data-slot="alert-dialog-header" className={cn(styles.header, className)} {...props} />
 );
 
-export const AlertDialogFooter = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
+export const AlertDialogFooter: FC<HTMLAttributes<HTMLDivElement>> = ({ className, ...props }) => (
   <div data-slot="alert-dialog-footer" className={cn(styles.footer, className)} {...props} />
 );
 
-export const AlertDialogTitle = ({
+export const AlertDialogTitle: FC<ComponentPropsWithoutRef<typeof Title>> = ({
   className,
   children,
   ...props
-}: ComponentPropsWithoutRef<typeof Title>) => (
+}) => (
   <Title asChild {...props}>
     <Typography
       tag="h2"
@@ -80,11 +80,11 @@ export const AlertDialogTitle = ({
   </Title>
 );
 
-export const AlertDialogDescription = ({
+export const AlertDialogDescription: FC<ComponentPropsWithoutRef<typeof Description>> = ({
   className,
   children,
   ...props
-}: ComponentPropsWithoutRef<typeof Description>) => (
+}) => (
   <Description asChild {...props}>
     <Typography
       variant="body-m"
@@ -100,7 +100,7 @@ interface AlertDialogActionProps extends ComponentPropsWithoutRef<typeof Action>
   ref?: Ref<ComponentRef<typeof Action>>;
 }
 
-export const AlertDialogAction = ({ ref, ...props }: AlertDialogActionProps) => (
+export const AlertDialogAction: FC<AlertDialogActionProps> = ({ ref, ...props }) => (
   <Action ref={ref} asChild {...props} />
 );
 
@@ -108,6 +108,6 @@ interface AlertDialogCancelProps extends ComponentPropsWithoutRef<typeof Cancel>
   ref?: Ref<ComponentRef<typeof Cancel>>;
 }
 
-export const AlertDialogCancel = ({ ref, ...props }: AlertDialogCancelProps) => (
+export const AlertDialogCancel: FC<AlertDialogCancelProps> = ({ ref, ...props }) => (
   <Cancel ref={ref} asChild {...props} />
 );

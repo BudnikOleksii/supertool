@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, HTMLAttributes, Ref } from 'react';
+import type { AnchorHTMLAttributes, FC, HTMLAttributes, Ref } from 'react';
 
 import { Slot } from '@radix-ui/react-slot';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
@@ -8,7 +8,7 @@ import styles from './Breadcrumb.module.scss';
 
 const ICON_SIZE = 16;
 
-export const Breadcrumb = ({ className, ...props }: HTMLAttributes<HTMLElement>) => (
+export const Breadcrumb: FC<HTMLAttributes<HTMLElement>> = ({ className, ...props }) => (
   <nav
     data-slot="breadcrumb"
     aria-label="Breadcrumb"
@@ -17,11 +17,11 @@ export const Breadcrumb = ({ className, ...props }: HTMLAttributes<HTMLElement>)
   />
 );
 
-export const BreadcrumbList = ({ className, ...props }: HTMLAttributes<HTMLOListElement>) => (
+export const BreadcrumbList: FC<HTMLAttributes<HTMLOListElement>> = ({ className, ...props }) => (
   <ol data-slot="breadcrumb-list" className={cn(styles.list, className)} {...props} />
 );
 
-export const BreadcrumbItem = ({ className, ...props }: HTMLAttributes<HTMLLIElement>) => (
+export const BreadcrumbItem: FC<HTMLAttributes<HTMLLIElement>> = ({ className, ...props }) => (
   <li data-slot="breadcrumb-item" className={cn(styles.item, className)} {...props} />
 );
 
@@ -30,12 +30,12 @@ interface BreadcrumbLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   asChild?: boolean;
 }
 
-export const BreadcrumbLink = ({
+export const BreadcrumbLink: FC<BreadcrumbLinkProps> = ({
   className,
   ref,
   asChild = false,
   ...props
-}: BreadcrumbLinkProps) => {
+}) => {
   const linkClassName = cn(styles.link, className);
 
   if (asChild) {
@@ -45,7 +45,7 @@ export const BreadcrumbLink = ({
   return <a ref={ref} data-slot="breadcrumb-link" className={linkClassName} {...props} />;
 };
 
-export const BreadcrumbPage = ({ className, ...props }: HTMLAttributes<HTMLSpanElement>) => (
+export const BreadcrumbPage: FC<HTMLAttributes<HTMLSpanElement>> = ({ className, ...props }) => (
   <span
     data-slot="breadcrumb-page"
     role="link"
@@ -56,11 +56,11 @@ export const BreadcrumbPage = ({ className, ...props }: HTMLAttributes<HTMLSpanE
   />
 );
 
-export const BreadcrumbSeparator = ({
+export const BreadcrumbSeparator: FC<HTMLAttributes<HTMLSpanElement>> = ({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLSpanElement>) => (
+}) => (
   <span
     data-slot="breadcrumb-separator"
     role="presentation"
@@ -72,7 +72,10 @@ export const BreadcrumbSeparator = ({
   </span>
 );
 
-export const BreadcrumbEllipsis = ({ className, ...props }: HTMLAttributes<HTMLSpanElement>) => (
+export const BreadcrumbEllipsis: FC<HTMLAttributes<HTMLSpanElement>> = ({
+  className,
+  ...props
+}) => (
   <span
     data-slot="breadcrumb-ellipsis"
     role="presentation"
