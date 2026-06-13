@@ -1,0 +1,342 @@
+[
+  {
+    "id": "primitives-alert--default",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-alert--destructive",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-alert--with-action",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-aspectratio--widescreen",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-aspectratio--square",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-avatar--with-image",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-avatar--fallback",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-avatar--small",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-avatar--large",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--default",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--secondary",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--destructive",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--outline",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--ghost",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--success",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--warning",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--unchecked",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--checked",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--indeterminate",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--disabled",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--error",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-radiogroup--default",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-radiogroup--three-options",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-radiogroup--disabled",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-separator--horizontal",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-separator--vertical",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-skeleton--line",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-skeleton--avatar",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-skeleton--card",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-timepicker--default",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-timepicker--with-value",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-timepicker--disabled",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-underlinelink--default",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-underlinelink--as-button",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "id": "primitives-alert--default",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-alert--destructive",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-alert--with-action",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-aspectratio--widescreen",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-aspectratio--square",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-avatar--with-image",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-avatar--fallback",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-avatar--small",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-avatar--large",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--default",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--secondary",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--destructive",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--outline",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--ghost",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--success",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-badge--warning",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--unchecked",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--checked",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--indeterminate",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--disabled",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-checkbox--error",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-radiogroup--default",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-radiogroup--three-options",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-radiogroup--disabled",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-separator--horizontal",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-separator--vertical",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-skeleton--line",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-skeleton--avatar",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-skeleton--card",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-timepicker--default",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-timepicker--with-value",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-timepicker--disabled",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-underlinelink--default",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "id": "primitives-underlinelink--as-button",
+    "theme": "dark",
+    "violations": []
+  }
+]
