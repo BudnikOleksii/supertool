@@ -57,6 +57,26 @@ describe('Combobox', () => {
     expect(onValueChange).toHaveBeenCalledWith('uk');
   });
 
+  it('ignores arrow navigation when the filtered list is empty', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Combobox
+        optionList={OPTION_LIST}
+        searchLabel="Search options"
+        onValueChange={onValueChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('combobox'));
+    const input = screen.getByRole('combobox', { name: 'Search options' });
+    fireEvent.change(input, { target: { value: 'zzz' } });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(screen.queryByRole('option')).toBeNull();
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
   it('supports keyboard navigation and selection', () => {
     const onValueChange = vi.fn();
     render(

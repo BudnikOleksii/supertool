@@ -1,5 +1,6 @@
 import type { AnchorHTMLAttributes, HTMLAttributes, Ref } from 'react';
 
+import { Slot } from '@radix-ui/react-slot';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
 
 import { cn } from '../../../lib/utils';
@@ -26,11 +27,23 @@ export const BreadcrumbItem = ({ className, ...props }: HTMLAttributes<HTMLLIEle
 
 interface BreadcrumbLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   ref?: Ref<HTMLAnchorElement>;
+  asChild?: boolean;
 }
 
-export const BreadcrumbLink = ({ className, ref, ...props }: BreadcrumbLinkProps) => (
-  <a ref={ref} data-slot="breadcrumb-link" className={cn(styles.link, className)} {...props} />
-);
+export const BreadcrumbLink = ({
+  className,
+  ref,
+  asChild = false,
+  ...props
+}: BreadcrumbLinkProps) => {
+  const linkClassName = cn(styles.link, className);
+
+  if (asChild) {
+    return <Slot data-slot="breadcrumb-link" className={linkClassName} {...props} />;
+  }
+
+  return <a ref={ref} data-slot="breadcrumb-link" className={linkClassName} {...props} />;
+};
 
 export const BreadcrumbPage = ({ className, ...props }: HTMLAttributes<HTMLSpanElement>) => (
   <span

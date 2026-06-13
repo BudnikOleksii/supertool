@@ -6,6 +6,7 @@ import type { ComboboxOption } from '../Combobox';
 
 const FIRST_INDEX = 0;
 const INDEX_OFFSET = 1;
+const EMPTY_OPTION_COUNT = 0;
 
 interface UseComboboxKeyboardConfig {
   filteredOptionList: ComboboxOption[];
@@ -44,7 +45,8 @@ export const useComboboxKeyboard = ({
       };
 
       const action = keyActionMap[event.key];
-      if (action) {
+      const isNavigationOnEmptyList = optionCount === EMPTY_OPTION_COUNT && event.key !== 'Escape';
+      if (action && !isNavigationOnEmptyList) {
         event.preventDefault();
         action();
       }

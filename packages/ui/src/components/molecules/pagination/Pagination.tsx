@@ -12,6 +12,7 @@ import styles from './Pagination.module.scss';
 const FIRST_PAGE = 1;
 const SINGLE_PAGE = 1;
 const PAGE_STEP = 1;
+const MINIMUM_LIMIT = 1;
 const CHEVRON_SIZE = 16;
 
 export interface PaginationProps {
@@ -35,20 +36,22 @@ export const Pagination: FC<PaginationProps> = ({
   renderInfo,
   className,
 }) => {
-  const totalPageCount = Math.ceil(total / limit);
-  const hasPrevious = page > FIRST_PAGE;
-  const hasNext = page < totalPageCount;
+  const totalPageCount = limit < MINIMUM_LIMIT ? SINGLE_PAGE : Math.ceil(total / limit);
 
   if (totalPageCount <= SINGLE_PAGE) {
     return null;
   }
 
+  const currentPage = Math.min(Math.max(page, FIRST_PAGE), totalPageCount);
+  const hasPrevious = currentPage > FIRST_PAGE;
+  const hasNext = currentPage < totalPageCount;
+
   const handlePrevious = () => {
-    onPageChange(page - PAGE_STEP);
+    onPageChange(currentPage - PAGE_STEP);
   };
 
   const handleNext = () => {
-    onPageChange(page + PAGE_STEP);
+    onPageChange(currentPage + PAGE_STEP);
   };
 
   return (
@@ -64,7 +67,9 @@ export const Pagination: FC<PaginationProps> = ({
       </Button>
 
       <Typography variant="body-s" className={styles.info}>
-        {renderInfo ? renderInfo(page, totalPageCount) : `${page} / ${totalPageCount}`}
+        {renderInfo
+          ? renderInfo(currentPage, totalPageCount)
+          : `${currentPage} / ${totalPageCount}`}
       </Typography>
 
       <Button

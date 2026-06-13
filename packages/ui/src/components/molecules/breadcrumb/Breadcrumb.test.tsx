@@ -38,4 +38,17 @@ describe('Breadcrumb', () => {
 
     expect(current.getAttribute('aria-current')).toBe('page');
   });
+
+  it('renders the consumer element when asChild is set', () => {
+    render(
+      <BreadcrumbLink asChild>
+        <button type="button">Go back</button>
+      </BreadcrumbLink>,
+    );
+
+    const link = screen.getByRole('button', { name: 'Go back' });
+
+    expect(link.tagName).toBe('BUTTON');
+    expect(link.getAttribute('data-slot')).toBe('breadcrumb-link');
+  });
 });
