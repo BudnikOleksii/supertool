@@ -1,0 +1,60 @@
+.alert {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "icon title action" "icon description action";
+
+  align-items: flex-start;
+  gap: var(--spacing-2) var(--spacing-4);
+
+  padding: var(--spacing-4);
+
+  color: var(--on-surface);
+
+  background-color: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+
+  & > *:first-child:not(.action, .title, .description) {
+    grid-area: icon;
+
+    align-self: flex-start;
+
+    margin-top: 2px;
+  }
+}
+
+.title {
+  grid-area: title;
+
+  margin: 0;
+
+  color: inherit;
+}
+
+.description {
+  grid-area: description;
+
+  margin: 0;
+
+  color: var(--on-surface-variant);
+}
+
+.action {
+  grid-area: action;
+
+  align-self: center;
+}
+
+.destructive {
+  color: var(--on-error-container);
+
+  background-color: var(--error-container);
+  border-color: var(--error);
+
+  .description {
+    color: var(--on-error-container);
+  }
+}
