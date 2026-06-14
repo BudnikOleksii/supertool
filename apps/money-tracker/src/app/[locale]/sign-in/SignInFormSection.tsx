@@ -13,11 +13,15 @@ interface Props {
 }
 
 const handleSignInSuccess = async (): Promise<void> => {
-  const locale = await fetchSignedInLocale();
-  const targetLocale = locale !== null && checkIsLocaleCode(locale) ? locale : DEFAULT_LOCALE;
-  const target = targetLocale === DEFAULT_LOCALE ? ROUTES.home : `/${targetLocale}`;
+  try {
+    const locale = await fetchSignedInLocale();
+    const targetLocale = locale !== null && checkIsLocaleCode(locale) ? locale : DEFAULT_LOCALE;
+    const target = targetLocale === DEFAULT_LOCALE ? ROUTES.home : `/${targetLocale}`;
 
-  globalThis.location.assign(target);
+    globalThis.location.assign(target);
+  } catch {
+    globalThis.location.assign(ROUTES.home);
+  }
 };
 
 export const SignInFormSection: FC<Props> = ({ submitLabel }) => (
