@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type { HealthCheckData, HealthCheckResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
+import type { HealthCheckData, HealthCheckResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -38,5 +38,11 @@ export class UsersApiService {
                 ...options.headers
             }
         });
+    }
+}
+
+export class TransactionsApiService {
+    public static transactionsFindAll<ThrowOnError extends boolean = false>(options?: Options<TransactionsFindAllData, ThrowOnError>): RequestResult<TransactionsFindAllResponses, TransactionsFindAllErrors, ThrowOnError> {
+        return (options?.client ?? client).get<TransactionsFindAllResponses, TransactionsFindAllErrors, ThrowOnError>({ url: '/api/v1/transactions', ...options });
     }
 }

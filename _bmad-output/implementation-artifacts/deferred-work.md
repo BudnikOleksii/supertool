@@ -1,5 +1,13 @@
 # Deferred Work
 
+## Deferred from: code review of 2-2-browse-transactions-by-month (2026-06-14)
+
+- No within-month pagination UI ships (`apps/money-tracker/src/app/[locale]/transactions/page.tsx`, `TransactionListServer.tsx`): `page` is parsed, fed to the API, and keys the Suspense boundary, but no pagination control renders and `meta.total` is never read on the frontend, so rows beyond `TRANSACTIONS_PAGE_SIZE=50` are unreachable within a month. **Deferred to Story 2.5** — within-month pagination belongs with the filter/sort work; Story 2.2 scope (AC4) is month stepping only.
+- No `@Max` on `page` in `PaginationQueryDto` (`apps/api/src/shared/dtos/pagination-query.dto.ts`); `limit` is capped at `MAX_PAGE_SIZE=100` but `page` only has `@Min`, so an arbitrarily large `?page=N` produces an unbounded `OFFSET` and a page beyond `total` silently returns an empty list (the frontend never reads `meta.total` to clamp). Auth-scoped and read-only so no security impact; add a `@Max` + a `meta`-aware clamp when the 2.5 pagination UI lands.
+- `FindTransactionsQueryDto` (`apps/api/src/modules/transactions/dtos/find-transactions-query.dto.ts`) validates only the `^\d{4}-\d{2}-\d{2}$` shape — no cross-field check that `dateFrom <= dateTo` and no real-calendar validation, so `dateFrom=2025-03-31&dateTo=2025-03-01` or `2025-02-30` / `2025-13-01` pass validation and return an empty set instead of a 400. The UI always derives both bounds from one period so it can't trigger this; harden the direct-API contract later.
+- Second-user isolation assertion in `apps/api/test/integration/transactions.integration.spec.ts` queries the operator with `HIGH_LIMIT=1000`; if the operator's month window ever exceeds 1000 rows the injected other-user id could be absent via truncation rather than scoping, false-passing the test. Harden by asserting on a count or a narrow window.
+- `MonthStepper` (`apps/money-tracker/src/app/[locale]/transactions/components/month-stepper/MonthStepper.tsx`) computes next/prev from the render-time `period` prop, not the freshest URL; a rapid double-click before the RSC re-render commits can land one month off. Add a pending-navigation guard if it proves noticeable.
+
 ## Deferred from: code review of 1-8-design-system-repair-theming (2026-06-12)
 
 - Visual evidence gate (both-theme screenshots incl. open/interactive states vs `example/track-my-life`) not satisfied for 1.8's repaired primitives — deferred to Story 1.9, which establishes the screenshot-based visual QA baseline; 1.8 accepted on mechanism + token purity only.

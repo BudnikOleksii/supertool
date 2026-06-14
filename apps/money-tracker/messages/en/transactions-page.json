@@ -1,0 +1,27 @@
+{
+  "title": "Transactions",
+  "columns": {
+    "date": "Date",
+    "category": "Category",
+    "type": "Type",
+    "amount": "Amount",
+    "currency": "Currency",
+    "note": "Note"
+  },
+  "type": {
+    "income": "Income",
+    "expense": "Expense"
+  },
+  "monthNav": {
+    "previous": "Previous month",
+    "next": "Next month"
+  },
+  "empty": {
+    "title": "No transactions for this month",
+    "description": "Once you add transactions for this period, they will show up here."
+  },
+  "error": {
+    "title": "Couldn’t load transactions",
+    "description": "Something went wrong while loading this month. Please try again."
+  }
+}
