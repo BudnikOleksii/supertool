@@ -6,13 +6,15 @@ import { authDatabasePool } from './auth';
 
 @Injectable()
 export class AuthDatabaseLifecycle implements OnApplicationShutdown {
-  private isPoolEnded = false;
+  private poolEndPromise: Promise<void> | null = null;
 
   async onApplicationShutdown(): Promise<void> {
-    if (this.isPoolEnded) {
-      return;
+    if (!this.poolEndPromise) {
+      this.poolEndPromise = authDatabasePool.end().catch((error: unknown) => {
+        this.poolEndPromise = null;
+        throw error;
+      });
     }
-    this.isPoolEnded = true;
-    await authDatabasePool.end();
+    await this.poolEndPromise;
   }
 }

@@ -71,10 +71,10 @@ const extractSessionCookie = (response: Response): string => {
 };
 
 const signUp = async (user: typeof USER_A): Promise<Response> =>
-  postJson('/api/auth/sign-up/email', user);
+  postJson('/api/v1/auth/sign-up/email', user);
 
 const signIn = async (user: typeof USER_A): Promise<Response> =>
-  postJson('/api/auth/sign-in/email', { email: user.email, password: user.password });
+  postJson('/api/v1/auth/sign-in/email', { email: user.email, password: user.password });
 
 const signInForCookie = async (user: typeof USER_A): Promise<string> =>
   extractSessionCookie(await signIn(user));
@@ -99,8 +99,11 @@ const configureTestEnvironment = (databaseUrl: string): void => {
 
 const runMigrations = async (databaseUrl: string): Promise<void> => {
   const migrationPool = new Pool({ connectionString: databaseUrl });
-  await migrate(drizzle(migrationPool), { migrationsFolder });
-  await migrationPool.end();
+  try {
+    await migrate(drizzle(migrationPool), { migrationsFolder });
+  } finally {
+    await migrationPool.end();
+  }
 };
 
 const bootApp = async (): Promise<{ app: INestApplication }> => {
@@ -149,7 +152,7 @@ describe('auth boundary (Testcontainers Postgres)', () => {
 
   it('validates an active session via get-session', async () => {
     const cookie = await signInForCookie(USER_A);
-    const response = await getJson('/api/auth/get-session', cookie);
+    const response = await getJson('/api/v1/auth/get-session', cookie);
     const body = await readJson<SessionBody>(response);
 
     expect(response.status).toBe(HTTP_OK);
