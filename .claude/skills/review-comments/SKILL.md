@@ -59,25 +59,39 @@ Review PR comments — fix valid issues, reply to non-actionable ones, commit an
    - Run `pnpm type-check`, `pnpm lint`, `pnpm stylelint` to verify
    - If checks fail, fix until they pass
 
-6. **Reply to all comments on GitHub**
+6. **React to each comment with an emoji**
+
+   Add a reaction to every comment reflecting whether it was relevant:
+   - 👍 (`+1`) if the comment was relevant — a valid fix that was applied or will be applied.
+   - 👎 (`-1`) if the comment was not relevant — a false positive or a not-applicable suggestion.
+
+   ```bash
+   gh api repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions -f content="+1"   # or "-1"
+   ```
+
+   Note the reactions path is `pulls/comments/{comment_id}/reactions` (no `{number}` segment), unlike the replies path.
+
+7. **Reply to all comments on GitHub**
 
    For each comment, reply via:
 
    ```bash
-   gh api repos/{owner}/{repo}/pulls/{number}/comments/{comment_id}/replies -f body="<response>"
+   gh api repos/{owner}/{repo}/pulls/{number}/comments/{comment_id}/replies -F body=@<file>
    ```
+
+   Write each reply body to a temp file and pass it with `-F body=@<file>` — reply bodies routinely contain backticks and `$`, which `-f body="..."` would let the shell expand.
 
    - **Fixed comments**: Briefly describe what was changed
    - **Not applicable comments**: Explain which existing code uses the same pattern and why changing only this instance would create inconsistency
 
-7. **Commit and push**
+8. **Commit and push**
 
    If any fixes were made:
    - Stage all changed files
    - Commit with message: `fix: address PR review — <brief summary of changes>`
    - Push to the current branch
 
-8. **Return final summary table**
+9. **Return final summary table**
 
    Display a markdown table:
 

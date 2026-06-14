@@ -10,16 +10,18 @@ import styles from './AppShell.module.scss';
 
 export interface AppShellProps extends PropsWithChildren {
   tools: ToolRegistryEntry[];
+  userName?: string | undefined;
+  onSignOut?: (() => void) | undefined;
 }
 
-export const AppShell: FC<AppShellProps> = ({ tools, children }) => (
+export const AppShell: FC<AppShellProps> = ({ tools, userName, onSignOut, children }) => (
   <div className={styles.shell}>
     <header className={styles.header}>
       <ToolNav tools={tools} />
       <div className={styles.actions}>
         <ThemeSwitcher />
         <LocaleSwitcher />
-        <UserMenu />
+        <UserMenu userName={userName} onSignOut={onSignOut} />
       </div>
     </header>
     <main className={styles.main}>{children}</main>

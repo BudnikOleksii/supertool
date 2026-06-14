@@ -1,0 +1,18 @@
+{
+  "email": "Email",
+  "emailPlaceholder": "you@example.com",
+  "password": "Password",
+  "passwordPlaceholder": "Enter your password",
+  "name": "Name",
+  "namePlaceholder": "Enter your name",
+  "errors": {
+    "emailInvalid": "Please enter a valid email address",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "nameRequired": "Name is required",
+    "invalidCredentials": "Invalid email or password",
+    "userExists": "An account with this email already exists",
+    "rateLimited": "Too many attempts. Please try again later.",
+    "generic": "Something went wrong. Please try again."
+  }
+}

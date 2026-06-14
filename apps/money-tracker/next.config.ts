@@ -7,7 +7,12 @@ import { env } from './src/env';
 const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@supertool/ui', '@supertool/shell', '@supertool/next-shared'],
+  transpilePackages: [
+    '@supertool/ui',
+    '@supertool/shell',
+    '@supertool/next-shared',
+    '@supertool/widgets',
+  ],
   rewrites: async () => [
     {
       source: '/api/:path*',

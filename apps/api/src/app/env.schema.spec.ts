@@ -5,46 +5,61 @@ import { parseEnv } from './env.schema';
 const DEFAULT_PORT = 3001;
 const EXPLICIT_PORT = 8080;
 
+const VALID_ENV = {
+  DATABASE_URL: 'postgres://user:pass@db:5432/supertool',
+  BETTER_AUTH_SECRET: 'a-strong-secret',
+  BETTER_AUTH_URL: 'http://localhost:3001',
+  AUTH_TRUSTED_ORIGINS: 'http://localhost:3000',
+};
+
 describe('parseEnv', () => {
-  it('applies local-compose defaults for a minimal environment', () => {
-    const env = parseEnv({});
+  it('parses a complete environment and applies the non-secret defaults', () => {
+    const env = parseEnv(VALID_ENV);
 
     expect(env.NODE_ENV).toBe('development');
     expect(env.PORT).toBe(DEFAULT_PORT);
-    expect(env.DATABASE_URL).toContain('postgres://');
+    expect(env.AUTH_RATE_LIMIT_DISABLED).toBe('false');
+    expect(env.DATABASE_URL).toBe(VALID_ENV.DATABASE_URL);
   });
 
   it('accepts explicit valid values and coerces PORT to a number', () => {
-    const env = parseEnv({
-      NODE_ENV: 'production',
-      PORT: String(EXPLICIT_PORT),
-      DATABASE_URL: 'postgres://user:pass@db:5432/supertool',
-    });
+    const env = parseEnv({ ...VALID_ENV, NODE_ENV: 'production', PORT: String(EXPLICIT_PORT) });
 
     expect(env.NODE_ENV).toBe('production');
     expect(env.PORT).toBe(EXPLICIT_PORT);
-    expect(env.DATABASE_URL).toBe('postgres://user:pass@db:5432/supertool');
   });
 
-  it('fails fast with a readable message naming the offending key', () => {
-    expect(() => parseEnv({ PORT: 'not-a-port' })).toThrowError(/PORT/);
+  it('throws when DATABASE_URL is missing — no fallback', () => {
+    expect(() =>
+      parseEnv({
+        BETTER_AUTH_SECRET: 's',
+        BETTER_AUTH_URL: 'http://localhost:3001',
+        AUTH_TRUSTED_ORIGINS: 'http://localhost:3000',
+      }),
+    ).toThrowError(/DATABASE_URL/);
+  });
+
+  it('throws when BETTER_AUTH_SECRET is missing — no fallback', () => {
+    expect(() =>
+      parseEnv({
+        DATABASE_URL: VALID_ENV.DATABASE_URL,
+        BETTER_AUTH_URL: 'http://localhost:3001',
+        AUTH_TRUSTED_ORIGINS: 'http://localhost:3000',
+      }),
+    ).toThrowError(/BETTER_AUTH_SECRET/);
   });
 
   it('rejects a malformed DATABASE_URL', () => {
-    expect(() => parseEnv({ DATABASE_URL: 'not-a-url' })).toThrowError(/DATABASE_URL/);
+    expect(() => parseEnv({ ...VALID_ENV, DATABASE_URL: 'not-a-url' })).toThrowError(
+      /DATABASE_URL/,
+    );
+  });
+
+  it('fails fast with a readable message naming an invalid PORT', () => {
+    expect(() => parseEnv({ ...VALID_ENV, PORT: 'not-a-port' })).toThrowError(/PORT/);
   });
 
   it('rejects an unknown NODE_ENV', () => {
-    expect(() => parseEnv({ NODE_ENV: 'staging' })).toThrowError(/NODE_ENV/);
-  });
-
-  it('requires an explicit DATABASE_URL in production — no credentialed default fallback', () => {
-    expect(() => parseEnv({ NODE_ENV: 'production' })).toThrowError(/DATABASE_URL/);
-  });
-
-  it('still applies the DATABASE_URL default outside production', () => {
-    const env = parseEnv({ NODE_ENV: 'development' });
-
-    expect(env.DATABASE_URL).toContain('localhost');
+    expect(() => parseEnv({ ...VALID_ENV, NODE_ENV: 'staging' })).toThrowError(/NODE_ENV/);
   });
 });

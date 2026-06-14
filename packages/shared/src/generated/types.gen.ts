@@ -9,6 +9,15 @@ export type HealthResponseDto = {
     database: 'up' | 'down';
 };
 
+export type Role = 'user' | 'admin';
+
+export type UserResponseDto = {
+    id: string;
+    email: string;
+    name: string;
+    role: Role;
+};
+
 export type ErrorCode = 'INTERNAL_ERROR' | 'NOT_FOUND' | 'VALIDATION_ERROR' | 'UNAUTHORIZED' | 'FORBIDDEN' | 'CONFLICT' | 'UNPROCESSABLE_ENTITY' | 'TOO_MANY_REQUESTS';
 
 export type ErrorResponseDto = {
@@ -32,3 +41,22 @@ export type HealthCheckResponses = {
 };
 
 export type HealthCheckResponse = HealthCheckResponses[keyof HealthCheckResponses];
+
+export type UsersMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/users/me';
+};
+
+export type UsersMeErrors = {
+    401: ErrorResponseDto;
+};
+
+export type UsersMeError = UsersMeErrors[keyof UsersMeErrors];
+
+export type UsersMeResponses = {
+    200: UserResponseDto;
+};
+
+export type UsersMeResponse = UsersMeResponses[keyof UsersMeResponses];

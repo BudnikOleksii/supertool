@@ -7,6 +7,14 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
+  viteFinal: async (viteConfig) => {
+    const { mergeConfig } = await import('vite');
+
+    return mergeConfig(viteConfig, {
+      optimizeDeps: { include: ['@supertool/shared'] },
+      build: { commonjsOptions: { include: [/node_modules/u, /packages\/shared\/dist/u] } },
+    });
+  },
 };
 
 export default config;

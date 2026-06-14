@@ -1,0 +1,18 @@
+{
+  "email": "Електронна пошта",
+  "emailPlaceholder": "you@example.com",
+  "password": "Пароль",
+  "passwordPlaceholder": "Введіть пароль",
+  "name": "Ім'я",
+  "namePlaceholder": "Введіть ваше ім'я",
+  "errors": {
+    "emailInvalid": "Введіть дійсну електронну пошту",
+    "passwordRequired": "Введіть пароль",
+    "passwordMinLength": "Пароль має містити щонайменше 8 символів",
+    "nameRequired": "Введіть ім'я",
+    "invalidCredentials": "Невірна електронна пошта або пароль",
+    "userExists": "Обліковий запис із цією поштою вже існує",
+    "rateLimited": "Забагато спроб. Спробуйте пізніше.",
+    "generic": "Щось пішло не так. Спробуйте ще раз."
+  }
+}

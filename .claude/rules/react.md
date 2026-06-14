@@ -33,6 +33,7 @@ paths:
 - Use `NavigationLink` from `packages/next-shared/src/i18n/navigation/NavigationLink.tsx` instead of Next.js default `Link` for navigation links that need active state tracking.
 - Use `redirect`, `usePathname`, `useRouter` from `packages/next-shared/src/i18n/navigation/navigation.ts` instead of Next.js default `next/link` and `next/navigation` to ensure proper i18n routing.
 - Use the `cn` utility from `packages/ui/src/lib/utils.ts` for conditional class composition instead of ternary operators or string concatenation.
+- NEVER hardcode route path literals (`'/sign-in'`, `'/'`, …). Store them in a `ROUTES` `as const` map in `apps/<app>/src/constants/routes.ts` and reference `ROUTES.signIn`, etc. everywhere — pages, `proxy.ts`/middleware, redirects, and `NavigationLink`/`UnderlineLink` hrefs.
 
 ## State Management
 
