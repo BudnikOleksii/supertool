@@ -10,6 +10,7 @@ const VALID_ENV = {
   BETTER_AUTH_SECRET: 'a-strong-secret',
   BETTER_AUTH_URL: 'http://localhost:3001',
   AUTH_TRUSTED_ORIGINS: 'http://localhost:3000',
+  SEED_OPERATOR_PASSWORD: 'operator-password',
 };
 
 describe('parseEnv', () => {
@@ -20,6 +21,25 @@ describe('parseEnv', () => {
     expect(env.PORT).toBe(DEFAULT_PORT);
     expect(env.AUTH_RATE_LIMIT_DISABLED).toBe('false');
     expect(env.DATABASE_URL).toBe(VALID_ENV.DATABASE_URL);
+    expect(env.SEED_OPERATOR_EMAIL).toBe('operator@supertool.local');
+    expect(env.SEED_OPERATOR_NAME).toBe('Operator');
+  });
+
+  it('throws when SEED_OPERATOR_PASSWORD is missing — no fallback', () => {
+    expect(() =>
+      parseEnv({
+        DATABASE_URL: VALID_ENV.DATABASE_URL,
+        BETTER_AUTH_SECRET: 's',
+        BETTER_AUTH_URL: 'http://localhost:3001',
+        AUTH_TRUSTED_ORIGINS: 'http://localhost:3000',
+      }),
+    ).toThrowError(/SEED_OPERATOR_PASSWORD/);
+  });
+
+  it('rejects a SEED_OPERATOR_PASSWORD shorter than the better-auth minimum', () => {
+    expect(() => parseEnv({ ...VALID_ENV, SEED_OPERATOR_PASSWORD: 'short' })).toThrowError(
+      /SEED_OPERATOR_PASSWORD/,
+    );
   });
 
   it('accepts explicit valid values and coerces PORT to a number', () => {

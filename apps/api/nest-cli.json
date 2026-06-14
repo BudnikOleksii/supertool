@@ -7,7 +7,8 @@
     "tsConfigPath": "tsconfig.build.json",
     "assets": [
       { "include": "database/migrations/**/*.sql", "watchAssets": true },
-      { "include": "database/migrations/meta/*.json", "watchAssets": true }
+      { "include": "database/migrations/meta/*.json", "watchAssets": true },
+      { "include": "database/data/**/*.json", "watchAssets": true }
     ],
     "plugins": [
       {

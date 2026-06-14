@@ -20,6 +20,9 @@ env:
   BETTER_AUTH_SECRET: ci-codegen-placeholder-not-a-real-secret
   BETTER_AUTH_URL: http://localhost:3000
   AUTH_TRUSTED_ORIGINS: http://localhost:3000
+  SEED_OPERATOR_EMAIL: operator@supertool.local
+  SEED_OPERATOR_PASSWORD: ci-codegen-placeholder-operator-password
+  SEED_OPERATOR_NAME: Operator
 
 jobs:
   init-env:

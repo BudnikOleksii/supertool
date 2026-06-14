@@ -1,3 +1,5 @@
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/BudnikOleksii/supertool?utm_source=oss&utm_medium=github&utm_campaign=BudnikOleksii%2Fsupertool&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 # supertool
 
 Personal tool platform: independent tool apps (first: **Money Tracker**) sharing one account store, one shell, and one API — built as a pnpm + Turborepo monorepo. Runs entirely locally; no deployment, no telemetry.

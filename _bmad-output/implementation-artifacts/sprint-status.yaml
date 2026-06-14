@@ -42,8 +42,8 @@ tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts
 
 development_status:
-  # Epic 1: Platform Foundation & Identity
-  epic-1: in-progress
+  # Epic 1: Platform Foundation & Identity — all stories + retrospective done
+  epic-1: done
   1-1-monorepo-scaffold-quality-gates: done
   1-2-api-foundation-health-check-database-baseline: done
   1-3-openapi-generated-client-pipeline: done
@@ -62,8 +62,10 @@ development_status:
   epic-1-retrospective: done
 
   # Epic 2: Transactions & Categories
-  epic-2: backlog
-  2-1-seed-the-real-data: backlog
+  # 2-1 blocks everything (creates schema + derives shared enums); after it lands,
+  # the epic splits into two parallel tracks (see epic-2-parallelization.md)
+  epic-2: in-progress
+  2-1-seed-the-real-data: done
   2-2-browse-transactions-by-month: backlog
   2-3-fast-transaction-entry: backlog
   2-4-edit-delete-transactions: backlog
