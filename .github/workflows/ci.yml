@@ -11,6 +11,16 @@ concurrency:
   group: ci-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
+# Non-secret placeholders so the API can be CONSTRUCTED for codegen/type-check/build.
+# emit-openapi only introspects routes then closes the app — it never connects to
+# Postgres (pg Pool is lazy) nor signs anything, so real credentials add no value here.
+# Real values are supplied at runtime via apps/api/.env (gitignored).
+env:
+  DATABASE_URL: postgres://supertool:supertool@localhost:5432/supertool
+  BETTER_AUTH_SECRET: ci-codegen-placeholder-not-a-real-secret
+  BETTER_AUTH_URL: http://localhost:3000
+  AUTH_TRUSTED_ORIGINS: http://localhost:3000
+
 jobs:
   init-env:
     runs-on: ubuntu-latest
