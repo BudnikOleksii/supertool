@@ -59,7 +59,7 @@ development_status:
   1-5-sign-up-sign-in: done
   1-6-profile-settings: done
   1-7-one-command-local-runtime: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   # Epic 2: Transactions & Categories
   epic-2: backlog
