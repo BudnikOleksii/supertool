@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
+import type { UpdateUserDto } from './dtos/update-user.dto';
 import type { UserResponseDto } from './dtos/user-response.dto';
 
 import { UsersRepository } from './users.repository';
@@ -10,6 +11,16 @@ export class UsersService {
 
   async getById(userId: string): Promise<UserResponseDto> {
     const user = await this.usersRepository.findByIdScoped(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return user;
+  }
+
+  async update(userId: string, dto: UpdateUserDto): Promise<UserResponseDto> {
+    const user = await this.usersRepository.updateScoped(userId, dto);
 
     if (!user) {
       throw new NotFoundException();

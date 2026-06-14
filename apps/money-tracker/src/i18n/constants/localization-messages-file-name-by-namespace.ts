@@ -5,6 +5,7 @@ export const LOCALIZATION_MESSAGES_FILE_NAME_BY_NAMESPACE: Record<I18Namespace, 
   [I18N_NAMESPACE.authShared]: 'auth-shared',
   [I18N_NAMESPACE.homePage]: 'home-page',
   [I18N_NAMESPACE.navigation]: 'navigation',
+  [I18N_NAMESPACE.settingsPage]: 'settings-page',
   [I18N_NAMESPACE.signInPage]: 'sign-in-page',
   [I18N_NAMESPACE.signUpPage]: 'sign-up-page',
 };

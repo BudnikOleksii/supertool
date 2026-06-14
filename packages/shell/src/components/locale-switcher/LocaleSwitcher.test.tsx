@@ -1,6 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+import { noop } from '@supertool/shared/utils/noop';
 
 import { LocaleSwitcher } from './LocaleSwitcher';
 
@@ -20,7 +22,7 @@ const TEST_MESSAGES = {
 const renderLocaleSwitcher = () => {
   render(
     <NextIntlClientProvider locale="en" messages={TEST_MESSAGES}>
-      <LocaleSwitcher />
+      <LocaleSwitcher onLocaleChange={noop} />
     </NextIntlClientProvider>,
   );
 };
@@ -38,12 +40,14 @@ describe('LocaleSwitcher', () => {
     expect(screen.getByRole('combobox', { name: 'Language' }).textContent).toContain('English');
   });
 
-  it('switches the locale through router.replace', () => {
+  it('switches the locale through router.replace', async () => {
     renderLocaleSwitcher();
 
     fireEvent.keyDown(screen.getByRole('combobox', { name: 'Language' }), { key: 'Enter' });
     fireEvent.click(screen.getByRole('option', { name: 'Українська' }));
 
-    expect(replaceMock).toHaveBeenCalledWith('/', { locale: 'uk' });
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/', { locale: 'uk' });
+    });
   });
 });

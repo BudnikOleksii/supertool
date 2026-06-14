@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type { HealthCheckData, HealthCheckResponses, UsersMeData, UsersMeErrors, UsersMeResponses } from './types.gen.js';
+import type { HealthCheckData, HealthCheckResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -27,5 +27,16 @@ export class HealthApiService {
 export class UsersApiService {
     public static usersMe<ThrowOnError extends boolean = false>(options?: Options<UsersMeData, ThrowOnError>): RequestResult<UsersMeResponses, UsersMeErrors, ThrowOnError> {
         return (options?.client ?? client).get<UsersMeResponses, UsersMeErrors, ThrowOnError>({ url: '/api/v1/users/me', ...options });
+    }
+    
+    public static usersUpdateMe<ThrowOnError extends boolean = false>(options: Options<UsersUpdateMeData, ThrowOnError>): RequestResult<UsersUpdateMeResponses, UsersUpdateMeErrors, ThrowOnError> {
+        return (options.client ?? client).patch<UsersUpdateMeResponses, UsersUpdateMeErrors, ThrowOnError>({
+            url: '/api/v1/users/me',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
     }
 }

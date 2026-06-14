@@ -1,5 +1,6 @@
 import type { FC, PropsWithChildren } from 'react';
 
+import type { LocaleCode } from '@supertool/shared/constants/locales';
 import type { ToolRegistryEntry } from '@supertool/shared/constants/tools';
 
 import { LocaleSwitcher } from '../locale-switcher/LocaleSwitcher';
@@ -11,17 +12,28 @@ import styles from './AppShell.module.scss';
 export interface AppShellProps extends PropsWithChildren {
   tools: ToolRegistryEntry[];
   userName?: string | undefined;
-  onSignOut?: (() => void) | undefined;
+  onLocaleChange: (locale: LocaleCode) => void | Promise<void>;
+  onOpenSettings: () => void;
+  onSignOut: () => void;
 }
 
-export const AppShell: FC<AppShellProps> = ({ tools, userName, onSignOut, children }) => (
+export const AppShell: FC<AppShellProps> = ({
+  tools,
+  userName,
+  onLocaleChange,
+  onOpenSettings,
+  onSignOut,
+  children,
+}) => (
   <div className={styles.shell}>
     <header className={styles.header}>
       <ToolNav tools={tools} />
       <div className={styles.actions}>
         <ThemeSwitcher />
-        <LocaleSwitcher />
-        <UserMenu userName={userName} onSignOut={onSignOut} />
+        <LocaleSwitcher onLocaleChange={onLocaleChange} />
+        {userName !== undefined && (
+          <UserMenu userName={userName} onOpenSettings={onOpenSettings} onSignOut={onSignOut} />
+        )}
       </div>
     </header>
     <main className={styles.main}>{children}</main>

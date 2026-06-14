@@ -1,0 +1,10 @@
+.form {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.submit {
+  align-self: flex-start;
+}

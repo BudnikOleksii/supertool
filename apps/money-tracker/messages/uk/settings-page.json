@@ -1,0 +1,27 @@
+{
+  "title": "Налаштування профілю",
+  "description": "Змініть своє ім'я, мову та валюту за замовчуванням.",
+  "nameLabel": "Ім'я",
+  "namePlaceholder": "Ваше ім'я",
+  "localeLabel": "Мова",
+  "localeDescription": "Мова, якою відкривається платформа після входу.",
+  "localeOption": {
+    "en": "Англійська",
+    "uk": "Українська"
+  },
+  "defaultCurrencyLabel": "Валюта за замовчуванням",
+  "defaultCurrencyDescription": "Використовується як початкова валюта в усіх ваших інструментах.",
+  "defaultCurrencyPlaceholder": "Оберіть валюту",
+  "defaultCurrencySearchLabel": "Пошук валют",
+  "defaultCurrencyEmptyMessage": "Валют не знайдено",
+  "submit": "Зберегти зміни",
+  "updateSuccess": "Ваш профіль оновлено.",
+  "errors": {
+    "nameRequired": "Введіть своє ім'я.",
+    "localeInvalid": "Оберіть підтримувану мову.",
+    "currencyInvalid": "Оберіть підтримувану валюту.",
+    "VALIDATION_ERROR": "Деякі дані некоректні. Перевірте поля та спробуйте ще раз.",
+    "UNAUTHORIZED": "Ваша сесія завершилася. Увійдіть знову, щоб продовжити.",
+    "UNKNOWN": "Щось пішло не так. Спробуйте ще раз."
+  }
+}

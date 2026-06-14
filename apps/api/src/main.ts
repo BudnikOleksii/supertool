@@ -1,4 +1,3 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
@@ -25,7 +24,6 @@ const bootstrap = async (): Promise<void> => {
   const app = await NestFactory.create(AppModule, { bufferLogs: true, bodyParser: false });
   app.useLogger(app.get(Logger));
   configureAppRouting(app);
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.enableShutdownHooks();
 
   if (env.NODE_ENV !== 'production') {

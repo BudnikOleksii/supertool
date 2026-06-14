@@ -178,6 +178,8 @@ describe('auth boundary (Testcontainers Postgres)', () => {
       email: USER_A.email,
       name: USER_A.name,
       role: 'user',
+      locale: 'en',
+      defaultCurrency: null,
     });
   });
 
