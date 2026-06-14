@@ -70,7 +70,7 @@ development_status:
   2-3-fast-transaction-entry: backlog
   2-4-edit-delete-transactions: backlog
   2-5-filter-sort-the-list: backlog
-  2-6-organize-categories: backlog
+  2-6-organize-categories: done
   epic-2-retrospective: optional
 
   # Epic 3: Dashboard & Stats

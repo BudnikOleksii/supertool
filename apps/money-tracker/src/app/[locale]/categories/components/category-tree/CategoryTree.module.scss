@@ -1,0 +1,94 @@
+.tree {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.item {
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.row {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+
+  padding-inline: var(--spacing-3);
+}
+
+.trigger {
+  flex: 1;
+}
+
+.name {
+  display: inline-flex;
+
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.actions {
+  display: flex;
+
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.childList {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-1);
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.childRow {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+
+  padding-block: var(--spacing-1);
+  padding-inline: var(--spacing-3);
+
+  border-radius: var(--radius-sm);
+}
+
+.childRow:hover {
+  background: var(--surface-container);
+}
+
+.noChildren {
+  padding-inline: var(--spacing-3);
+
+  color: var(--on-surface-variant);
+}
+
+.empty {
+  display: flex;
+
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+
+  padding-block: var(--spacing-7);
+
+  text-align: center;
+
+  border: 1px dashed var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.emptyDescription {
+  color: var(--on-surface-variant);
+}

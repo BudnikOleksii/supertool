@@ -3,4 +3,8 @@ export const ROUTES = {
   signIn: '/sign-in',
   signUp: '/sign-up',
   settings: '/settings',
+  categories: '/categories',
+  categoriesNew: '/categories/new',
 } as const;
+
+export const getCategoryEditPath = (id: string): string => `${ROUTES.categories}/${id}/edit`;

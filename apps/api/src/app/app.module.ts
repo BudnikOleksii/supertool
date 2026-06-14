@@ -9,6 +9,7 @@ import { auth } from '../auth/auth';
 import { AuthDatabaseLifecycle } from '../auth/auth-database.lifecycle';
 import { DatabaseModule } from '../database/database.module';
 import { HealthModule } from '../modules/health/health.module';
+import { TransactionCategoriesModule } from '../modules/transaction-categories/transaction-categories.module';
 import { UsersModule } from '../modules/users/users.module';
 import { GlobalExceptionFilter } from '../shared/filters/global-exception.filter';
 import { EnvModule } from './env.module';
@@ -38,6 +39,7 @@ const BODY_PARSER_LIMIT = '2mb';
     DatabaseModule,
     HealthModule,
     UsersModule,
+    TransactionCategoriesModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: GlobalExceptionFilter }, AuthDatabaseLifecycle],
 })

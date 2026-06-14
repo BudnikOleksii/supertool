@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type { HealthCheckData, HealthCheckResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
+import type { HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -32,6 +32,45 @@ export class UsersApiService {
     public static usersUpdateMe<ThrowOnError extends boolean = false>(options: Options<UsersUpdateMeData, ThrowOnError>): RequestResult<UsersUpdateMeResponses, UsersUpdateMeErrors, ThrowOnError> {
         return (options.client ?? client).patch<UsersUpdateMeResponses, UsersUpdateMeErrors, ThrowOnError>({
             url: '/api/v1/users/me',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
+export class TransactionCategoriesApiService {
+    public static transactionCategoriesFindAll<ThrowOnError extends boolean = false>(options?: Options<TransactionCategoriesFindAllData, ThrowOnError>): RequestResult<TransactionCategoriesFindAllResponses, TransactionCategoriesFindAllErrors, ThrowOnError> {
+        return (options?.client ?? client).get<TransactionCategoriesFindAllResponses, TransactionCategoriesFindAllErrors, ThrowOnError>({ url: '/api/v1/transaction-categories', ...options });
+    }
+    
+    public static transactionCategoriesCreate<ThrowOnError extends boolean = false>(options: Options<TransactionCategoriesCreateData, ThrowOnError>): RequestResult<TransactionCategoriesCreateResponses, TransactionCategoriesCreateErrors, ThrowOnError> {
+        return (options.client ?? client).post<TransactionCategoriesCreateResponses, TransactionCategoriesCreateErrors, ThrowOnError>({
+            url: '/api/v1/transaction-categories',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static transactionCategoriesRemove<ThrowOnError extends boolean = false>(options: Options<TransactionCategoriesRemoveData, ThrowOnError>): RequestResult<TransactionCategoriesRemoveResponses, TransactionCategoriesRemoveErrors, ThrowOnError> {
+        return (options.client ?? client).delete<TransactionCategoriesRemoveResponses, TransactionCategoriesRemoveErrors, ThrowOnError>({
+            url: '/api/v1/transaction-categories/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static transactionCategoriesUpdate<ThrowOnError extends boolean = false>(options: Options<TransactionCategoriesUpdateData, ThrowOnError>): RequestResult<TransactionCategoriesUpdateResponses, TransactionCategoriesUpdateErrors, ThrowOnError> {
+        return (options.client ?? client).patch<TransactionCategoriesUpdateResponses, TransactionCategoriesUpdateErrors, ThrowOnError>({
+            url: '/api/v1/transaction-categories/{id}',
             ...options,
             headers: {
                 'Content-Type': 'application/json',

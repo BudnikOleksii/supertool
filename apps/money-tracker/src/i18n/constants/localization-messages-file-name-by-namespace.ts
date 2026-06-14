@@ -3,6 +3,7 @@ import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 
 export const LOCALIZATION_MESSAGES_FILE_NAME_BY_NAMESPACE: Record<I18Namespace, string> = {
   [I18N_NAMESPACE.authShared]: 'auth-shared',
+  [I18N_NAMESPACE.categoriesPage]: 'categories-page',
   [I18N_NAMESPACE.homePage]: 'home-page',
   [I18N_NAMESPACE.navigation]: 'navigation',
   [I18N_NAMESPACE.settingsPage]: 'settings-page',

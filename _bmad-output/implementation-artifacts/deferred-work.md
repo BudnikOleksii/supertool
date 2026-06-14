@@ -1,5 +1,10 @@
 # Deferred Work
 
+## Deferred from: code review of 2-6-organize-categories (2026-06-14)
+
+- Concurrent delete-with-reassign of two sibling parents can form an orphaned cycle — `isDescendantOf` is read at READ COMMITTED with no row/advisory lock, so two interleaved deletes reparenting each other's children pass the cycle check independently. Practically unreachable in the single-operator local-only runtime; add a Postgres advisory lock (or `SELECT ... FOR UPDATE` on the affected subtree) around the reassign-then-delete transaction if the deployment model ever gains concurrency. [apps/api/src/modules/transaction-categories/transaction-categories.service.ts]
+- `fetch-category-list` collapses API errors into an empty list — `const { data } = await ...findAll(...); return data ?? []` discards `error`, so a transient API failure renders the "No categories yet" empty state and the edit page silently redirects. The 401 case is already handled upstream by the page's `fetchProfile()` redirect, and the pattern likely mirrors the existing `fetch-profile` action; surface transport/API errors distinctly if this fetch path is hardened. [apps/money-tracker/src/actions/fetch-category-list.ts]
+
 ## Deferred from: code review of 1-8-design-system-repair-theming (2026-06-12)
 
 - Visual evidence gate (both-theme screenshots incl. open/interactive states vs `example/track-my-life`) not satisfied for 1.8's repaired primitives — deferred to Story 1.9, which establishes the screenshot-based visual QA baseline; 1.8 accepted on mechanism + token purity only.

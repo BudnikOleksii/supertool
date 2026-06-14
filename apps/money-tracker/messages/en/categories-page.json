@@ -1,0 +1,51 @@
+{
+  "title": "Categories",
+  "description": "Organize your income and expense categories into the structure you think in.",
+  "createButton": "New category",
+  "editButton": "Edit",
+  "deleteButton": "Delete",
+  "incomeType": "Income",
+  "expenseType": "Expense",
+  "emptyTitle": "No categories yet",
+  "emptyDescription": "Create your first category to start organizing your money.",
+  "noSubcategories": "No subcategories",
+  "form": {
+    "createTitle": "New category",
+    "editTitle": "Edit category",
+    "backToCategories": "Back to categories",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Groceries",
+    "typeLabel": "Type",
+    "parentLabel": "Parent category",
+    "parentPlaceholder": "Select a parent category",
+    "parentSearchLabel": "Search categories",
+    "parentEmptyMessage": "No matching categories",
+    "topLevelOption": "No parent (top level)",
+    "submitCreate": "Create category",
+    "submitSave": "Save changes",
+    "cancel": "Cancel"
+  },
+  "delete": {
+    "title": "Delete category",
+    "description": "Delete “{name}”? This action cannot be undone.",
+    "reassignDescription": "“{name}” still has linked items. Choose where to move them before deleting.",
+    "reassignTransactionsLabel": "Move transactions to",
+    "reassignTransactionsPlaceholder": "Select a category",
+    "reassignChildrenLabel": "Move subcategories to",
+    "reassignChildrenTopLevel": "Top level (no parent)",
+    "confirm": "Delete",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "nameRequired": "Enter a category name.",
+    "typeRequired": "Choose a type.",
+    "reassignTransactionsRequired": "Choose where to move the transactions.",
+    "reassignChildrenRequired": "Choose where to move the subcategories.",
+    "VALIDATION_ERROR": "Some details are invalid. Check the fields and try again.",
+    "CONFLICT": "A category with this name already exists in this place.",
+    "UNPROCESSABLE_ENTITY": "This category has linked items. Choose where to move them first.",
+    "NOT_FOUND": "This category no longer exists.",
+    "UNAUTHORIZED": "Your session has expired. Sign in again to continue.",
+    "UNKNOWN": "Something went wrong. Please try again."
+  }
+}
