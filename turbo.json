@@ -5,12 +5,16 @@
     "NODE_ENV",
     "PORT",
     "HOST",
+    "HOSTNAME",
     "DATABASE_URL",
     "API_URL",
     "BETTER_AUTH_SECRET",
     "BETTER_AUTH_URL",
     "AUTH_TRUSTED_ORIGINS",
-    "AUTH_RATE_LIMIT_DISABLED"
+    "AUTH_RATE_LIMIT_DISABLED",
+    "NEXT_TELEMETRY_DISABLED",
+    "TURBO_TELEMETRY_DISABLED",
+    "DO_NOT_TRACK"
   ],
   "tasks": {
     "dev": {
