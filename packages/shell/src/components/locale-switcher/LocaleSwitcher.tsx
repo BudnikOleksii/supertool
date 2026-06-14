@@ -11,7 +11,7 @@ import { checkIsLocaleCode, LOCALE_CODE_LIST } from '@supertool/shared/constants
 import { Select } from '@supertool/ui/src/components/atoms/select/Select';
 
 interface Props {
-  onLocaleChange?: ((locale: LocaleCode) => void | Promise<void>) | undefined;
+  onLocaleChange: (locale: LocaleCode) => void | Promise<void>;
 }
 
 export const LocaleSwitcher: FC<Props> = ({ onLocaleChange }) => {
@@ -25,7 +25,7 @@ export const LocaleSwitcher: FC<Props> = ({ onLocaleChange }) => {
       return;
     }
 
-    await onLocaleChange?.(value);
+    await onLocaleChange(value);
     router.replace(pathname, { locale: value });
   };
 

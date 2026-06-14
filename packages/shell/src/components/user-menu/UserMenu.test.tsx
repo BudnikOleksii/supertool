@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { noop } from '@supertool/shared/utils/noop';
+
 import { UserMenu } from './UserMenu';
 
 vi.mock('next-intl', () => ({
@@ -14,14 +16,8 @@ beforeAll(() => {
 });
 
 describe('UserMenu', () => {
-  it('renders a disabled placeholder when there is no signed-in user', () => {
-    render(<UserMenu />);
-
-    expect(screen.getByRole('button', { name: 'label' })).toHaveProperty('disabled', true);
-  });
-
   it('renders the signed-in user name as the menu trigger', () => {
-    render(<UserMenu userName="Oleksii" onSignOut={vi.fn()} />);
+    render(<UserMenu userName="Oleksii" onOpenSettings={noop} onSignOut={vi.fn()} />);
 
     const trigger = screen.getByRole('button', { name: 'Oleksii' });
 

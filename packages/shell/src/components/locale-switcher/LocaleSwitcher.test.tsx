@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { noop } from '@supertool/shared/utils/noop';
+
 import { LocaleSwitcher } from './LocaleSwitcher';
 
 const { replaceMock } = vi.hoisted(() => ({ replaceMock: vi.fn() }));
@@ -20,7 +22,7 @@ const TEST_MESSAGES = {
 const renderLocaleSwitcher = () => {
   render(
     <NextIntlClientProvider locale="en" messages={TEST_MESSAGES}>
-      <LocaleSwitcher />
+      <LocaleSwitcher onLocaleChange={noop} />
     </NextIntlClientProvider>,
   );
 };

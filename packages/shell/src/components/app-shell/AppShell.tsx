@@ -12,9 +12,9 @@ import styles from './AppShell.module.scss';
 export interface AppShellProps extends PropsWithChildren {
   tools: ToolRegistryEntry[];
   userName?: string | undefined;
-  onLocaleChange?: ((locale: LocaleCode) => void | Promise<void>) | undefined;
-  onOpenSettings?: (() => void) | undefined;
-  onSignOut?: (() => void) | undefined;
+  onLocaleChange: (locale: LocaleCode) => void | Promise<void>;
+  onOpenSettings: () => void;
+  onSignOut: () => void;
 }
 
 export const AppShell: FC<AppShellProps> = ({
@@ -31,7 +31,9 @@ export const AppShell: FC<AppShellProps> = ({
       <div className={styles.actions}>
         <ThemeSwitcher />
         <LocaleSwitcher onLocaleChange={onLocaleChange} />
-        <UserMenu userName={userName} onOpenSettings={onOpenSettings} onSignOut={onSignOut} />
+        {userName !== undefined && (
+          <UserMenu userName={userName} onOpenSettings={onOpenSettings} onSignOut={onSignOut} />
+        )}
       </div>
     </header>
     <main className={styles.main}>{children}</main>

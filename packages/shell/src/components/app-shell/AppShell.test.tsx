@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ToolRegistryEntry } from '@supertool/shared/constants/tools';
+import { noop } from '@supertool/shared/utils/noop';
 
 import { AppShell } from './AppShell';
 
@@ -23,7 +24,7 @@ const TEST_MESSAGES = {
   navigation: {
     label: 'Tools',
     tools: { moneyTracker: 'Money Tracker', reportHub: 'Report Hub' },
-    userMenu: { label: 'Account' },
+    userMenu: { settings: 'Settings', signOut: 'Sign out' },
     localeSwitcher: { label: 'Language', en: 'English', uk: 'Українська' },
     themeSwitcher: { label: 'Theme', light: 'Light', dark: 'Dark', system: 'System' },
   },
@@ -36,10 +37,18 @@ const TOOL_FIXTURE_LIST: ToolRegistryEntry[] = [
 
 const SHELL_CHILDREN = <p>Tool content</p>;
 
-const renderAppShell = () => {
+const renderAppShell = (userName?: string) => {
   render(
     <NextIntlClientProvider locale="en" messages={TEST_MESSAGES}>
-      <AppShell tools={TOOL_FIXTURE_LIST}>{SHELL_CHILDREN}</AppShell>
+      <AppShell
+        tools={TOOL_FIXTURE_LIST}
+        userName={userName}
+        onLocaleChange={noop}
+        onOpenSettings={noop}
+        onSignOut={noop}
+      >
+        {SHELL_CHILDREN}
+      </AppShell>
     </NextIntlClientProvider>,
   );
 };
@@ -52,10 +61,17 @@ describe('AppShell', () => {
     expect(screen.getByRole('link', { name: 'Report Hub' })).toBeDefined();
   });
 
-  it('renders the user menu placeholder and the locale switcher', () => {
+  it('renders the signed-in user menu and the locale switcher', () => {
+    renderAppShell('Oleksii');
+
+    expect(screen.getByRole('button', { name: 'Oleksii' })).toBeDefined();
+    expect(screen.getByRole('combobox', { name: 'Language' })).toBeDefined();
+  });
+
+  it('omits the user menu when there is no signed-in user', () => {
     renderAppShell();
 
-    expect(screen.getByRole('button', { name: 'Account' })).toHaveProperty('disabled', true);
+    expect(screen.queryByRole('button')).toBeNull();
     expect(screen.getByRole('combobox', { name: 'Language' })).toBeDefined();
   });
 

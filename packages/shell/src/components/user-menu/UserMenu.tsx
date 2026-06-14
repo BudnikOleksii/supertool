@@ -14,21 +14,13 @@ import {
 } from '@supertool/ui/src/components/molecules/dropdown-menu/DropdownMenu';
 
 interface Props {
-  userName?: string | undefined;
-  onOpenSettings?: (() => void) | undefined;
-  onSignOut?: (() => void) | undefined;
+  userName: string;
+  onOpenSettings: () => void;
+  onSignOut: () => void;
 }
 
 export const UserMenu: FC<Props> = ({ userName, onOpenSettings, onSignOut }) => {
   const translate = useTranslations(`${I18N_NAMESPACE.navigation}.userMenu`);
-
-  if (userName === undefined) {
-    return (
-      <Button variant="ghost" disabled>
-        {translate('label')}
-      </Button>
-    );
-  }
 
   return (
     <DropdownMenu>
@@ -38,14 +30,14 @@ export const UserMenu: FC<Props> = ({ userName, onOpenSettings, onSignOut }) => 
       <DropdownMenuContent align="end">
         <DropdownMenuItem
           onSelect={() => {
-            onOpenSettings?.();
+            onOpenSettings();
           }}
         >
           {translate('settings')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => {
-            onSignOut?.();
+            onSignOut();
           }}
         >
           {translate('signOut')}
