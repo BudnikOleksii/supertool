@@ -6,6 +6,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "turbo run dev",
+    "compose:up": "docker compose -f docker/docker-compose.yml up --build",
+    "compose:down": "docker compose -f docker/docker-compose.yml down",
     "build": "turbo run build",
     "build:packages": "turbo run build --filter='./packages/*'",
     "test": "turbo run test",
