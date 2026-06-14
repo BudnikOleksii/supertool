@@ -15,10 +15,11 @@ import {
 
 interface Props {
   userName?: string | undefined;
+  onOpenSettings?: (() => void) | undefined;
   onSignOut?: (() => void) | undefined;
 }
 
-export const UserMenu: FC<Props> = ({ userName, onSignOut }) => {
+export const UserMenu: FC<Props> = ({ userName, onOpenSettings, onSignOut }) => {
   const translate = useTranslations(`${I18N_NAMESPACE.navigation}.userMenu`);
 
   if (userName === undefined) {
@@ -35,6 +36,13 @@ export const UserMenu: FC<Props> = ({ userName, onSignOut }) => {
         <Button variant="ghost">{userName}</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          onSelect={() => {
+            onOpenSettings?.();
+          }}
+        >
+          {translate('settings')}
+        </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => {
             onSignOut?.();

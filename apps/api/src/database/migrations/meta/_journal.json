@@ -15,6 +15,13 @@
       "when": 1781428696887,
       "tag": "0001_nervous_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781430451569,
+      "tag": "0002_careful_tomas",
+      "breakpoints": true
     }
   ]
 }

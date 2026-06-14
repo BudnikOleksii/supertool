@@ -13,7 +13,14 @@ const createSession = (userId: string): UserSession<typeof auth> =>
 
 describe('UsersController', () => {
   it('returns the current user from the service using the session user id', async () => {
-    const expectedUser = { id: 'user-id', email: 'a@b.com', name: 'Ann', role: 'user' as const };
+    const expectedUser = {
+      id: 'user-id',
+      email: 'a@b.com',
+      name: 'Ann',
+      role: 'user' as const,
+      locale: 'en',
+      defaultCurrency: null,
+    };
     const getById = vi.fn().mockResolvedValue(expectedUser);
     const moduleRef = await Test.createTestingModule({
       controllers: [UsersController],
@@ -24,5 +31,29 @@ describe('UsersController', () => {
 
     await expect(controller.me(createSession('user-id'))).resolves.toEqual(expectedUser);
     expect(getById).toHaveBeenCalledWith('user-id');
+  });
+
+  it('updates the current user via the service using the session user id and body', async () => {
+    const inputDto = { name: 'Ann Updated', locale: 'uk', defaultCurrency: 'UAH' };
+    const expectedUser = {
+      id: 'user-id',
+      email: 'a@b.com',
+      name: 'Ann Updated',
+      role: 'user' as const,
+      locale: 'uk',
+      defaultCurrency: 'UAH',
+    };
+    const update = vi.fn().mockResolvedValue(expectedUser);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [{ provide: UsersService, useValue: { update } }],
+    }).compile();
+
+    const controller = moduleRef.get(UsersController);
+
+    await expect(controller.updateMe(createSession('user-id'), inputDto)).resolves.toEqual(
+      expectedUser,
+    );
+    expect(update).toHaveBeenCalledWith('user-id', inputDto);
   });
 });

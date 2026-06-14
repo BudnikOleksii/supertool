@@ -5,6 +5,7 @@
   },
   "userMenu": {
     "label": "Обліковий запис",
+    "settings": "Налаштування",
     "signOut": "Вийти"
   },
   "localeSwitcher": {

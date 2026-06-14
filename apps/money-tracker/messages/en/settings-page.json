@@ -1,0 +1,27 @@
+{
+  "title": "Profile settings",
+  "description": "Update your name, language, and default currency.",
+  "nameLabel": "Name",
+  "namePlaceholder": "Your name",
+  "localeLabel": "Language",
+  "localeDescription": "The language the platform opens in when you sign in.",
+  "localeOption": {
+    "en": "English",
+    "uk": "Ukrainian"
+  },
+  "defaultCurrencyLabel": "Default currency",
+  "defaultCurrencyDescription": "Used as the starting currency across your tools.",
+  "defaultCurrencyPlaceholder": "Select a currency",
+  "defaultCurrencySearchLabel": "Search currencies",
+  "defaultCurrencyEmptyMessage": "No currencies found",
+  "submit": "Save changes",
+  "updateSuccess": "Your profile has been updated.",
+  "errors": {
+    "nameRequired": "Enter your name.",
+    "localeInvalid": "Choose a supported language.",
+    "currencyInvalid": "Choose a supported currency.",
+    "VALIDATION_ERROR": "Some details are invalid. Check the fields and try again.",
+    "UNAUTHORIZED": "Your session has expired. Sign in again to continue.",
+    "UNKNOWN": "Something went wrong. Please try again."
+  }
+}
