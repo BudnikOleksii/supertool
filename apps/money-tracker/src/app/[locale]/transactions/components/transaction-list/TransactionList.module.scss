@@ -1,0 +1,18 @@
+.amountColumn {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.dateCell {
+  white-space: nowrap;
+}
+
+.noteCell {
+  max-width: 16rem;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
