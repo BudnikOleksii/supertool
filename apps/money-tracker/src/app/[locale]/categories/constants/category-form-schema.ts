@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { TRANSACTION_TYPE_LIST } from '../../../../constants/transaction';
+import { NAME_MIN_LENGTH } from '@supertool/shared/constants/validation';
 
-const NAME_MIN_LENGTH = 1;
+import { TRANSACTION_TYPE_LIST } from '../../../../constants/transaction';
 
 export const categoryFormSchema = z.object({
   name: z.string('nameRequired').trim().min(NAME_MIN_LENGTH, 'nameRequired'),

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Controller } from 'react-hook-form';
 
 import { Link } from '@supertool/next-shared/src/i18n/navigation/navigation';
+import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-state';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import type { CategoryResponseDto } from '@supertool/shared/generated/types.gen';
 import { Alert, AlertDescription } from '@supertool/ui/src/components/atoms/alert/Alert';
@@ -135,7 +136,7 @@ export const CategoryForm: FC<Props> = ({ category, categoryList }) => {
           <AlertDescription>
             {translateError.has(state.code)
               ? translateError(state.code)
-              : translateError('UNKNOWN')}
+              : translateError(UNKNOWN_ERROR_CODE)}
           </AlertDescription>
         </Alert>
       )}

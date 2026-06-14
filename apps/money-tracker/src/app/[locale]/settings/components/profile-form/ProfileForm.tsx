@@ -5,6 +5,7 @@ import type { FC } from 'react';
 import { useTranslations } from 'next-intl';
 import { Controller } from 'react-hook-form';
 
+import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-state';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { LOCALE_CODE_LIST } from '@supertool/shared/constants/locales';
 import type { UserResponseDto } from '@supertool/shared/generated/types.gen';
@@ -139,7 +140,7 @@ export const ProfileForm: FC<Props> = ({ profile }) => {
           <AlertDescription>
             {translateError.has(state.code)
               ? translateError(state.code)
-              : translateError('UNKNOWN')}
+              : translateError(UNKNOWN_ERROR_CODE)}
           </AlertDescription>
         </Alert>
       )}

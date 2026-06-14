@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
+import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-state';
 import type { CategoryResponseDto, DeleteCategoryDto } from '@supertool/shared/generated/types.gen';
 import type { ComboboxOption } from '@supertool/ui/src/components/molecules/combobox/Combobox';
 
@@ -175,7 +176,7 @@ export const useDeleteCategory = ({
           return;
         }
 
-        setErrorCode(result.status === 'error' ? result.code : 'UNKNOWN');
+        setErrorCode(result.status === 'error' ? result.code : UNKNOWN_ERROR_CODE);
 
         if (result.status === 'error' && result.code === 'UNPROCESSABLE_ENTITY') {
           setMode('reassign');

@@ -2,13 +2,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from '@supertool/shared/constants/validation';
+
 import type { TransactionType } from '../../../database/schemas/enums';
 
 import { TRANSACTION_TYPE_LIST, transactionTypeEnum } from '../../../database/schemas/enums';
 import { OPENAPI_ENUM_NAME } from '../../../shared/constants/openapi-enum-name';
-
-const NAME_MIN_LENGTH = 1;
-const NAME_MAX_LENGTH = 100;
 
 const trimValue = ({ value }: { value: unknown }): unknown =>
   typeof value === 'string' ? value.trim() : value;

@@ -2,8 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
-const NAME_MIN_LENGTH = 1;
-const NAME_MAX_LENGTH = 100;
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from '@supertool/shared/constants/validation';
 
 const trimValue = ({ value }: { value: unknown }): unknown =>
   typeof value === 'string' ? value.trim() : value;
