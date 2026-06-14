@@ -11,5 +11,5 @@ export const prepareDatabase = async ({
   migrationsFolder,
 }: PrepareDatabaseOptions): Promise<void> => {
   await runMigrations({ databaseUrl, migrationsFolder });
-  await runSeed();
+  await runSeed({ databaseUrl });
 };

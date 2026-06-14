@@ -32,6 +32,9 @@ services:
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
       AUTH_TRUSTED_ORIGINS: ${AUTH_TRUSTED_ORIGINS:-http://localhost:3000}
       AUTH_RATE_LIMIT_DISABLED: ${AUTH_RATE_LIMIT_DISABLED:-false}
+      SEED_OPERATOR_EMAIL: ${SEED_OPERATOR_EMAIL:-operator@supertool.local}
+      SEED_OPERATOR_PASSWORD: ${SEED_OPERATOR_PASSWORD:-operator-local-password}
+      SEED_OPERATOR_NAME: ${SEED_OPERATOR_NAME:-Operator}
     ports:
       - '${API_PORT:-3001}:3001'
     depends_on:

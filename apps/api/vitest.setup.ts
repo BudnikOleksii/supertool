@@ -2,3 +2,4 @@ process.env.DATABASE_URL ??= 'postgres://supertool:supertool@localhost:5432/supe
 process.env.BETTER_AUTH_SECRET ??= 'test-secret';
 process.env.BETTER_AUTH_URL ??= 'http://localhost:3001';
 process.env.AUTH_TRUSTED_ORIGINS ??= 'http://localhost:3000';
+process.env.SEED_OPERATOR_PASSWORD ??= 'operator-local-password';

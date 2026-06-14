@@ -35,6 +35,7 @@ describe('prepareDatabase boot sequence', () => {
 
     expect(callOrderList).toEqual(['migrate', 'seed']);
     expect(mockRunMigrations).toHaveBeenCalledWith(inputOptions);
+    expect(mockRunSeed).toHaveBeenCalledWith({ databaseUrl: inputOptions.databaseUrl });
   });
 
   it('aborts before seeding when migrations fail', async () => {
