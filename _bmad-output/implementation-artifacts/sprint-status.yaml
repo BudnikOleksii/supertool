@@ -66,7 +66,7 @@ development_status:
   # the epic splits into two parallel tracks (see epic-2-parallelization.md)
   epic-2: in-progress
   2-1-seed-the-real-data: done
-  2-2-browse-transactions-by-month: backlog
+  2-2-browse-transactions-by-month: done
   2-3-fast-transaction-entry: backlog
   2-4-edit-delete-transactions: backlog
   2-5-filter-sort-the-list: backlog

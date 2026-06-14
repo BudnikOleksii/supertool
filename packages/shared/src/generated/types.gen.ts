@@ -68,6 +68,31 @@ export type DeleteCategoryDto = {
     reassignChildrenToParentId?: string | null;
 };
 
+export type TransactionResponseDto = {
+    id: string;
+    date: string;
+    type: TransactionType;
+    amount: string;
+    currency: string;
+    note: string;
+    categoryId: string;
+    categoryName: string;
+    categoryParentName: string | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type PaginationMetaDto = {
+    page: number;
+    limit: number;
+    total: number;
+};
+
+export type TransactionListResponseDto = {
+    data: Array<TransactionResponseDto>;
+    meta: PaginationMetaDto;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -206,3 +231,28 @@ export type TransactionCategoriesUpdateResponses = {
 };
 
 export type TransactionCategoriesUpdateResponse = TransactionCategoriesUpdateResponses[keyof TransactionCategoriesUpdateResponses];
+
+export type TransactionsFindAllData = {
+    body?: never;
+    path?: never;
+    query?: {
+        page?: number;
+        limit?: number;
+        dateFrom?: string;
+        dateTo?: string;
+    };
+    url: '/api/v1/transactions';
+};
+
+export type TransactionsFindAllErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type TransactionsFindAllError = TransactionsFindAllErrors[keyof TransactionsFindAllErrors];
+
+export type TransactionsFindAllResponses = {
+    200: TransactionListResponseDto;
+};
+
+export type TransactionsFindAllResponse = TransactionsFindAllResponses[keyof TransactionsFindAllResponses];

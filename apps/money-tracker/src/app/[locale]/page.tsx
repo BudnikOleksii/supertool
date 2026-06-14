@@ -28,6 +28,7 @@ const HomePage: FC<Props> = (props) => {
       <Button component={Link} href={ROUTES.categories}>
         {translate('categoriesLink')}
       </Button>
+      <Link href={ROUTES.transactions}>{translate('transactionsLink')}</Link>
     </section>
   );
 };
