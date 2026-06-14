@@ -21,6 +21,10 @@ describe('parsePeriod', () => {
     expect(parsePeriod('2025-13')).toEqual(parsePeriod(getCurrentPeriod()));
   });
 
+  it('falls back to the current month for a sub-1000 year that JavaScript Date would misread', () => {
+    expect(parsePeriod('0099-01')).toEqual(parsePeriod(getCurrentPeriod()));
+  });
+
   it('falls back to the current month when undefined', () => {
     expect(parsePeriod(undefined)).toEqual(parsePeriod(getCurrentPeriod()));
   });

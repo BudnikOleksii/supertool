@@ -11,7 +11,9 @@ export interface MonthDateRange {
 const PERIOD_PATTERN = /^\d{4}-\d{2}$/u;
 const FIRST_MONTH = 1;
 const LAST_MONTH = 12;
+const MIN_YEAR = 1000;
 const TWO_DIGITS = 2;
+const YEAR_DIGITS = 4;
 const FIRST_DAY_OF_MONTH = '01';
 const MONTH_INDEX_OFFSET = 1;
 const ADJACENT_STEP = 1;
@@ -19,8 +21,10 @@ const LAST_DAY_PROBE = 0;
 
 const formatTwoDigits = (value: number): string => String(value).padStart(TWO_DIGITS, '0');
 
+const formatYear = (year: number): string => String(year).padStart(YEAR_DIGITS, '0');
+
 export const formatPeriod = ({ year, month }: PeriodParts): string =>
-  `${String(year)}-${formatTwoDigits(month)}`;
+  `${formatYear(year)}-${formatTwoDigits(month)}`;
 
 export const getCurrentPeriod = (): string => {
   const now = new Date();
@@ -37,7 +41,7 @@ export const parsePeriod = (value: string | undefined): PeriodParts => {
   const year = Number(yearPart);
   const month = Number(monthPart);
 
-  if (month < FIRST_MONTH || month > LAST_MONTH) {
+  if (year < MIN_YEAR || month < FIRST_MONTH || month > LAST_MONTH) {
     return parsePeriod(getCurrentPeriod());
   }
 
@@ -48,8 +52,8 @@ export const getMonthDateRange = ({ year, month }: PeriodParts): MonthDateRange 
   const lastDay = new Date(year, month, LAST_DAY_PROBE).getDate();
 
   return {
-    dateFrom: `${String(year)}-${formatTwoDigits(month)}-${FIRST_DAY_OF_MONTH}`,
-    dateTo: `${String(year)}-${formatTwoDigits(month)}-${formatTwoDigits(lastDay)}`,
+    dateFrom: `${formatYear(year)}-${formatTwoDigits(month)}-${FIRST_DAY_OF_MONTH}`,
+    dateTo: `${formatYear(year)}-${formatTwoDigits(month)}-${formatTwoDigits(lastDay)}`,
   };
 };
 
