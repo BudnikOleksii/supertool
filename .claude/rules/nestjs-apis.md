@@ -125,8 +125,8 @@ Generate code, corrections, and refactorings that comply with the following guid
 
 ### Configuration & environment
 
-- All environment variables flow through the single validated schema in `src/app/env.schema.ts` (zod `envSchema` + `parseEnv`). NEVER scatter hardcoded fallback literals (secrets, URLs, connection strings) in feature modules — add the var to `envSchema` (with a local dev default there, mirroring `DATABASE_URL`) and read it. Module-level singletons constructed outside Nest DI (e.g. the better-auth instance in `src/auth/auth.ts`) call `parseEnv()` directly rather than redeclaring their own fallbacks.
-- Every env var must be listed in `apps/api/.env.example`. Vars that are mandatory in production (no safe default) are enforced in `parseEnv`'s production guard.
+- All environment variables flow through the single validated schema in `src/app/env.schema.ts` (zod `envSchema` + `parseEnv`, which `safeParse`s and throws a formatted error on failure). NEVER scatter hardcoded fallback literals (secrets, URLs, connection strings) in feature modules — add the var to `envSchema` and read it. Use a zod `.default()` ONLY for vars that are safe to default locally (`NODE_ENV`, `PORT`, `AUTH_RATE_LIMIT_DISABLED`); required secrets and connection strings (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `AUTH_TRUSTED_ORIGINS`) have NO default and must be supplied at runtime. Module-level singletons constructed outside Nest DI (e.g. the better-auth instance in `src/auth/auth.ts`) call `parseEnv()` directly rather than redeclaring their own fallbacks.
+- Every env var must be listed in `apps/api/.env.example` (local-dev values; the gitignored `.env` carries real ones).
 
 ## Architecture Principles
 
