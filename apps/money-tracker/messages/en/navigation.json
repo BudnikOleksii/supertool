@@ -4,7 +4,8 @@
     "moneyTracker": "Money Tracker"
   },
   "userMenu": {
-    "label": "Account"
+    "label": "Account",
+    "signOut": "Sign out"
   },
   "localeSwitcher": {
     "label": "Language",

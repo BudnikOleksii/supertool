@@ -4,7 +4,8 @@
     "moneyTracker": "Трекер грошей"
   },
   "userMenu": {
-    "label": "Обліковий запис"
+    "label": "Обліковий запис",
+    "signOut": "Вийти"
   },
   "localeSwitcher": {
     "label": "Мова",

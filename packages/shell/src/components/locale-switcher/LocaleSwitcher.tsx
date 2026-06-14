@@ -5,11 +5,12 @@ import type { FC } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { usePathname, useRouter } from '@supertool/next-shared/src/i18n/navigation/navigation';
+import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { checkIsLocaleCode, LOCALE_CODE_LIST } from '@supertool/shared/constants/locales';
 import { Select } from '@supertool/ui/src/components/atoms/select/Select';
 
 export const LocaleSwitcher: FC = () => {
-  const translate = useTranslations('navigation.localeSwitcher');
+  const translate = useTranslations(`${I18N_NAMESPACE.navigation}.localeSwitcher`);
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();

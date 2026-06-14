@@ -7,9 +7,10 @@ import { ThemeProvider } from 'next-themes';
 import { Poppins } from 'next/font/google';
 
 import { routing } from '@supertool/next-shared/src/i18n/routing';
-import { TOOL_LIST } from '@supertool/shared/constants/tools';
-import { AppShell } from '@supertool/shell/src/components/app-shell/AppShell';
 import '@supertool/ui/src/styles/index.scss';
+
+import { fetchProfile } from '../../actions/fetch-profile';
+import { AppShellSection } from './AppShellSection';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -30,12 +31,14 @@ const LocaleLayout: FC<Props> = async (props) => {
 
   setRequestLocale(params.locale);
 
+  const profile = await fetchProfile();
+
   return (
     <html lang={params.locale} suppressHydrationWarning>
       <body className={poppins.variable}>
         <NextIntlClientProvider>
           <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
-            <AppShell tools={TOOL_LIST}>{children}</AppShell>
+            <AppShellSection userName={profile?.name}>{children}</AppShellSection>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

@@ -34,6 +34,7 @@
     "docs/**",
     ".claude/**",
     ".agents/**",
-    "packages/shared/src/generated/**"
+    "packages/shared/src/generated/**",
+    "apps/api/src/database/migrations/**"
   ]
 }

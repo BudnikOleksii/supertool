@@ -13,7 +13,7 @@ const EXIT_FAILURE = 1;
 const bootstrap = async (): Promise<void> => {
   const env = parseEnv();
 
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, { bufferLogs: true, bodyParser: false });
   app.useLogger(app.get(Logger));
   configureAppRouting(app);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));

@@ -4,12 +4,17 @@ packages:
 allowBuilds:
   # install-time telemetry (via swagger-ui-dist) — never allowed (NFR4)
   '@parcel/watcher': false
+  '@prisma/client': false
   '@scarf/scarf': false
   '@swc/core': true
+  better-sqlite3: false
+  cpu-features: false
   esbuild: true
+  protobufjs: false
   # @parcel/watcher and sharp ship prebuilt platform binaries as optional deps;
   # their install scripts are native-build fallbacks we never need locally or in CI
   sharp: false
+  ssh2: false
 minimumReleaseAgeExclude:
   - '@turbo/darwin-64@2.9.17'
   - '@turbo/darwin-arm64@2.9.17'

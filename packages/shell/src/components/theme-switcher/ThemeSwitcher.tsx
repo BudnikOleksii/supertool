@@ -6,13 +6,14 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
+import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Select } from '@supertool/ui/src/components/atoms/select/Select';
 
 import { checkIsThemeOption, THEME_OPTION, THEME_OPTION_LIST } from './constants';
 import styles from './ThemeSwitcher.module.scss';
 
 export const ThemeSwitcher: FC = () => {
-  const translate = useTranslations('navigation.themeSwitcher');
+  const translate = useTranslations(`${I18N_NAMESPACE.navigation}.themeSwitcher`);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 

@@ -123,6 +123,11 @@ Generate code, corrections, and refactorings that comply with the following guid
 - Never use `import type` for an injectable (service, repository, Logger): tsc resurrects type-only imports referenced in decorator metadata, but SWC under Vitest erases them and emits `Object` paramtypes — DI then fails in specs and Testcontainers integration tests. With explicit `@Inject`, the import is value-position usage, `typescript/consistent-type-imports` stays satisfied, and a regression to `import type` becomes a compile error.
 - Non-class providers (drizzle instance, env) use `Symbol` tokens from a `*.constants.ts` file (`DRIZZLE`, `PG_POOL`, `ENV`); their TypeScript types may be `import type` since the token, not the type, drives resolution.
 
+### Configuration & environment
+
+- All environment variables flow through the single validated schema in `src/app/env.schema.ts` (zod `envSchema` + `parseEnv`). NEVER scatter hardcoded fallback literals (secrets, URLs, connection strings) in feature modules — add the var to `envSchema` (with a local dev default there, mirroring `DATABASE_URL`) and read it. Module-level singletons constructed outside Nest DI (e.g. the better-auth instance in `src/auth/auth.ts`) call `parseEnv()` directly rather than redeclaring their own fallbacks.
+- Every env var must be listed in `apps/api/.env.example`. Vars that are mandatory in production (no safe default) are enforced in `parseEnv`'s production guard.
+
 ## Architecture Principles
 
 - Organize code by feature, not by file type
