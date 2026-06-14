@@ -4,6 +4,8 @@ import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validato
 import { CURRENCY_CODE_LIST } from '@supertool/shared/constants/currency';
 import { LOCALE_CODE_LIST } from '@supertool/shared/constants/locales';
 
+import { OPENAPI_ENUM_NAME } from '../../../shared/constants/openapi-enum-name';
+
 const NAME_MIN_LENGTH = 1;
 const NAME_MAX_LENGTH = 100;
 
@@ -15,12 +17,12 @@ export class UpdateUserDto {
   @MaxLength(NAME_MAX_LENGTH)
   name?: string;
 
-  @ApiPropertyOptional({ enum: LOCALE_CODE_LIST })
+  @ApiPropertyOptional({ enum: LOCALE_CODE_LIST, enumName: OPENAPI_ENUM_NAME.localeCode })
   @IsOptional()
   @IsIn(LOCALE_CODE_LIST)
   locale?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: CURRENCY_CODE_LIST, enumName: OPENAPI_ENUM_NAME.currencyCode })
   @IsOptional()
   @IsIn(CURRENCY_CODE_LIST)
   defaultCurrency?: string;

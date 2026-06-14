@@ -117,6 +117,15 @@ Generate code, corrections, and refactorings that comply with the following guid
   - Utilities
   - Shared business logic
 
+### DTOs & the generated OpenAPI client
+
+- The frontend consumes the API only through the generated client (`packages/shared/src/generated/`), which mirrors `apps/api/openapi.json` 1:1 and never imports app code. Whatever the Swagger decorators emit IS the client's type — design DTOs for the generated output, not just for runtime validation.
+- Enum/union fields MUST set `enumName` on `@ApiProperty`/`@ApiPropertyOptional`. Without it the generator (`@hey-api/openapi-ts`) inlines the literal union at every occurrence — no reusable named type, and the request and response copies silently drift. With `enumName` it emits one named type (e.g. `LocaleCode`) shared by every DTO that references it.
+- Use the SAME `enumName` for the same concept on BOTH the request DTO (e.g. `UpdateUserDto.locale`) and the response DTO (e.g. `UserResponseDto.locale`) so reads and writes share one generated type. A field typed as an enum on input but bare `string` on output is a defect.
+- `enumName` values come from the `OPENAPI_ENUM_NAME` const map (`src/shared/constants/openapi-enum-name.ts`) — never hardcode the string literal at the decorator. Add an entry there when introducing a new named schema.
+- Enum VALUES stay single-sourced from the shared value list (`LOCALE_CODE_LIST`, `CURRENCY_CODE_LIST`) or a `pgEnum`'s `enumValues`: pass that list to `@IsIn(...)` for validation and to `enum:` for the schema. The `classValidatorShim` (nest-cli.json) lifts `@IsIn` into the spec, but `enumName` must still be set explicitly to get a named type.
+- Regenerate after changing any DTO or shared value list: `pnpm --filter @supertool/api build` (emits `openapi.json`), then `pnpm --filter @supertool/shared generate:client`. The generated `LocaleCode`/`CurrencyCode` are hey-api-owned types — named identically to the `@supertool/shared` constants' types but distinct (structurally compatible) declarations; at call sites prefer importing them from the generated module.
+
 ### Dependency Injection
 
 - Every constructor injection uses an explicit `@Inject(ClassNameOrToken)` decorator — never rely on `emitDecoratorMetadata` alone.
