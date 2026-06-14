@@ -1,5 +1,5 @@
 # generated: 2026-06-10
-# last_updated: 2026-06-10
+# last_updated: 2026-06-14
 # project: supertool
 # project_key: NOKEY
 # tracking_system: file-system
@@ -58,7 +58,7 @@ development_status:
   1-11-design-system-molecule-parity: done
   1-5-sign-up-sign-in: done
   1-6-profile-settings: done
-  1-7-one-command-local-runtime: ready-for-dev
+  1-7-one-command-local-runtime: done
   epic-1-retrospective: optional
 
   # Epic 2: Transactions & Categories

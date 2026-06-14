@@ -1,16 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
+import { join } from 'node:path';
 
 import { AppModule } from './app/app.module';
 import { configureAppRouting } from './app/configure-app-routing';
 import { parseEnv } from './app/env.schema';
 import { buildOpenApiDocument } from './app/openapi';
+import { prepareDatabase } from './database/prepare-database';
 
 const EXIT_FAILURE = 1;
 
+const resolveMigrationsFolder = (): string => join(__dirname, 'database', 'migrations');
+
 const bootstrap = async (): Promise<void> => {
   const env = parseEnv();
+
+  await prepareDatabase({
+    databaseUrl: env.DATABASE_URL,
+    migrationsFolder: resolveMigrationsFolder(),
+  });
 
   const app = await NestFactory.create(AppModule, { bufferLogs: true, bodyParser: false });
   app.useLogger(app.get(Logger));
