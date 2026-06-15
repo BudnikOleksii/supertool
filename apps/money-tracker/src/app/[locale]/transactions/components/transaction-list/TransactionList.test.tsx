@@ -11,7 +11,18 @@ vi.mock('next-intl/server', () => ({
   getTranslations: async () => (key: string) => key,
 }));
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => Object.assign((key: string) => key, { has: () => true }),
+  useLocale: () => 'en',
+}));
+
+vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
+  Link: ({ children }: { children: React.ReactNode }) => <a href="#test">{children}</a>,
+}));
+
 const LOCALE = 'en-US';
+const PERIOD = '2025-02';
+const PAGE = 1;
 const HEADER_ROW_COUNT = 1;
 
 const buildTransaction = (overrides: Partial<TransactionResponseDto>): TransactionResponseDto => ({
@@ -34,7 +45,9 @@ describe('TransactionList', () => {
     const transactionList = [buildTransaction({})];
 
     const renderTransactionList = TransactionList;
-    render(await renderTransactionList({ transactionList, locale: LOCALE }));
+    render(
+      await renderTransactionList({ transactionList, locale: LOCALE, period: PERIOD, page: PAGE }),
+    );
 
     expect(screen.getByText('Food / Groceries')).toBeTruthy();
     expect(screen.getByText(formatTransactionAmount('1234.56', 'USD', LOCALE))).toBeTruthy();
@@ -47,7 +60,9 @@ describe('TransactionList', () => {
     ];
 
     const renderTransactionList = TransactionList;
-    render(await renderTransactionList({ transactionList, locale: LOCALE }));
+    render(
+      await renderTransactionList({ transactionList, locale: LOCALE, period: PERIOD, page: PAGE }),
+    );
 
     expect(screen.getByText('Salary')).toBeTruthy();
   });
@@ -59,7 +74,9 @@ describe('TransactionList', () => {
     ];
 
     const renderTransactionList = TransactionList;
-    render(await renderTransactionList({ transactionList, locale: LOCALE }));
+    render(
+      await renderTransactionList({ transactionList, locale: LOCALE, period: PERIOD, page: PAGE }),
+    );
 
     expect(screen.getAllByRole('row')).toHaveLength(transactionList.length + HEADER_ROW_COUNT);
   });

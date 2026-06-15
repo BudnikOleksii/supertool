@@ -66,4 +66,58 @@ describe('TransactionsController', () => {
     );
     expect(create).toHaveBeenCalledWith('user-id', inputDto);
   });
+
+  it('forwards the session user id and transaction id to the service on findOne', async () => {
+    const expectedResult = { id: 'transaction-1' };
+    const findOne = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [TransactionsController],
+      providers: [{ provide: TransactionsService, useValue: { findOne } }],
+    }).compile();
+
+    const controller = moduleRef.get(TransactionsController);
+
+    await expect(controller.findOne(createSession('user-id'), 'transaction-1')).resolves.toEqual(
+      expectedResult,
+    );
+    expect(findOne).toHaveBeenCalledWith('user-id', 'transaction-1');
+  });
+
+  it('forwards the session user id, id, and body to the service on update', async () => {
+    const expectedResult = { id: 'transaction-1' };
+    const update = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [TransactionsController],
+      providers: [{ provide: TransactionsService, useValue: { update } }],
+    }).compile();
+
+    const controller = moduleRef.get(TransactionsController);
+    const inputDto = {
+      type: 'expense' as const,
+      amount: '99.99',
+      currency: 'UAH',
+      categoryId: 'category-id',
+      date: '2025-03-10',
+    };
+
+    await expect(
+      controller.update(createSession('user-id'), 'transaction-1', inputDto),
+    ).resolves.toEqual(expectedResult);
+    expect(update).toHaveBeenCalledWith('user-id', 'transaction-1', inputDto);
+  });
+
+  it('forwards the session user id and id to the service on remove', async () => {
+    const remove = vi.fn().mockResolvedValue(undefined);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [TransactionsController],
+      providers: [{ provide: TransactionsService, useValue: { delete: remove } }],
+    }).compile();
+
+    const controller = moduleRef.get(TransactionsController);
+
+    await expect(
+      controller.remove(createSession('user-id'), 'transaction-1'),
+    ).resolves.toBeUndefined();
+    expect(remove).toHaveBeenCalledWith('user-id', 'transaction-1');
+  });
 });

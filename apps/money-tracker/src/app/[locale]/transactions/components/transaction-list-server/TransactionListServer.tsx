@@ -33,5 +33,12 @@ export const TransactionListServer: FC<Props> = async ({ period, page, locale })
     return <TransactionEmptyState />;
   }
 
-  return <TransactionList transactionList={transactionList} locale={locale} />;
+  return (
+    <TransactionList
+      transactionList={transactionList}
+      locale={locale}
+      period={period}
+      page={page}
+    />
+  );
 };

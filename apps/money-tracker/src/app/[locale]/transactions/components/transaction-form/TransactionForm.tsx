@@ -8,7 +8,10 @@ import { Controller } from 'react-hook-form';
 import { Link } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-state';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
-import type { CategoryResponseDto } from '@supertool/shared/generated/types.gen';
+import type {
+  CategoryResponseDto,
+  TransactionResponseDto,
+} from '@supertool/shared/generated/types.gen';
 import { Alert, AlertDescription } from '@supertool/ui/src/components/atoms/alert/Alert';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Input } from '@supertool/ui/src/components/atoms/input/Input';
@@ -32,9 +35,10 @@ import styles from './TransactionForm.module.scss';
 interface Props {
   categoryList: CategoryResponseDto[];
   defaultCurrency: string | null;
+  transaction?: TransactionResponseDto;
 }
 
-export const TransactionForm: FC<Props> = ({ categoryList, defaultCurrency }) => {
+export const TransactionForm: FC<Props> = ({ categoryList, defaultCurrency, transaction }) => {
   const translate = useTranslations(I18N_NAMESPACE.transactionForm);
   const translateError = useTranslations(`${I18N_NAMESPACE.transactionForm}.errors`);
   const {
@@ -42,11 +46,12 @@ export const TransactionForm: FC<Props> = ({ categoryList, defaultCurrency }) =>
     handleSubmit,
     control,
     errors,
+    isEditing,
     isPending,
     state,
     categoryOptionList,
     handleFormSubmit,
-  } = useTransactionForm({ categoryList, defaultCurrency });
+  } = useTransactionForm({ categoryList, defaultCurrency, transaction });
 
   const typeOptionList = TRANSACTION_TYPE_LIST.map((type) => ({
     value: type,
@@ -218,7 +223,7 @@ export const TransactionForm: FC<Props> = ({ categoryList, defaultCurrency }) =>
           {translate('cancel')}
         </Button>
         <Button type="submit" disabled={isPending}>
-          {translate('submit')}
+          {isEditing ? translate('save') : translate('submit')}
         </Button>
       </div>
     </form>

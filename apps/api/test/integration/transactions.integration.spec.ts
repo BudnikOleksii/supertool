@@ -419,3 +419,102 @@ describe('TransactionsService create (Testcontainers Postgres)', () => {
     );
   });
 });
+
+const createOperatorTransaction = async (): Promise<TransactionResponseDto> => {
+  const category = await loadOperatorChildCategory();
+
+  return getService().create(operatorId, {
+    type: category.type,
+    amount: '10.00',
+    currency: 'UAH',
+    categoryId: category.id,
+    date: '2025-04-10',
+    note: 'before',
+  });
+};
+
+const checkTransactionExists = async (id: string): Promise<boolean> => {
+  const result = await getPool().query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count FROM transactions WHERE id = $1`,
+    [id],
+  );
+
+  return (result.rows[0]?.count ?? 0) > 0;
+};
+
+describe('TransactionsService update/find-one/delete (Testcontainers Postgres)', () => {
+  it('updates a user-scoped transaction and returns the new string amount (AC1)', async () => {
+    const created = await createOperatorTransaction();
+    const category = await loadOperatorChildCategory();
+
+    const updated = await getService().update(operatorId, created.id, {
+      type: category.type,
+      amount: '77.77',
+      currency: 'USD',
+      categoryId: category.id,
+      date: '2025-05-20',
+      note: 'after',
+    });
+
+    expect(updated.id).toBe(created.id);
+    expect(updated.amount).toBe('77.77');
+    expect(updated.currency).toBe('USD');
+    expect(updated.date).toBe('2025-05-20');
+    expect(updated.note).toBe('after');
+    expect(typeof updated.amount).toBe('string');
+  });
+
+  it('returns a user-scoped transaction on find-one (AC2)', async () => {
+    const created = await createOperatorTransaction();
+
+    const found = await getService().findOne(operatorId, created.id);
+
+    expect(found.id).toBe(created.id);
+  });
+
+  it('throws NotFoundException on find-one for a missing transaction (AC2)', async () => {
+    await expect(getService().findOne(operatorId, generateId())).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('deletes a user-scoped transaction (AC3)', async () => {
+    const created = await createOperatorTransaction();
+
+    await getService().delete(operatorId, created.id);
+
+    expect(await checkTransactionExists(created.id)).toBe(false);
+    await expect(getService().findOne(operatorId, created.id)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('does not update another user transaction and surfaces not-found (FR21)', async () => {
+    const window = await loadLatestMonthWindow();
+    const { transactionId } = await insertSecondUserTransaction(window);
+    const category = await loadOperatorChildCategory();
+
+    await expect(
+      getService().update(operatorId, transactionId, {
+        type: category.type,
+        amount: '5.00',
+        currency: 'UAH',
+        categoryId: category.id,
+        date: '2025-05-20',
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+
+    const storedRow = await loadStoredTransaction(transactionId);
+    expect(storedRow?.amount).toBe('99.99');
+  });
+
+  it('does not delete another user transaction and surfaces not-found (FR21)', async () => {
+    const window = await loadLatestMonthWindow();
+    const { transactionId } = await insertSecondUserTransaction(window);
+
+    await expect(getService().delete(operatorId, transactionId)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(await checkTransactionExists(transactionId)).toBe(true);
+  });
+});

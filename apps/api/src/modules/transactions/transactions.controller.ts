@@ -1,10 +1,23 @@
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 
-import { Body, Controller, Get, Inject, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -12,6 +25,8 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Session } from '@thallesp/nestjs-better-auth';
+
+import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
 
 import type { auth } from '../../auth/auth';
 
@@ -22,6 +37,7 @@ import { CreateTransactionDto } from './dtos/create-transaction.dto';
 import { FindTransactionsQueryDto } from './dtos/find-transactions-query.dto';
 import { TransactionListResponseDto } from './dtos/transaction-list-response.dto';
 import { TransactionResponseDto } from './dtos/transaction-response.dto';
+import { UpdateTransactionDto } from './dtos/update-transaction.dto';
 import { TransactionsService } from './transactions.service';
 
 @ApiTags('transactions')
@@ -56,5 +72,46 @@ export class TransactionsController {
     @Body() dto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
     return this.transactionsService.create(session.user.id, dto);
+  }
+
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  @ApiOkResponse({ type: TransactionResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiNotFoundResponse({ type: ErrorResponseDto })
+  async findOne(
+    @Session() session: UserSession<typeof auth>,
+    @Param('id') id: string,
+  ): Promise<TransactionResponseDto> {
+    return this.transactionsService.findOne(session.user.id, id);
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  @ApiBody({ type: UpdateTransactionDto })
+  @ApiOkResponse({ type: TransactionResponseDto })
+  @ApiBadRequestResponse({ type: ErrorResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiNotFoundResponse({ type: ErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ErrorResponseDto })
+  async update(
+    @Session() session: UserSession<typeof auth>,
+    @Param('id') id: string,
+    @Body() dto: UpdateTransactionDto,
+  ): Promise<TransactionResponseDto> {
+    return this.transactionsService.update(session.user.id, id, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  @HttpCode(HTTP_STATUS_CODE.NoContent)
+  @ApiNoContentResponse()
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiNotFoundResponse({ type: ErrorResponseDto })
+  async remove(
+    @Session() session: UserSession<typeof auth>,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.transactionsService.delete(session.user.id, id);
   }
 }

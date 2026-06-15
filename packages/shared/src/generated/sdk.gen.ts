@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type { HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, TransactionsCreateData, TransactionsCreateErrors, TransactionsCreateResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
+import type { HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, TransactionsCreateData, TransactionsCreateErrors, TransactionsCreateResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, TransactionsFindOneData, TransactionsFindOneErrors, TransactionsFindOneResponses, TransactionsRemoveData, TransactionsRemoveErrors, TransactionsRemoveResponses, TransactionsUpdateData, TransactionsUpdateErrors, TransactionsUpdateResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -88,6 +88,25 @@ export class TransactionsApiService {
     public static transactionsCreate<ThrowOnError extends boolean = false>(options: Options<TransactionsCreateData, ThrowOnError>): RequestResult<TransactionsCreateResponses, TransactionsCreateErrors, ThrowOnError> {
         return (options.client ?? client).post<TransactionsCreateResponses, TransactionsCreateErrors, ThrowOnError>({
             url: '/api/v1/transactions',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static transactionsRemove<ThrowOnError extends boolean = false>(options: Options<TransactionsRemoveData, ThrowOnError>): RequestResult<TransactionsRemoveResponses, TransactionsRemoveErrors, ThrowOnError> {
+        return (options.client ?? client).delete<TransactionsRemoveResponses, TransactionsRemoveErrors, ThrowOnError>({ url: '/api/v1/transactions/{id}', ...options });
+    }
+    
+    public static transactionsFindOne<ThrowOnError extends boolean = false>(options: Options<TransactionsFindOneData, ThrowOnError>): RequestResult<TransactionsFindOneResponses, TransactionsFindOneErrors, ThrowOnError> {
+        return (options.client ?? client).get<TransactionsFindOneResponses, TransactionsFindOneErrors, ThrowOnError>({ url: '/api/v1/transactions/{id}', ...options });
+    }
+    
+    public static transactionsUpdate<ThrowOnError extends boolean = false>(options: Options<TransactionsUpdateData, ThrowOnError>): RequestResult<TransactionsUpdateResponses, TransactionsUpdateErrors, ThrowOnError> {
+        return (options.client ?? client).patch<TransactionsUpdateResponses, TransactionsUpdateErrors, ThrowOnError>({
+            url: '/api/v1/transactions/{id}',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
