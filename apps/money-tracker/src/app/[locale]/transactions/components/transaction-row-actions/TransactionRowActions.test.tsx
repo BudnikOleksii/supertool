@@ -20,6 +20,10 @@ const TRANSACTION_ID = 'transaction-1';
 const PERIOD = '2025-02';
 const PAGE = 2;
 const LOCALE = 'en';
+const TYPE = 'expense';
+const CATEGORY_ID = 'category-1';
+const SORT_BY = 'amount';
+const SORT_ORDER = 'asc';
 
 const renderActions = (): void => {
   render(
@@ -27,6 +31,10 @@ const renderActions = (): void => {
       id={TRANSACTION_ID}
       period={PERIOD}
       page={PAGE}
+      type={TYPE}
+      categoryId={CATEGORY_ID}
+      sortBy={SORT_BY}
+      sortOrder={SORT_ORDER}
       formattedAmount="₴1,234.56"
       formattedDate="Feb 3, 2025"
     />,
@@ -55,6 +63,12 @@ describe('TransactionRowActions', () => {
         period: PERIOD,
         page: PAGE,
         locale: LOCALE,
+        view: {
+          type: TYPE,
+          categoryId: CATEGORY_ID,
+          sortBy: SORT_BY,
+          sortOrder: SORT_ORDER,
+        },
       });
     });
   });

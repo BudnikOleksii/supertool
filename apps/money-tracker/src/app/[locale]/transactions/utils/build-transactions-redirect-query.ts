@@ -1,9 +1,49 @@
-import { FIRST_PAGE, PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../constants';
+import { FIRST_PAGE } from '@supertool/shared/constants/pagination';
+import type {
+  SortOrder,
+  TransactionSortBy,
+  TransactionType,
+} from '@supertool/shared/generated/types.gen';
+
+import {
+  CATEGORY_SEARCH_PARAM,
+  PAGE_SEARCH_PARAM,
+  PERIOD_SEARCH_PARAM,
+  SORT_BY_SEARCH_PARAM,
+  SORT_ORDER_SEARCH_PARAM,
+  TYPE_SEARCH_PARAM,
+} from '../constants';
+
+export interface TransactionViewParams {
+  type?: TransactionType | undefined;
+  categoryId?: string | undefined;
+  sortBy: TransactionSortBy;
+  sortOrder: SortOrder;
+}
+
+const buildViewQuery = (view: TransactionViewParams): Record<string, string> => {
+  const query: Record<string, string> = {
+    [SORT_BY_SEARCH_PARAM]: view.sortBy,
+    [SORT_ORDER_SEARCH_PARAM]: view.sortOrder,
+  };
+
+  if (view.type !== undefined) {
+    query[TYPE_SEARCH_PARAM] = view.type;
+  }
+
+  if (view.categoryId !== undefined) {
+    query[CATEGORY_SEARCH_PARAM] = view.categoryId;
+  }
+
+  return query;
+};
 
 export const buildTransactionsRedirectQuery = (
   period: string,
   page: number,
-): Record<string, string> =>
-  page > FIRST_PAGE
-    ? { [PERIOD_SEARCH_PARAM]: period, [PAGE_SEARCH_PARAM]: String(page) }
-    : { [PERIOD_SEARCH_PARAM]: period };
+  view?: TransactionViewParams,
+): Record<string, string> => ({
+  [PERIOD_SEARCH_PARAM]: period,
+  ...(page > FIRST_PAGE ? { [PAGE_SEARCH_PARAM]: String(page) } : {}),
+  ...(view === undefined ? {} : buildViewQuery(view)),
+});

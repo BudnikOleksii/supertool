@@ -68,6 +68,10 @@ export type DeleteCategoryDto = {
     reassignChildrenToParentId?: string | null;
 };
 
+export type TransactionSortBy = 'date' | 'amount';
+
+export type SortOrder = 'asc' | 'desc';
+
 export type TransactionResponseDto = {
     id: string;
     date: string;
@@ -258,6 +262,10 @@ export type TransactionsFindAllData = {
         limit?: number;
         dateFrom?: string;
         dateTo?: string;
+        type?: TransactionType;
+        categoryId?: string;
+        sortBy?: TransactionSortBy;
+        sortOrder?: SortOrder;
     };
     url: '/api/v1/transactions';
 };

@@ -28,9 +28,36 @@
     "previous": "Previous month",
     "next": "Next month"
   },
+  "filters": {
+    "typeLabel": "Filter by type",
+    "typeAll": "All types",
+    "typeIncome": "Income",
+    "typeExpense": "Expense",
+    "categoryPlaceholder": "All categories",
+    "categorySearchLabel": "Search categories",
+    "categoryEmptyMessage": "No categories found",
+    "categoryAll": "All categories",
+    "sortByLabel": "Sort by",
+    "sortByDate": "Date",
+    "sortByAmount": "Amount",
+    "sortOrderLabel": "Sort order",
+    "sortOrderDescending": "Descending",
+    "sortOrderAscending": "Ascending",
+    "clear": "Clear filters"
+  },
+  "pagination": {
+    "previous": "Previous page",
+    "next": "Next page",
+    "info": "Page {page} of {total}"
+  },
   "empty": {
     "title": "No transactions for this month",
     "description": "Once you add transactions for this period, they will show up here."
+  },
+  "noMatches": {
+    "title": "No transactions match your filters",
+    "description": "Try adjusting or clearing the filters to see more transactions.",
+    "clear": "Clear filters"
   },
   "error": {
     "title": "Couldn’t load transactions",

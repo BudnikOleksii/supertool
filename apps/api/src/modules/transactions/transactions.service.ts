@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 
 import { ErrorCode } from '@supertool/shared/constants/error-codes';
+import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '@supertool/shared/constants/pagination';
+import { DEFAULT_SORT_BY, DEFAULT_SORT_ORDER } from '@supertool/shared/constants/transaction-sort';
 
 import type { TransactionType } from '../../database/schemas/enums';
 import type { CreateTransactionDto } from './dtos/create-transaction.dto';
@@ -14,7 +16,6 @@ import type { TransactionListResponseDto } from './dtos/transaction-list-respons
 import type { TransactionResponseDto } from './dtos/transaction-response.dto';
 import type { UpdateTransactionDto } from './dtos/update-transaction.dto';
 
-import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '../../shared/constants/pagination';
 import { TransactionsRepository } from './transactions.repository';
 
 @Injectable()
@@ -33,6 +34,10 @@ export class TransactionsService {
     const { data, total } = await this.transactionsRepository.findAllByUserId(userId, {
       dateFrom: query.dateFrom,
       dateTo: query.dateTo,
+      type: query.type,
+      categoryId: query.categoryId,
+      sortBy: query.sortBy ?? DEFAULT_SORT_BY,
+      sortOrder: query.sortOrder ?? DEFAULT_SORT_ORDER,
       page,
       limit,
     });

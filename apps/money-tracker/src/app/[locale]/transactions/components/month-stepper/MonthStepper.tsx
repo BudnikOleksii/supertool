@@ -3,12 +3,13 @@
 import type { FC } from 'react';
 
 import { useLocale, useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 
 import { usePathname, useRouter } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 
-import { PERIOD_SEARCH_PARAM } from '../../constants';
+import { PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../../constants';
 import { formatPeriodLabel } from '../../utils/format-period-label';
 import { getNextPeriod, getPreviousPeriod, parsePeriod } from '../../utils/period';
 import { ChevronLeftIcon, ChevronRightIcon } from './ChevronIcon';
@@ -23,11 +24,15 @@ export const MonthStepper: FC<Props> = ({ period }) => {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const periodParts = parsePeriod(period);
 
   const handleNavigate = (targetPeriod: string) => {
-    router.replace({ pathname, query: { [PERIOD_SEARCH_PARAM]: targetPeriod } }, { scroll: false });
+    const next = new URLSearchParams(searchParams.toString());
+    next.set(PERIOD_SEARCH_PARAM, targetPeriod);
+    next.delete(PAGE_SEARCH_PARAM);
+    router.replace({ pathname, query: Object.fromEntries(next) }, { scroll: false });
   };
 
   const handlePrevious = () => {

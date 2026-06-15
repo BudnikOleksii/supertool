@@ -3,7 +3,12 @@ import type { FC } from 'react';
 import { getTranslations } from 'next-intl/server';
 
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
-import type { TransactionResponseDto } from '@supertool/shared/generated/types.gen';
+import type {
+  SortOrder,
+  TransactionResponseDto,
+  TransactionSortBy,
+  TransactionType,
+} from '@supertool/shared/generated/types.gen';
 import { Badge } from '@supertool/ui/src/components/atoms/badge/Badge';
 import {
   Table,
@@ -24,6 +29,10 @@ interface Props {
   locale: string;
   period: string;
   page: number;
+  type?: TransactionType | undefined;
+  categoryId?: string | undefined;
+  sortBy: TransactionSortBy;
+  sortOrder: SortOrder;
 }
 
 const getCategoryLabel = (transaction: TransactionResponseDto): string =>
@@ -31,7 +40,16 @@ const getCategoryLabel = (transaction: TransactionResponseDto): string =>
     ? transaction.categoryName
     : `${transaction.categoryParentName} / ${transaction.categoryName}`;
 
-export const TransactionList: FC<Props> = async ({ transactionList, locale, period, page }) => {
+export const TransactionList: FC<Props> = async ({
+  transactionList,
+  locale,
+  period,
+  page,
+  type,
+  categoryId,
+  sortBy,
+  sortOrder,
+}) => {
   const translate = await getTranslations(I18N_NAMESPACE.transactionsPage);
 
   return (
@@ -77,6 +95,10 @@ export const TransactionList: FC<Props> = async ({ transactionList, locale, peri
                   id={transaction.id}
                   period={period}
                   page={page}
+                  type={type}
+                  categoryId={categoryId}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
                   formattedAmount={formattedAmount}
                   formattedDate={formattedDate}
                 />

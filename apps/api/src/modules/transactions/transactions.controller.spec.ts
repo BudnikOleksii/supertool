@@ -24,7 +24,16 @@ describe('TransactionsController', () => {
     }).compile();
 
     const controller = moduleRef.get(TransactionsController);
-    const inputQuery = { dateFrom: '2025-02-01', dateTo: '2025-02-28', page: 1, limit: 50 };
+    const inputQuery = {
+      dateFrom: '2025-02-01',
+      dateTo: '2025-02-28',
+      type: 'expense' as const,
+      categoryId: 'category-id',
+      sortBy: 'amount' as const,
+      sortOrder: 'asc' as const,
+      page: 1,
+      limit: 50,
+    };
 
     await expect(controller.findAll(createSession('user-id'), inputQuery)).resolves.toEqual(
       expectedResult,
