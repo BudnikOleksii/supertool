@@ -4,7 +4,7 @@ baseline_commit: dff76ab5c8f4e131ab401b5ac67de62f2e876304
 
 # Story 2.4: Edit & Delete Transactions
 
-Status: in-progress
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -133,7 +133,10 @@ claude-opus-4-8 (Claude Code dev-story workflow)
 - **Client (Task 2):** Rebuilt the API `openapi.json`, regenerated the SDK, and **rebuilt `@supertool/shared` (dist)** — the money-tracker app consumes `@supertool/shared/generated/*` from `dist`, so a regenerate-without-rebuild leaves the consuming app type-blind to the new methods. `transactionsUpdate`/`transactionsFindOne`/`transactionsRemove` now exist.
 - **Edit UI (Task 3):** `TransactionForm` + `use-transaction-form` accept an optional `transaction`; `isEditing` switches default values, the action (`createTransaction` ↔ `updateTransaction`), and the submit label (`submit` ↔ `save`). Create path is unchanged (existing tests still green). The period+page redirect and request-body builder were extracted from `create-transaction.ts` into shared utils (`redirect-to-transaction-month.ts`, `build-transaction-request-body.ts`) — a `'use server'` file cannot export non-action helpers, so reuse required extraction.
 - **Delete UI (Task 4):** `TransactionRowActions` client island (Edit `Link` + `AlertDialog size="sm"` confirm) embedded per row in the server-component `TransactionList`; `use-delete-transaction` manages `open`/`isPending`/error. Added an "Actions" column. The delete description uses ICU `{amount}`/`{date}` with values pre-formatted server-side and passed as props.
-- **Visual QA:** No `packages/ui` / `packages/shell` / design-system style changes — this story composes already-QA'd primitives (`Card`, `Table`, `Button`, `AlertDialog`) and the edit page + delete dialog mirror the shipped category edit/delete UI 1:1. New app SCSS is minimal layout (actions column alignment, row-actions flex, edit-page card mirroring the new-transaction page). Storybook visual QA is therefore N/A; the production build + component tests validate structure and RSC/client boundaries.
+- **Visual QA:** Captured live via `playwright-cli` against the running app (operator session, `/transactions?period=2025-02`, 9 rows). Four screenshots in `_bmad-output/implementation-artifacts/visual-qa/2-4/`:
+  - `transactions-list--actions-column__light.png` / `__dark.png` — the new right-aligned "Actions" column with Edit + Delete ghost buttons per row; alignment and rhythm consistent across both themes.
+  - `delete-dialog--open__light.png` / `__dark.png` — `AlertDialog size="sm"` over the table; ICU interpolation renders correctly ("Delete the UAH 339.00 transaction from Feb 3, 2025? This action cannot be undone."), with destructive Delete + outline Cancel.
+  - **Findings:** no defects. The dark-theme destructive Delete button uses the pale-pink M3 tonal fill — verified identical to the QA'd `1-9/primitives-button--destructive__dark` baseline (intended treatment, matches the dark primary's tonal lavender), so not a regression. New app SCSS (actions column, row-actions flex, edit-page card) composes already-QA'd `packages/ui` primitives with token-only styling; no `packages/ui`/`packages/shell` changes.
 
 ### File List
 
@@ -176,7 +179,7 @@ claude-opus-4-8 (Claude Code dev-story workflow)
 
 _Code review 2026-06-15 (bmad-code-review: Blind Hunter + Edge Case Hunter + Acceptance Auditor). All 8 ACs satisfied; all merge-blocking hard rules (D1/D7/FR21/NFR1/NFR6) hold; gates green._
 
-- [ ] [Review][Decision→Manual-QA] Visual Evidence Gate — resolved: Oleksii captures the screenshots manually (Playwright not in deps; stack/credentials not automatable here). Required evidence to attach to this Dev Agent Record before merge: light **and** dark screenshots of (1) the transactions list showing the new "Actions" column, and (2) the open delete `AlertDialog` over the table. The actions column + ghost-button island is the one un-precedented on-screen surface; everything else mirrors the shipped new-transaction page + category delete dialog.
+- [x] [Review][Decision→Visual-QA] Visual Evidence Gate — RESOLVED. Captured live via `playwright-cli` (cached chromium) against the running stack: light+dark of the transactions list (new Actions column) and the open delete `AlertDialog`. Four shots in `visual-qa/2-4/`, evidence + findings recorded in the Dev Agent Record Visual QA note. Verdict: PASS, no defects (dark destructive button matches the QA'd 1-9 baseline).
 - [x] [Review][Decision→Patch] Delete does not recompute pagination — RESOLVED (patched). `delete-transaction.ts` now redirects via the new `redirectAfterTransactionDelete` util, clamping to the last non-empty page for the current period; `period`/`page` threaded `TransactionListServer → TransactionList → TransactionRowActions → useDeleteTransaction`, `locale` via `useLocale()`. Covered by new tests (clamp + in-range). [apps/money-tracker/src/actions/delete-transaction.ts, .../utils/redirect-after-transaction-delete.ts]
 - [x] [Review][Patch] NOT_FOUND error copy genericized — RESOLVED. Now "The transaction or category could not be found." / "Транзакцію або категорію не знайдено." (both locales), accurate for both create and edit modes. [apps/money-tracker/messages/en/transaction-form.json:32, apps/money-tracker/messages/uk/transaction-form.json:32]
 - [x] [Review][Patch] Delete confirm dialog Cancel disabled while pending — RESOLVED. `AlertDialogCancel`'s button now carries `disabled={isPending}`, mirroring the confirm button; no more silent error-swallow on cancel-then-fail. [apps/money-tracker/src/app/[locale]/transactions/components/transaction-row-actions/TransactionRowActions.tsx]
