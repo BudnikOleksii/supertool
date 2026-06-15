@@ -371,12 +371,11 @@ describe('TransactionsService create (Testcontainers Postgres)', () => {
     const category = await loadOperatorChildCategory();
     const input = { amount: '12.34', date: '2025-03-15', note: 'Integration note' };
 
-    const created = await getRepository().create({
-      userId: operatorId,
-      categoryId: category.id,
+    const created = await getService().create(operatorId, {
       type: category.type,
       amount: input.amount,
       currency: 'UAH',
+      categoryId: category.id,
       date: input.date,
       note: input.note,
     });
