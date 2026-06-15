@@ -16,11 +16,14 @@ import {
 
 import { formatTransactionAmount } from '../../utils/format-transaction-amount';
 import { formatTransactionDate } from '../../utils/format-transaction-date';
+import { TransactionRowActions } from '../transaction-row-actions/TransactionRowActions';
 import styles from './TransactionList.module.scss';
 
 interface Props {
   transactionList: TransactionResponseDto[];
   locale: string;
+  period: string;
+  page: number;
 }
 
 const getCategoryLabel = (transaction: TransactionResponseDto): string =>
@@ -28,7 +31,7 @@ const getCategoryLabel = (transaction: TransactionResponseDto): string =>
     ? transaction.categoryName
     : `${transaction.categoryParentName} / ${transaction.categoryName}`;
 
-export const TransactionList: FC<Props> = async ({ transactionList, locale }) => {
+export const TransactionList: FC<Props> = async ({ transactionList, locale, period, page }) => {
   const translate = await getTranslations(I18N_NAMESPACE.transactionsPage);
 
   return (
@@ -43,27 +46,44 @@ export const TransactionList: FC<Props> = async ({ transactionList, locale }) =>
           </TableHeaderCell>
           <TableHeaderCell>{translate('columns.currency')}</TableHeaderCell>
           <TableHeaderCell>{translate('columns.note')}</TableHeaderCell>
+          <TableHeaderCell className={styles.actionsColumn}>
+            {translate('columns.actions')}
+          </TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {transactionList.map((transaction) => (
-          <TableRow key={transaction.id}>
-            <TableCell className={styles.dateCell}>
-              {formatTransactionDate(transaction.date, locale)}
-            </TableCell>
-            <TableCell>{getCategoryLabel(transaction)}</TableCell>
-            <TableCell>
-              <Badge variant={transaction.type === 'income' ? 'success' : 'secondary'}>
-                {translate(`type.${transaction.type}`)}
-              </Badge>
-            </TableCell>
-            <TableCell className={styles.amountColumn}>
-              {formatTransactionAmount(transaction.amount, transaction.currency, locale)}
-            </TableCell>
-            <TableCell>{transaction.currency}</TableCell>
-            <TableCell className={styles.noteCell}>{transaction.note}</TableCell>
-          </TableRow>
-        ))}
+        {transactionList.map((transaction) => {
+          const formattedDate = formatTransactionDate(transaction.date, locale);
+          const formattedAmount = formatTransactionAmount(
+            transaction.amount,
+            transaction.currency,
+            locale,
+          );
+
+          return (
+            <TableRow key={transaction.id}>
+              <TableCell className={styles.dateCell}>{formattedDate}</TableCell>
+              <TableCell>{getCategoryLabel(transaction)}</TableCell>
+              <TableCell>
+                <Badge variant={transaction.type === 'income' ? 'success' : 'secondary'}>
+                  {translate(`type.${transaction.type}`)}
+                </Badge>
+              </TableCell>
+              <TableCell className={styles.amountColumn}>{formattedAmount}</TableCell>
+              <TableCell>{transaction.currency}</TableCell>
+              <TableCell className={styles.noteCell}>{transaction.note}</TableCell>
+              <TableCell className={styles.actionsColumn}>
+                <TransactionRowActions
+                  id={transaction.id}
+                  period={period}
+                  page={page}
+                  formattedAmount={formattedAmount}
+                  formattedDate={formattedDate}
+                />
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

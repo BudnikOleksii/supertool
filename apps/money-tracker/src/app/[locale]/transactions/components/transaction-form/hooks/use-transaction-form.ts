@@ -8,11 +8,15 @@ import { useForm } from 'react-hook-form';
 import type { ActionState } from '@supertool/next-shared/src/types/action-state';
 import { INITIAL_ACTION_STATE } from '@supertool/next-shared/src/types/action-state';
 import { checkIsCurrencyCode } from '@supertool/shared/constants/currency';
-import type { CategoryResponseDto } from '@supertool/shared/generated/types.gen';
+import type {
+  CategoryResponseDto,
+  TransactionResponseDto,
+} from '@supertool/shared/generated/types.gen';
 
 import type { TransactionFormValues } from '../../../constants/transaction-form-schema';
 
 import { createTransaction } from '../../../../../../actions/create-transaction';
+import { updateTransaction } from '../../../../../../actions/update-transaction';
 import { TRANSACTION_TYPE } from '../../../../../../constants/transaction';
 import { transactionFormSchema } from '../../../constants/transaction-form-schema';
 import { buildCategoryOptionList } from '../../../utils/build-category-option-list';
@@ -21,21 +25,43 @@ import { getTodayDate } from '../../../utils/get-today-date';
 interface UseTransactionFormParams {
   categoryList: CategoryResponseDto[];
   defaultCurrency: string | null;
+  transaction?: TransactionResponseDto | undefined;
 }
 
 const getDefaultValues = (
   defaultCurrency: string | null,
-): DefaultValues<TransactionFormValues> => ({
-  type: TRANSACTION_TYPE.expense,
-  amount: '',
-  categoryId: '',
-  date: getTodayDate(),
-  note: '',
-  ...(defaultCurrency && checkIsCurrencyCode(defaultCurrency) ? { currency: defaultCurrency } : {}),
-});
+  transaction: TransactionResponseDto | undefined,
+): DefaultValues<TransactionFormValues> => {
+  if (transaction) {
+    return {
+      type: transaction.type,
+      amount: transaction.amount,
+      categoryId: transaction.categoryId,
+      date: transaction.date,
+      note: transaction.note,
+      ...(checkIsCurrencyCode(transaction.currency) ? { currency: transaction.currency } : {}),
+    };
+  }
 
-export const useTransactionForm = ({ categoryList, defaultCurrency }: UseTransactionFormParams) => {
+  return {
+    type: TRANSACTION_TYPE.expense,
+    amount: '',
+    categoryId: '',
+    date: getTodayDate(),
+    note: '',
+    ...(defaultCurrency && checkIsCurrencyCode(defaultCurrency)
+      ? { currency: defaultCurrency }
+      : {}),
+  };
+};
+
+export const useTransactionForm = ({
+  categoryList,
+  defaultCurrency,
+  transaction,
+}: UseTransactionFormParams) => {
   const locale = useLocale();
+  const isEditing = transaction !== undefined;
 
   const {
     register,
@@ -47,7 +73,7 @@ export const useTransactionForm = ({ categoryList, defaultCurrency }: UseTransac
     formState: { errors },
   } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionFormSchema),
-    defaultValues: getDefaultValues(defaultCurrency),
+    defaultValues: getDefaultValues(defaultCurrency, transaction),
     mode: 'onBlur',
   });
 
@@ -69,7 +95,9 @@ export const useTransactionForm = ({ categoryList, defaultCurrency }: UseTransac
 
   const [state, submitAction] = useActionState(
     async (_previousState: ActionState, values: TransactionFormValues): Promise<ActionState> =>
-      createTransaction(values, locale),
+      isEditing
+        ? updateTransaction(transaction.id, values, locale)
+        : createTransaction(values, locale),
     INITIAL_ACTION_STATE,
   );
 
@@ -89,6 +117,7 @@ export const useTransactionForm = ({ categoryList, defaultCurrency }: UseTransac
     handleSubmit,
     control,
     errors,
+    isEditing,
     isPending,
     state,
     categoryOptionList,

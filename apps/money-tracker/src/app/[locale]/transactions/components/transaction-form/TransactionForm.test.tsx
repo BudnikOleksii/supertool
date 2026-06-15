@@ -1,13 +1,21 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import type { CategoryResponseDto } from '@supertool/shared/generated/types.gen';
+import type {
+  CategoryResponseDto,
+  TransactionResponseDto,
+} from '@supertool/shared/generated/types.gen';
 
 import { TransactionForm } from './TransactionForm';
 
-const { createTransaction } = vi.hoisted(() => ({ createTransaction: vi.fn() }));
+const { createTransaction, updateTransaction } = vi.hoisted(() => ({
+  createTransaction: vi.fn(),
+  updateTransaction: vi.fn(),
+}));
 
 vi.mock('../../../../../actions/create-transaction', () => ({ createTransaction }));
+
+vi.mock('../../../../../actions/update-transaction', () => ({ updateTransaction }));
 
 vi.mock('next-intl', () => ({
   useTranslations: () => Object.assign((key: string) => key, { has: () => true }),
@@ -34,6 +42,20 @@ const CATEGORY_LIST: CategoryResponseDto[] = [
   buildCategory({ id: 'food', name: 'Food', type: 'expense' }),
   buildCategory({ id: 'salary', name: 'Salary', type: 'income' }),
 ];
+
+const EXISTING_TRANSACTION: TransactionResponseDto = {
+  id: 'transaction-1',
+  date: '2025-02-03',
+  type: 'expense',
+  amount: '1234.56',
+  currency: 'UAH',
+  note: 'Groceries',
+  categoryId: 'food',
+  categoryName: 'Food',
+  categoryParentName: null,
+  createdAt: TIMESTAMP,
+  updatedAt: TIMESTAMP,
+};
 
 const openCategoryCombobox = (): void => {
   fireEvent.click(screen.getByRole('combobox', { name: 'categoryPlaceholder' }));
@@ -93,5 +115,42 @@ describe('TransactionForm', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'submit' }).hasAttribute('disabled')).toBe(true);
     });
+  });
+
+  it('pre-fills the form with the existing transaction in edit mode', () => {
+    render(
+      <TransactionForm
+        categoryList={CATEGORY_LIST}
+        defaultCurrency={null}
+        transaction={EXISTING_TRANSACTION}
+      />,
+    );
+
+    expect((screen.getByLabelText('amountLabel') as HTMLInputElement).value).toBe('1234.56');
+    expect((screen.getByLabelText('noteLabel') as HTMLInputElement).value).toBe('Groceries');
+    screen.getByRole('combobox', { name: 'Food' });
+    screen.getByRole('button', { name: 'save' });
+  });
+
+  it('routes a valid edit submission to updateTransaction with the transaction id', async () => {
+    updateTransaction.mockResolvedValue({ status: 'success' });
+    render(
+      <TransactionForm
+        categoryList={CATEGORY_LIST}
+        defaultCurrency={null}
+        transaction={EXISTING_TRANSACTION}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'save' }));
+
+    await waitFor(() => {
+      expect(updateTransaction).toHaveBeenCalledWith(
+        'transaction-1',
+        expect.objectContaining({ amount: '1234.56', categoryId: 'food', type: 'expense' }),
+        'en',
+      );
+    });
+    expect(createTransaction).not.toHaveBeenCalled();
   });
 });

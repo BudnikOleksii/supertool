@@ -36,10 +36,21 @@ interface CreateTransactionInput {
   note: string;
 }
 
+interface UpdateTransactionInput {
+  categoryId: string;
+  type: TransactionType;
+  amount: string;
+  currency: string;
+  date: string;
+  note: string;
+}
+
 interface ScopedCategory {
   id: string;
   type: TransactionType;
 }
+
+const NO_ROWS_AFFECTED = 0;
 
 const parentCategory = aliasedTable(transactionCategories, 'parent_category');
 
@@ -151,6 +162,40 @@ export class TransactionsRepository {
     }
 
     return created;
+  }
+
+  async updateScoped(
+    userId: string,
+    id: string,
+    input: UpdateTransactionInput,
+  ): Promise<TransactionResponseDto | null> {
+    const updatedRows = await this.db
+      .update(transactions)
+      .set({
+        categoryId: input.categoryId,
+        type: input.type,
+        amount: input.amount,
+        currency: input.currency,
+        date: input.date,
+        note: input.note,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(transactions.userId, userId), eq(transactions.id, id)))
+      .returning({ id: transactions.id });
+
+    if (updatedRows.length === NO_ROWS_AFFECTED) {
+      return null;
+    }
+
+    return this.findOneByUserIdAndId(userId, id);
+  }
+
+  async deleteScoped(userId: string, id: string): Promise<boolean> {
+    const result = await this.db
+      .delete(transactions)
+      .where(and(eq(transactions.userId, userId), eq(transactions.id, id)));
+
+    return (result.rowCount ?? NO_ROWS_AFFECTED) > NO_ROWS_AFFECTED;
   }
 
   async findCategoryForUser(userId: string, categoryId: string): Promise<ScopedCategory | null> {

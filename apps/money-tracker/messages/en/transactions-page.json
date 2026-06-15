@@ -7,7 +7,18 @@
     "type": "Type",
     "amount": "Amount",
     "currency": "Currency",
-    "note": "Note"
+    "note": "Note",
+    "actions": "Actions"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "delete": {
+    "title": "Delete transaction?",
+    "description": "Delete the {amount} transaction from {date}? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel"
   },
   "type": {
     "income": "Income",
@@ -24,5 +35,10 @@
   "error": {
     "title": "Couldn’t load transactions",
     "description": "Something went wrong while loading this month. Please try again."
+  },
+  "errors": {
+    "NOT_FOUND": "This transaction no longer exists.",
+    "UNAUTHORIZED": "Your session has expired. Please sign in again.",
+    "UNKNOWN": "Something went wrong. Please try again."
   }
 }

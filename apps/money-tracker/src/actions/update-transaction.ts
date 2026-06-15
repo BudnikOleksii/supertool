@@ -20,7 +20,8 @@ const getCookieHeader = async (): Promise<string> => {
   return cookieStore.toString();
 };
 
-export const createTransaction = async (
+export const updateTransaction = async (
+  id: string,
   values: TransactionFormValues,
   locale: string,
 ): Promise<ActionState> => {
@@ -31,8 +32,9 @@ export const createTransaction = async (
   }
 
   const cookieHeader = await getCookieHeader();
-  const { data, error } = await TransactionsApiService.transactionsCreate({
+  const { data, error } = await TransactionsApiService.transactionsUpdate({
     client: createServerApiClient({ cookieHeader }),
+    path: { id },
     body: buildTransactionRequestBody(parsed.data),
   });
 

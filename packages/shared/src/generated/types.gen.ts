@@ -102,6 +102,15 @@ export type CreateTransactionDto = {
     note?: string;
 };
 
+export type UpdateTransactionDto = {
+    type: TransactionType;
+    amount: string;
+    currency: CurrencyCode;
+    categoryId: string;
+    date: string;
+    note?: string;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -287,3 +296,71 @@ export type TransactionsCreateResponses = {
 };
 
 export type TransactionsCreateResponse = TransactionsCreateResponses[keyof TransactionsCreateResponses];
+
+export type TransactionsRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/transactions/{id}';
+};
+
+export type TransactionsRemoveErrors = {
+    401: ErrorResponseDto;
+    404: ErrorResponseDto;
+};
+
+export type TransactionsRemoveError = TransactionsRemoveErrors[keyof TransactionsRemoveErrors];
+
+export type TransactionsRemoveResponses = {
+    204: void;
+};
+
+export type TransactionsRemoveResponse = TransactionsRemoveResponses[keyof TransactionsRemoveResponses];
+
+export type TransactionsFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/transactions/{id}';
+};
+
+export type TransactionsFindOneErrors = {
+    401: ErrorResponseDto;
+    404: ErrorResponseDto;
+};
+
+export type TransactionsFindOneError = TransactionsFindOneErrors[keyof TransactionsFindOneErrors];
+
+export type TransactionsFindOneResponses = {
+    200: TransactionResponseDto;
+};
+
+export type TransactionsFindOneResponse = TransactionsFindOneResponses[keyof TransactionsFindOneResponses];
+
+export type TransactionsUpdateData = {
+    body: UpdateTransactionDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/transactions/{id}';
+};
+
+export type TransactionsUpdateErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+    404: ErrorResponseDto;
+    422: ErrorResponseDto;
+};
+
+export type TransactionsUpdateError = TransactionsUpdateErrors[keyof TransactionsUpdateErrors];
+
+export type TransactionsUpdateResponses = {
+    200: TransactionResponseDto;
+};
+
+export type TransactionsUpdateResponse = TransactionsUpdateResponses[keyof TransactionsUpdateResponses];

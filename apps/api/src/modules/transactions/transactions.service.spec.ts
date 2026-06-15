@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { CreateTransactionDto } from './dtos/create-transaction.dto';
 import type { TransactionResponseDto } from './dtos/transaction-response.dto';
+import type { UpdateTransactionDto } from './dtos/update-transaction.dto';
 import type { TransactionsRepository } from './transactions.repository';
 
 import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '../../shared/constants/pagination';
@@ -126,5 +127,112 @@ describe('TransactionsService', () => {
       note: '',
     });
     expect(actual).toEqual(expectedTransaction);
+  });
+});
+
+describe('TransactionsService findOne/update/delete', () => {
+  it('returns the transaction on findOne when it exists for the user', async () => {
+    const expectedTransaction = buildTransaction('transaction-1');
+    const findOneByUserIdAndId = vi.fn().mockResolvedValue(expectedTransaction);
+    const repository = { findOneByUserIdAndId };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    const actual = await service.findOne('user-id', 'transaction-1');
+
+    expect(findOneByUserIdAndId).toHaveBeenCalledWith('user-id', 'transaction-1');
+    expect(actual).toEqual(expectedTransaction);
+  });
+
+  it('throws NotFoundException on findOne when the transaction is not found for the user', async () => {
+    const findOneByUserIdAndId = vi.fn().mockResolvedValue(null);
+    const repository = { findOneByUserIdAndId };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    await expect(service.findOne('user-id', 'missing')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('updates the transaction after validating the category type', async () => {
+    const expectedTransaction = buildTransaction('transaction-1');
+    const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'expense' });
+    const updateScoped = vi.fn().mockResolvedValue(expectedTransaction);
+    const repository = { findCategoryForUser, updateScoped };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    const inputDto: UpdateTransactionDto = {
+      type: 'expense',
+      amount: '99.99',
+      currency: 'UAH',
+      categoryId: 'category-id',
+      date: '2025-03-10',
+    };
+
+    const actual = await service.update('user-id', 'transaction-1', inputDto);
+
+    expect(findCategoryForUser).toHaveBeenCalledWith('user-id', 'category-id');
+    expect(updateScoped).toHaveBeenCalledWith('user-id', 'transaction-1', {
+      categoryId: 'category-id',
+      type: 'expense',
+      amount: '99.99',
+      currency: 'UAH',
+      date: '2025-03-10',
+      note: '',
+    });
+    expect(actual).toEqual(expectedTransaction);
+  });
+
+  it('throws UnprocessableEntityException on update when the category type differs', async () => {
+    const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'income' });
+    const updateScoped = vi.fn();
+    const repository = { findCategoryForUser, updateScoped };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    const inputDto: UpdateTransactionDto = {
+      type: 'expense',
+      amount: '99.99',
+      currency: 'UAH',
+      categoryId: 'category-id',
+      date: '2025-03-10',
+    };
+
+    await expect(service.update('user-id', 'transaction-1', inputDto)).rejects.toBeInstanceOf(
+      UnprocessableEntityException,
+    );
+    expect(updateScoped).not.toHaveBeenCalled();
+  });
+
+  it('throws NotFoundException on update when no scoped row matched', async () => {
+    const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'expense' });
+    const updateScoped = vi.fn().mockResolvedValue(null);
+    const repository = { findCategoryForUser, updateScoped };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    const inputDto: UpdateTransactionDto = {
+      type: 'expense',
+      amount: '99.99',
+      currency: 'UAH',
+      categoryId: 'category-id',
+      date: '2025-03-10',
+    };
+
+    await expect(service.update('user-id', 'missing', inputDto)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('deletes the transaction when a scoped row was removed', async () => {
+    const deleteScoped = vi.fn().mockResolvedValue(true);
+    const repository = { deleteScoped };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    await expect(service.delete('user-id', 'transaction-1')).resolves.toBeUndefined();
+    expect(deleteScoped).toHaveBeenCalledWith('user-id', 'transaction-1');
+  });
+
+  it('throws NotFoundException on delete when nothing was removed', async () => {
+    const deleteScoped = vi.fn().mockResolvedValue(false);
+    const repository = { deleteScoped };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    await expect(service.delete('user-id', 'missing')).rejects.toBeInstanceOf(NotFoundException);
   });
 });

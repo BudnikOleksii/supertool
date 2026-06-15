@@ -10,3 +10,5 @@ export const ROUTES = {
 } as const;
 
 export const getCategoryEditPath = (id: string): string => `${ROUTES.categories}/${id}/edit`;
+
+export const getTransactionEditPath = (id: string): string => `${ROUTES.transactions}/${id}/edit`;

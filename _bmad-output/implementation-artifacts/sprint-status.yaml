@@ -68,7 +68,7 @@ development_status:
   2-1-seed-the-real-data: done
   2-2-browse-transactions-by-month: done
   2-3-fast-transaction-entry: done
-  2-4-edit-delete-transactions: backlog
+  2-4-edit-delete-transactions: in-progress
   2-5-filter-sort-the-list: backlog
   2-6-organize-categories: done
   epic-2-retrospective: optional

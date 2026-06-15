@@ -1,5 +1,6 @@
 {
   "title": "Add transaction",
+  "editTitle": "Edit transaction",
   "typeLabel": "Type",
   "typeIncome": "Income",
   "typeExpense": "Expense",
@@ -20,6 +21,7 @@
   "emptyCategoriesLink": "Create a category",
   "cancel": "Cancel",
   "submit": "Add transaction",
+  "save": "Save changes",
   "errors": {
     "typeInvalid": "Choose a valid type.",
     "amountInvalid": "Enter a positive amount with up to two decimals.",
@@ -27,7 +29,7 @@
     "categoryRequired": "Choose a category.",
     "dateInvalid": "Enter a valid date.",
     "VALIDATION_ERROR": "Please check the form and try again.",
-    "NOT_FOUND": "The selected category could not be found.",
+    "NOT_FOUND": "The transaction or category could not be found.",
     "UNPROCESSABLE_ENTITY": "The category type does not match the transaction type.",
     "UNAUTHORIZED": "Your session has expired. Please sign in again.",
     "UNKNOWN": "Something went wrong. Please try again."
