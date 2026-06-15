@@ -38,7 +38,7 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 20 FRs in 6 groups, two architectural centers of gravity:
 
 - **Platform (F1, FR1–FR5)**: email+password auth via better-auth, shared shell package (navigation, user menu, locale switcher), minimal profile settings (name, default currency, locale). Per operator pre-decision: sessions are per-app (FR2 overridden), accounts are shared, auth UI ships as reusable widgets. FR4 is the platform's acceptance gate: a hypothetical `apps/planner` must be addable via configuration only — this document must demonstrate that walkthrough.
-- **Money Tracker (F2–F4, FR6–FR16)**: transaction CRUD with filters/sorting (type, category, currency; date/amount sort), hierarchical categories with reassignment-on-delete (no orphaned data, FR12), dashboard with per-currency summary/breakdown/12-month trend. Currency filter derives from data, defaults from profile, falls back to most-frequent currency. No cross-currency aggregation in v1.
+- **Money Tracker (F2–F4, FR6–FR16)**: transaction CRUD with filters/sorting (type, category; date/amount sort), hierarchical categories with reassignment-on-delete (no orphaned data, FR12), dashboard with summary/breakdown/12-month trend. All figures are scoped to the user's single profile-default currency (FR5) — no currency picker on lists or dashboard (simplified 2026-06-15). Aggregations stay per-currency in SQL for correctness; no cross-currency aggregation in v1.
 - **Data & i18n (F5–F6, FR17–FR20)**: idempotent seed of 1,880 real transactions with exact preservation and category derivation; decimal-safe money math asserted by tests; EN+UK locales with per-user persistence and CI-enforced key parity.
 
 **Non-Functional Requirements:**
@@ -345,7 +345,7 @@ supertool/                              # existing repo root
 │   │       ├── env.ts                  # zod-validated
 │   │       ├── app/[locale]/           # layout (shell), page → dashboard, transactions/, categories/, settings/, sign-in/, sign-up/
 │   │       ├── actions/                # fetch-* (reads), create/update/delete-* ('use server')
-│   │       ├── components/             # transaction-form/, transaction-list/, category-tree/, dashboard-summary/, category-breakdown/, trend-chart/, currency-filter/, month-stepper/ …
+│   │       ├── components/             # transaction-form/, transaction-list/, category-tree/, dashboard-summary/, category-breakdown/, trend-chart/, month-stepper/ … (no currency-filter — single profile-default currency, 2026-06-15)
 │   │       ├── constants/  hooks/  utils/  i18n/
 │   │       └── middleware.ts           # next-intl locale routing + auth redirect
 │   └── storybook/                      # plays ui + widgets components
@@ -373,7 +373,7 @@ supertool/                              # existing repo root
 | F1 shell & identity (FR1–FR5) | `packages/shell`, `packages/widgets`, `apps/api/src/auth`, `modules/users`, settings page in tool app |
 | F2 transactions (FR6–FR9) | `modules/transactions` + `money-tracker` transactions routes/components/actions |
 | F3 categories (FR10–FR12) | `modules/transaction-categories` + `category-tree` components |
-| F4 dashboard (FR13–FR16) | `modules/analytics` + dashboard components (`dashboard-summary`, `category-breakdown`, `trend-chart`, `currency-filter`) |
+| F4 dashboard (FR13–FR16) | `modules/analytics` + dashboard components (`dashboard-summary`, `category-breakdown`, `trend-chart`) — figures scoped to the profile-default currency, no `currency-filter` (2026-06-15) |
 | F5 seed & integrity (FR17–FR18) | `database/seeds`, `database/data`, integration tests in `apps/api/test/integration` |
 | F6 i18n (FR19–FR20) | `messages/` per app/package, `next-shared` routing, CI parity job |
 | ED3 carried config | root configs, `.github/workflows`, `.coderabbit.yaml`, config packages |

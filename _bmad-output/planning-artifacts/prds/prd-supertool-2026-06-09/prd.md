@@ -42,7 +42,7 @@ Source inputs: product brief and addendum at `_bmad-output/planning-artifacts/br
 
 **Daily entry.** Oleksii opens Money Tracker (already signed in — session persists), hits "add transaction", enters amount, picks type (expense/income), category, currency, date (defaults to today), saves. Total interaction should feel under ~10 seconds; this flow dominates usage and gets first call on UX and performance budgets.
 
-**Monthly review.** He opens the dashboard, confirms the month (defaults to current) and currency filter, scans income/expense/net summary, looks at the category breakdown to spot outliers, steps back a month to compare. Done in one or two screens, no configuration ceremony.
+**Monthly review.** He opens the dashboard, confirms the month (defaults to current) — figures are shown in his profile-default currency, no currency picker — scans income/expense/net summary, looks at the category breakdown to spot outliers, steps back a month to compare. Done in one or two screens, no configuration ceremony.
 
 ## Functional requirements
 
@@ -52,7 +52,7 @@ Source inputs: product brief and addendum at `_bmad-output/planning-artifacts/br
 - **FR2**: All tool apps share a single account store — one email + password works everywhere — but sessions are per-app: a user signs in to each tool app separately, and multiple concurrent sessions per user are supported. (Supersedes the original cross-app shared session — operator override at architecture; see `architecture.md`, decision D5.)
 - **FR3**: A shared shell wraps every tool app: tool navigation, user menu (profile, sign out), and locale switcher. v1 renders one tool entry (Money Tracker).
 - **FR4**: The shell, auth, and shared packages are structured so a second tool app can be added by registering it — no rework of existing apps. Acceptance (verified at architecture via the "register tool #2" walkthrough): adding `apps/planner` requires only (a) the new app itself, (b) one entry in the shared tool registry — shell navigation renders it automatically, and (c) infrastructure additions (docker-compose service, env example). Zero diffs to the shell, shared UI/widgets, auth, or existing apps; new API modules are additive only.
-- **FR5**: A user can view and edit minimal profile settings: name, default currency, locale. Default currency drives the dashboard's initial currency filter. (This deliberately supersedes the brief's blanket "settings deferred" — only this minimal subset ships; full settings remain out of scope.)
+- **FR5**: A user can view and edit minimal profile settings: name, default currency, locale. The default currency is the single currency the dashboard and lists are scoped to — it is not a selectable filter (see FR9, FR14). (This deliberately supersedes the brief's blanket "settings deferred" — only this minimal subset ships; full settings remain out of scope.)
 - **FR21**: Every user has a role — `user` or `admin` — from day one. v1 ships no admin-facing features: everyone signs up as `user`, and promotion is an operational act (seed/DB only). The role model exists so a future admin capability (e.g. default-category management) lands as an additive epic. All data access is scoped to the authenticated user; there are no cross-user access paths in v1. (Added at architecture — operator decision D6.)
 
 ### F2 — Transactions
@@ -60,24 +60,24 @@ Source inputs: product brief and addendum at `_bmad-output/planning-artifacts/br
 - **FR6**: A user can create a transaction with: type (income/expense), amount, currency, category, date (defaults to today), optional note. Creation is optimized for speed (see NFR5). The seed data has no notes; imported records get an empty note.
 - **FR7**: A user can edit and delete any of their transactions.
 - **FR8**: A user can view transactions for a date range, defaulting to the current month, with previous/next month navigation.
-- **FR9**: The transaction list can be filtered by type, category, and currency, and sorted by date or amount.
+- **FR9**: The transaction list can be filtered by type and category, and sorted by date or amount. (Currency is not a filter dimension — every transaction is in the user's single default currency; superseded 2026-06-15, see decision log.)
 
 ### F3 — Categories
 
 - **FR10**: A user can create, rename, and delete categories, organized in a parent/child hierarchy (as in the example app).
-- **FR11**: The category set is initially populated from the distinct category strings in the seed data, created as top-level categories; the user can restructure them into the hierarchy afterwards.
+- **FR11**: The category set is initially populated from the seed data as a two-level hierarchy — each distinct `Category` becomes a top-level category and each distinct `Subcategory` becomes a child under its parent (the seed carries a `Subcategory` on ~57% of records); the user can restructure them afterwards. (Corrected 2026-06-15: the seed is two-level, not flat top-level-only — see decision log.)
 - **FR12**: Deleting a category that has transactions or child categories requires reassigning them (transactions to another category, children to another parent or top level) — no orphaned or silently uncategorized data.
 
 ### F4 — Dashboard & stats
 
-- **FR13**: The dashboard shows, for a selected period (default: current month) and selected currency: total income, total expense, and net.
-- **FR14**: A currency filter scopes all dashboard figures to one currency at a time; no cross-currency aggregation in v1. The filter offers only currencies present in the user's data, defaulting to the profile's default currency.
-- **FR15**: The dashboard shows an expense breakdown by category for the selected period and currency, grouped by top-level category where a hierarchy exists.
+- **FR13**: The dashboard shows, for a selected period (default: current month): total income, total expense, and net — all in the user's profile-default currency (FR5). No currency picker.
+- **FR14**: All dashboard figures are scoped to the user's profile-default currency (FR5); there is no currency picker and no cross-currency aggregation in v1. Aggregations remain per-currency in SQL for correctness, but currency is not user-selectable. (Currency simplified to a single profile default, 2026-06-15 — supersedes the original data-derived currency filter with most-frequent fallback; see decision log.)
+- **FR15**: The dashboard shows an expense breakdown by category for the selected period (in the profile-default currency), grouped by top-level category where a hierarchy exists.
 - **FR16**: The dashboard shows a month-over-month trend (income/expense) across a trailing 12-month window.
 
 ### F5 — Data seeding & integrity
 
-- **FR17**: A repeatable, idempotent seed imports `transactions-02.03.25.json` (1,880 records, `{Date, Category, Type, Amount, Currency}`): derives the category set, preserves every amount, currency, and date exactly, and attaches all records to the operator's account. Re-running does not duplicate.
+- **FR17**: A repeatable, idempotent seed imports `transactions-02.03.25.json` (1,880 records, `{Date, Category, Type, Amount, Currency, Subcategory?}`): derives the two-level category set (Category → top-level, Subcategory → child), preserves every amount, currency, and date exactly, and attaches all records to the operator's account. Re-running does not duplicate.
 - **FR18**: All money values are stored and computed with decimal-safe arithmetic — no floating-point drift, asserted by tests on stats math and import totals.
 
 ### F6 — Internationalization

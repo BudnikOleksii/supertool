@@ -24,7 +24,7 @@ This document provides the complete epic and story breakdown for supertool, deco
 - FR2: All tool apps share a single account store — one email + password works everywhere — but sessions are per-app; multiple concurrent sessions per user are supported. (Operator override at architecture, D5.)
 - FR3: A shared shell wraps every tool app: tool navigation, user menu (profile, sign out), and locale switcher. v1 renders one tool entry (Money Tracker).
 - FR4: A second tool app can be added by registering it — no rework of existing apps. Acceptance verified at architecture via the "register tool #2" walkthrough: new app + one tool-registry entry + infra additions; zero diffs to shell, shared UI/widgets, auth, or existing apps.
-- FR5: A user can view and edit minimal profile settings: name, default currency, locale. Default currency drives the dashboard's initial currency filter.
+- FR5: A user can view and edit minimal profile settings: name, default currency, locale. The default currency is the single currency lists and the dashboard are scoped to — not a selectable filter (2026-06-15).
 - FR21: Every user has a role (`user` or `admin`) from day one; v1 ships no admin features; promotion via seed/DB only. All data access is scoped to the authenticated user — no cross-user access paths in v1. (Architecture D6.)
 
 **F2 — Transactions**
@@ -32,7 +32,7 @@ This document provides the complete epic and story breakdown for supertool, deco
 - FR6: A user can create a transaction with: type (income/expense), amount, currency, category, date (defaults to today), optional note. Creation optimized for speed (NFR5). Imported seed records get an empty note.
 - FR7: A user can edit and delete any of their transactions.
 - FR8: A user can view transactions for a date range, defaulting to the current month, with previous/next month navigation.
-- FR9: The transaction list can be filtered by type, category, and currency, and sorted by date or amount.
+- FR9: The transaction list can be filtered by type and category, and sorted by date or amount. (Currency dropped as a filter — single default currency, 2026-06-15.)
 
 **F3 — Categories**
 
@@ -42,9 +42,9 @@ This document provides the complete epic and story breakdown for supertool, deco
 
 **F4 — Dashboard & stats**
 
-- FR13: The dashboard shows, for a selected period (default: current month) and selected currency: total income, total expense, and net.
-- FR14: A currency filter scopes all dashboard figures to one currency at a time; no cross-currency aggregation in v1. The filter offers only currencies present in the user's data, defaulting to the profile's default currency.
-- FR15: The dashboard shows an expense breakdown by category for the selected period and currency, grouped by top-level category where a hierarchy exists.
+- FR13: The dashboard shows, for a selected period (default: current month): total income, total expense, and net — in the user's profile-default currency (FR5). No currency picker.
+- FR14: All dashboard figures are scoped to the user's profile-default currency (FR5); no currency picker and no cross-currency aggregation in v1. Aggregations stay per-currency in SQL for correctness, but currency is not user-selectable. (Simplified 2026-06-15 — supersedes the data-derived currency filter + most-frequent fallback.)
+- FR15: The dashboard shows an expense breakdown by category for the selected period (in the profile-default currency), grouped by top-level category where a hierarchy exists.
 - FR16: The dashboard shows a month-over-month trend (income/expense) across a trailing 12-month window.
 
 **F5 — Data seeding & integrity**
@@ -108,8 +108,8 @@ This document provides the complete epic and story breakdown for supertool, deco
 
 **From PRD addendum:**
 
-- Currency filter option list derives from distinct currencies in the user's transactions; default = profile default currency; if the profile default has no transactions, fall back to the most frequent currency.
-- Seed source: `example/tracker-backend-api/src/database/data/transactions-02.03.25.json` — flat `{Date, Category, Type, Amount, Currency}`; no note field — imported transactions get empty notes.
+- Currency is a single per-user profile default (FR5) — no currency filter, no most-frequent fallback (simplified 2026-06-15). Dashboard figures are scoped to the profile-default currency; analytics keep per-currency SQL aggregation for correctness only.
+- Seed source: `example/tracker-backend-api/src/database/data/transactions-02.03.25.json` — `{Date, Category, Type, Amount, Currency, Subcategory?}` (two-level; `Subcategory` on ~57% of records — corrected 2026-06-15); no note field — imported transactions get empty notes.
 
 ### UX Design Requirements
 
@@ -125,12 +125,12 @@ No UX Design document exists — `bmad-ux` was deliberately skipped. Per NFR7 an
 - FR6: Epic 2 — fast transaction creation
 - FR7: Epic 2 — edit/delete own transactions
 - FR8: Epic 2 — month-windowed transaction list with prev/next
-- FR9: Epic 2 — filters (type/category/currency) and sorting (date/amount)
+- FR9: Epic 2 — filters (type/category) and sorting (date/amount) — currency dropped 2026-06-15
 - FR10: Epic 2 — hierarchical category CRUD
-- FR11: Epic 2 — category set derived from seed as top-level
+- FR11: Epic 2 — two-level category set derived from seed (Category→top-level, Subcategory→child)
 - FR12: Epic 2 — reassign-on-delete, no orphaned data
 - FR13: Epic 3 — period totals (income/expense/net)
-- FR14: Epic 3 — currency filter (data-derived options, profile default)
+- FR14: Epic 3 — dashboard scoped to the profile-default currency (no picker; per-currency SQL aggregation retained) — 2026-06-15
 - FR15: Epic 3 — expense breakdown grouped by top-level category
 - FR16: Epic 3 — trailing 12-month income/expense trend
 - FR17: Epic 2 — idempotent seed of 1,880 records
@@ -150,7 +150,7 @@ A user can record and browse real money data daily: fast transaction entry (NFR5
 **FRs covered:** FR6, FR7, FR8, FR9, FR10, FR11, FR12, FR17, FR18
 
 ### Epic 3: Dashboard & Stats
-A user can answer "where did money go" in one screen: per-period and per-currency totals (income/expense/net), currency filter derived from data with profile-default and most-frequent fallback, expense breakdown grouped by top-level category, and a trailing 12-month income/expense trend — all computed as SQL aggregations (D1).
+A user can answer "where did money go" in one screen: per-period totals (income/expense/net) in the profile-default currency (no currency picker — simplified 2026-06-15; per-currency SQL aggregation retained for correctness), expense breakdown grouped by top-level category, and a trailing 12-month income/expense trend — all computed as SQL aggregations (D1).
 **FRs covered:** FR13, FR14, FR15, FR16
 
 **Dependencies:** strictly forward — Epic 2 builds on Epic 1 (auth, shell, pipeline); Epic 3 builds on Epic 2 (transaction/category data). Each epic delivers standalone user value.
@@ -477,9 +477,9 @@ So that the tracker is meaningful from the first boot — no manual data entry m
 **When** migrations run,
 **Then** the schema applies cleanly and shared enums derive from the Drizzle schema (single source of truth).
 
-**Given** the seed source `transactions-02.03.25.json` (flat `{Date, Category, Type, Amount, Currency}`),
+**Given** the seed source `transactions-02.03.25.json` (`{Date, Category, Type, Amount, Currency, Subcategory?}` — two-level, `Subcategory` on ~57% of records),
 **When** the seed runs,
-**Then** distinct category strings become top-level categories (FR11), all 1,880 records import attached to the operator's account with amounts, currencies, and dates preserved exactly and empty notes (FR17), and near-duplicate category strings are surfaced in an import report — never silently merged (D2).
+**Then** each distinct `Category` becomes a top-level category and each distinct `Subcategory` a child under its parent (two-level hierarchy, FR11), all 1,880 records import attached to the operator's account with amounts, currencies, and dates preserved exactly and empty notes (FR17), and near-duplicate category strings are surfaced in an import report — never silently merged (D2).
 
 **Given** a completed seed,
 **When** the seed runs again,
@@ -580,13 +580,15 @@ So that my records stay accurate.
 ### Story 2.5: Filter & Sort the List
 
 As Oleksii,
-I want to filter my transactions by type, category, and currency, and sort by date or amount,
+I want to filter my transactions by type and category, and sort by date or amount,
 So that I can find and inspect exactly the records I care about (FR9).
 
 **Acceptance Criteria:**
 
+> Currency was dropped as a filter (2026-06-15 — single profile-default currency); the category filter is subtree-aware (selecting a parent includes its descendants). As shipped.
+
 **Given** the transactions list,
-**When** I apply filters (type, category, currency) or sorting (date or amount, asc/desc),
+**When** I apply filters (type, category) or sorting (date or amount, asc/desc),
 **Then** all state travels via camelCase URL search params (D9/D7 — shareable, back-button-safe) and the API applies them server-side.
 
 **Given** multiple filters at once,
@@ -605,7 +607,7 @@ So that I can find and inspect exactly the records I care about (FR9).
 
 As Oleksii,
 I want to create, rename, restructure, and safely delete categories in a hierarchy,
-So that my seeded flat category set becomes the structure I actually think in (FR10, FR11, FR12).
+So that my seeded two-level category set becomes the structure I actually think in (FR10, FR11, FR12).
 
 **Acceptance Criteria:**
 
@@ -615,7 +617,7 @@ So that my seeded flat category set becomes the structure I actually think in (F
 
 **Given** the tree,
 **When** I create or rename a category, or move one to a different parent or to top level,
-**Then** the change persists (FR10) — enabling restructuring of the seeded flat set (FR11) — and moving a category under its own descendant is rejected (cycle prevention).
+**Then** the change persists (FR10) — enabling restructuring of the seeded two-level set (FR11) — and moving a category under its own descendant is rejected (cycle prevention).
 
 **Given** a category with no transactions and no children,
 **When** I delete it,
@@ -636,22 +638,20 @@ A user can answer "where did money go" in one screen: per-period and per-currenc
 ### Story 3.1: Monthly Money Summary
 
 As Oleksii,
-I want the dashboard to show total income, expense, and net for a month and currency,
+I want the dashboard to show total income, expense, and net for a month,
 So that one glance tells me where the month stands (FR13, FR14).
 
 **Acceptance Criteria:**
 
+> Currency simplified 2026-06-15: figures are always in the user's profile-default currency (FR5). There is no currency picker. The summary endpoint aggregates per-currency in SQL (scoped to the profile-default currency) so multi-currency data never cross-aggregates, but currency is not a user-facing selection.
+
 **Given** the `analytics` module,
-**When** the summary endpoint is called for a period and currency,
-**Then** income, expense, and net are computed as SQL aggregations returning string amounts (D1), scoped to the authenticated user, via the regenerated client.
+**When** the summary endpoint is called for a period (in the user's profile-default currency),
+**Then** income, expense, and net are computed as SQL aggregations returning string amounts (D1), scoped to the authenticated user and to the profile-default currency (no cross-currency aggregation), via the regenerated client.
 
 **Given** a signed-in user opening the dashboard,
 **When** it loads,
-**Then** the period defaults to the current month and the currency to the profile default (FR5/FR14); if the profile default has no transactions, it falls back to the user's most frequent currency (addendum rule).
-
-**Given** the currency filter,
-**When** opened,
-**Then** it offers only currencies present in the user's data, and selecting one re-scopes all dashboard figures — no cross-currency aggregation anywhere (FR14); period and currency travel via URL search params (D9).
+**Then** the period defaults to the current month and figures are shown in the profile-default currency (FR5/FR14); if the profile-default currency has no transactions in the period, the figures are zero with a localized empty state (no currency picker, no most-frequent fallback).
 
 **Given** the month stepper,
 **When** I navigate to a previous month,
@@ -664,18 +664,18 @@ So that one glance tells me where the month stands (FR13, FR14).
 ### Story 3.2: Expense Breakdown by Category
 
 As Oleksii,
-I want to see expenses broken down by category for the selected month and currency,
+I want to see expenses broken down by category for the selected month,
 So that I can spot outliers — where the money actually went (FR15).
 
 **Acceptance Criteria:**
 
 **Given** the analytics breakdown endpoint,
-**When** called for a period and currency,
-**Then** expenses are grouped by top-level category — child-category spend rolls up into its parent (FR15) — as SQL aggregation with string amounts (D1), user-scoped.
+**When** called for a period (in the user's profile-default currency),
+**Then** expenses are grouped by top-level category — child-category spend rolls up into its parent (FR15) — as SQL aggregation with string amounts (D1), user-scoped and scoped to the profile-default currency.
 
 **Given** the dashboard,
 **When** the breakdown renders,
-**Then** categories are ordered by amount descending with per-category totals and share-of-total, honoring the same period/currency selection as the summary (FR14), with a localized empty state when no expenses exist.
+**Then** categories are ordered by amount descending with per-category totals and share-of-total, honoring the same period selection as the summary (in the profile-default currency, FR14), with a localized empty state when no expenses exist.
 
 **Given** integration tests against the seeded data,
 **When** the suite runs,
@@ -690,12 +690,12 @@ So that I can see the direction my finances are moving (FR16).
 **Acceptance Criteria:**
 
 **Given** the analytics trend endpoint,
-**When** called for a currency,
-**Then** it returns income and expense per month for the trailing 12-month window as SQL aggregation with string amounts (D1), user-scoped, including zero months as zeros.
+**When** called (in the user's profile-default currency),
+**Then** it returns income and expense per month for the trailing 12-month window as SQL aggregation with string amounts (D1), user-scoped and scoped to the profile-default currency, including zero months as zeros.
 
 **Given** the dashboard,
 **When** the trend renders,
-**Then** the 12 months display as a month-by-month income-vs-expense visual honoring the selected currency (FR14), localized month labels via Intl in both locales; any charting dependency introduced is recorded per the architecture's new-dependency rule.
+**Then** the 12 months display as a month-by-month income-vs-expense visual in the profile-default currency (FR14), localized month labels via Intl in both locales; any charting dependency introduced is recorded per the architecture's new-dependency rule.
 
 **Given** integration tests against the seeded data,
 **When** the suite runs,
