@@ -1,5 +1,7 @@
+import { NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 
+import type { CreateTransactionDto } from './dtos/create-transaction.dto';
 import type { TransactionResponseDto } from './dtos/transaction-response.dto';
 import type { TransactionsRepository } from './transactions.repository';
 
@@ -56,5 +58,73 @@ describe('TransactionsService', () => {
       limit: 10,
     });
     expect(actual.meta).toEqual({ page: 2, limit: 10, total: 0 });
+  });
+
+  it('throws NotFoundException when the category does not belong to the user', async () => {
+    const findCategoryForUser = vi.fn().mockResolvedValue(null);
+    const create = vi.fn();
+    const repository = { findCategoryForUser, create };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    const inputDto: CreateTransactionDto = {
+      type: 'expense',
+      amount: '12.50',
+      currency: 'UAH',
+      categoryId: 'missing-category',
+      date: '2025-02-03',
+    };
+
+    await expect(service.create('user-id', inputDto)).rejects.toBeInstanceOf(NotFoundException);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('throws UnprocessableEntityException when the category type differs from the transaction type', async () => {
+    const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'income' });
+    const create = vi.fn();
+    const repository = { findCategoryForUser, create };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    const inputDto: CreateTransactionDto = {
+      type: 'expense',
+      amount: '12.50',
+      currency: 'UAH',
+      categoryId: 'category-id',
+      date: '2025-02-03',
+    };
+
+    await expect(service.create('user-id', inputDto)).rejects.toBeInstanceOf(
+      UnprocessableEntityException,
+    );
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('forwards the session user id and defaults the note on the happy path', async () => {
+    const expectedTransaction = buildTransaction('transaction-1');
+    const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'expense' });
+    const create = vi.fn().mockResolvedValue(expectedTransaction);
+    const repository = { findCategoryForUser, create };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    const inputDto: CreateTransactionDto = {
+      type: 'expense',
+      amount: '12.50',
+      currency: 'UAH',
+      categoryId: 'category-id',
+      date: '2025-02-03',
+    };
+
+    const actual = await service.create('user-id', inputDto);
+
+    expect(findCategoryForUser).toHaveBeenCalledWith('user-id', 'category-id');
+    expect(create).toHaveBeenCalledWith({
+      userId: 'user-id',
+      categoryId: 'category-id',
+      type: 'expense',
+      amount: '12.50',
+      currency: 'UAH',
+      date: '2025-02-03',
+      note: '',
+    });
+    expect(actual).toEqual(expectedTransaction);
   });
 });

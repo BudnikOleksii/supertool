@@ -1,6 +1,6 @@
 # Tech Debt: Dedupe integration-test boilerplate + HTTP status codes
 
-Status: ready-for-dev
+Status: done
 
 Origin: follow-up from the code review of story 2.6 (Organize Categories). The source-side
 constant dedup (NAME_MIN/MAX_LENGTH, ErrorCode.ValidationError, UNKNOWN_ERROR_CODE) already

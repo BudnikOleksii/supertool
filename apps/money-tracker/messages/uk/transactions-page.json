@@ -1,5 +1,6 @@
 {
   "title": "Транзакції",
+  "addTransaction": "Додати транзакцію",
   "columns": {
     "date": "Дата",
     "category": "Категорія",

@@ -6,6 +6,7 @@ export const ROUTES = {
   categories: '/categories',
   categoriesNew: '/categories/new',
   transactions: '/transactions',
+  transactionsNew: '/transactions/new',
 } as const;
 
 export const getCategoryEditPath = (id: string): string => `${ROUTES.categories}/${id}/edit`;

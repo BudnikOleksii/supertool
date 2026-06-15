@@ -3,8 +3,9 @@ import type { FC } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
 
-import { redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
+import { Link, redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
+import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
 import { fetchProfile } from '../../../actions/fetch-profile';
@@ -40,7 +41,12 @@ const TransactionsPage: FC<Props> = async (props) => {
     <section className={styles.container}>
       <header className={styles.header}>
         <Typography variant="title-l">{translate('title')}</Typography>
-        <MonthStepper period={period} />
+        <div className={styles.controls}>
+          <MonthStepper period={period} />
+          <Button component={Link} href={ROUTES.transactionsNew}>
+            {translate('addTransaction')}
+          </Button>
+        </div>
       </header>
       <Suspense key={`${period}-${String(page)}`} fallback={transactionListFallback}>
         <TransactionListServer period={period} page={page} locale={locale} />

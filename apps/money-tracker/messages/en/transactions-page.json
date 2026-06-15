@@ -1,5 +1,6 @@
 {
   "title": "Transactions",
+  "addTransaction": "Add transaction",
   "columns": {
     "date": "Date",
     "category": "Category",

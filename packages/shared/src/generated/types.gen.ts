@@ -93,6 +93,15 @@ export type TransactionListResponseDto = {
     meta: PaginationMetaDto;
 };
 
+export type CreateTransactionDto = {
+    type: TransactionType;
+    amount: string;
+    currency: CurrencyCode;
+    categoryId: string;
+    date: string;
+    note?: string;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -256,3 +265,25 @@ export type TransactionsFindAllResponses = {
 };
 
 export type TransactionsFindAllResponse = TransactionsFindAllResponses[keyof TransactionsFindAllResponses];
+
+export type TransactionsCreateData = {
+    body: CreateTransactionDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/transactions';
+};
+
+export type TransactionsCreateErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+    404: ErrorResponseDto;
+    422: ErrorResponseDto;
+};
+
+export type TransactionsCreateError = TransactionsCreateErrors[keyof TransactionsCreateErrors];
+
+export type TransactionsCreateResponses = {
+    201: TransactionResponseDto;
+};
+
+export type TransactionsCreateResponse = TransactionsCreateResponses[keyof TransactionsCreateResponses];

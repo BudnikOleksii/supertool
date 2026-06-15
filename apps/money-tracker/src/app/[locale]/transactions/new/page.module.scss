@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: center;
+
+  padding-block: var(--spacing-12);
+}
+
+.card {
+  width: 100%;
+  max-width: 32rem;
+}
+
+.emptyState {
+  display: flex;
+
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+}

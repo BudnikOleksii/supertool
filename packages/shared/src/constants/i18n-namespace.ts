@@ -8,6 +8,7 @@ export const I18N_NAMESPACE = {
   settingsPage: 'settingsPage',
   signInPage: 'signInPage',
   signUpPage: 'signUpPage',
+  transactionForm: 'transactionForm',
   transactionsPage: 'transactionsPage',
 } as const;
 
