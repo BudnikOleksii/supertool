@@ -18,6 +18,7 @@ ENV DATABASE_URL=postgres://placeholder:placeholder@localhost:5432/placeholder
 ENV BETTER_AUTH_SECRET=docker-build-codegen-placeholder
 ENV BETTER_AUTH_URL=http://localhost:3001
 ENV AUTH_TRUSTED_ORIGINS=http://localhost:3000
+ENV SEED_OPERATOR_PASSWORD=docker-build-codegen-placeholder
 RUN pnpm exec turbo run build --filter=@supertool/api
 
 FROM base AS runner
