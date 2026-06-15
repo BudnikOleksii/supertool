@@ -11,6 +11,7 @@ import {
   CALENDAR_DATE_PATTERN,
   POSITIVE_AMOUNT_PATTERN,
 } from '../../../shared/constants/transaction-validation';
+import { IsCalendarDate } from '../../../shared/validators/is-calendar-date.decorator';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -36,6 +37,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({ example: '2025-02-03' })
   @Matches(CALENDAR_DATE_PATTERN)
+  @IsCalendarDate()
   date!: string;
 
   @ApiPropertyOptional({ default: '' })

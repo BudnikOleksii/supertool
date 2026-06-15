@@ -4,7 +4,7 @@ baseline_commit: de6491e
 
 # Story 2.3: Fast Transaction Entry
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -318,3 +318,30 @@ claude-opus-4-8 (1M context)
 |---|---|
 | 2026-06-15 | Story 2.3 drafted — transaction create (POST + CreateTransactionDto, service/controller/repository, server-side category-ownership 404 + type-match 422 validation), generated-client regen, /transactions/new route + TransactionForm (react-hook-form + zod + ActionState + revalidate/redirect), category Combobox picker reusing 2.6's fetchCategoryList + buildCategoryHierarchy, currency Combobox, transactionForm i18n (en/uk), tests. Scope corrected after 2.6 landed (no categories module bootstrap — consume the existing read). Status → ready-for-dev. |
 | 2026-06-15 | Story 2.3 implemented — API write side (CreateTransactionDto, repository create + scoped lookups, service 404/422 validation, controller @Post), generated client regenerated (drift gate green), /transactions/new route + TransactionForm + create-transaction action + entry-point button, transactionForm i18n (en/uk). Tests: API service/controller specs + 3 new integration create cases (user-scoped insert, second-user rejection, type-mismatch), frontend TransactionForm/schema/helpers/action specs. All gates green (api + money-tracker type-check/lint/test, i18n:parity, stylelint, fmt:check). Visual QA passed (both themes × locales × widths + full E2E create). Status → review. |
+
+## Review Findings
+
+_Code review 2026-06-15 — diff `origin/main...HEAD` (base 732bd58). Gates green (type-check, lint, stylelint, tests 119 api + 72 money-tracker). Visual evidence gate satisfied (both themes × locales × widths, picker open states). 3 layers: Blind Hunter, Edge Case Hunter, Acceptance Auditor._
+
+### Decision-needed
+
+_Both resolved 2026-06-15 → patch._
+
+### Patch (all applied 2026-06-15 — gates re-run green: type-check, lint, test mt 84/api 126, i18n parity, fmt; generated client un-drifted)
+
+- [x] [Review][Patch] Format-valid but non-existent calendar dates yielded a raw 500 — **fixed.** Added `checkIsCalendarDate` (format + real-calendar check, no `@IsDateString`, keeps `YYYY-MM-DD`) to `apps/api/src/shared/constants/transaction-validation.ts` and a new `apps/money-tracker/.../utils/check-is-calendar-date.ts`; API enforces it via a custom `@IsCalendarDate()` decorator on the DTO `date` (alongside the existing `@Matches`, so OpenAPI/generated client is unchanged), the frontend via `.refine(checkIsCalendarDate, 'dateInvalid')`. `2025-02-30`/`2025-13-01`/non-leap `2025-02-29` now → clean `400`/zod error. Unit specs added both sides.
+- [x] [Review][Patch] Back-dated entry not visible after the redirect — **fixed.** The action now computes the created row's page: counts month transactions dated after it (one `transactionsFindAll` probe via `getNextCalendarDate` + `getMonthDateRange`) and redirects with `?period=…&page=N` (omitted when page 1). Added `utils/get-next-calendar-date.ts` + spec; action spec extended with a back-dated → page-3 case. [apps/money-tracker/src/actions/create-transaction.ts]
+- [x] [Review][Patch] `note` not trimmed — **fixed.** `note: z.string().trim().optional()`; whitespace-only note now normalizes to `''`. Schema spec extended. [transaction-form-schema.ts]
+
+### Deferred
+
+- [x] [Review][Defer] Amount/date validation regexes duplicated across the API DTO and the frontend zod schema — `POSITIVE_AMOUNT_PATTERN` and `CALENDAR_DATE_PATTERN` are byte-identical in `apps/api/src/shared/constants/transaction-validation.ts` and `transaction-form-schema.ts`; a future server-side change silently diverges the client. Candidate for `@supertool/shared`. Deferred — pre-existing cross-package convention (2.2 precedent), not introduced by this story.
+- [x] [Review][Defer] TOCTOU race on category create — `findCategoryForUser` (ownership pre-check) and `repository.create` (insert) are not atomic; a category deleted in the window FK-violates → 500 instead of a clean 404. Deferred — single-user local runtime, `onDelete: 'restrict'`, very narrow window. [apps/api/src/modules/transactions/transactions.service.ts]
+
+### Dismissed (5, with reasoning)
+
+- Blind Hunter "major": `useTransition` + `useActionState` dual pending leaves submit not disabled — **dismissed.** Contradicted by the passing test (`TransactionForm.test.tsx:83-96` asserts the button disables while pending) and the already-merged `use-category-form.ts` (story 2.6) which uses the identical sanctioned React 19 pattern; React links a `useActionState` dispatch made inside `startTransition` to that transition. Optional simplification only: read `isPending` from `useActionState`'s 3rd tuple element instead of a separate `useTransition`.
+- `revalidatePath` unreachable if a 201 returns no body — defensive speculation; the endpoint always returns the created row and the generated client returns `data`.
+- `buildCategoryOptionList` emits children by parent type only — currently unreachable; 2.6's `assertSameType` enforces child.type == parent.type at create time.
+- Action `return redirect(...)` instead of a success `ActionState` — documented Next pattern (`redirect()` throws); not a defect.
+- `cancel` i18n key absent from the spec's Task 10 key list — implementation correctly added it to both locales; parity intact.

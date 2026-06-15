@@ -2,10 +2,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { createTransaction } from './create-transaction';
 
-const { transactionsCreate, redirect, revalidatePath } = vi.hoisted(() => ({
+const { transactionsCreate, redirect, revalidatePath, fetchTransactions } = vi.hoisted(() => ({
   transactionsCreate: vi.fn(),
   redirect: vi.fn(),
   revalidatePath: vi.fn(),
+  fetchTransactions: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({ revalidatePath }));
@@ -24,6 +25,12 @@ vi.mock('@supertool/shared/generated/sdk.gen', () => ({
   TransactionsApiService: { transactionsCreate },
 }));
 
+vi.mock('./fetch-transactions', () => ({ fetchTransactions }));
+
+const mockTransactionsBefore = (total: number): void => {
+  fetchTransactions.mockResolvedValue({ status: 'success', transactions: { meta: { total } } });
+};
+
 const VALID_VALUES = {
   type: 'expense' as const,
   amount: '12.50',
@@ -34,6 +41,9 @@ const VALID_VALUES = {
 };
 
 const LOCALE = 'en';
+
+const NO_TRANSACTIONS_BEFORE = 0;
+const TRANSACTIONS_BEFORE_THIRD_PAGE = 120;
 
 describe('createTransaction', () => {
   afterEach(() => {
@@ -80,12 +90,31 @@ describe('createTransaction', () => {
 
   it('revalidates and redirects to the created month on success', async () => {
     transactionsCreate.mockResolvedValue({ data: { id: 'transaction-1' }, error: undefined });
+    mockTransactionsBefore(NO_TRANSACTIONS_BEFORE);
 
     await createTransaction(VALID_VALUES, LOCALE);
 
     expect(revalidatePath).toHaveBeenCalledWith('/transactions');
     expect(redirect).toHaveBeenCalledWith({
       href: { pathname: '/transactions', query: { period: '2025-02' } },
+      locale: LOCALE,
+    });
+  });
+
+  it('redirects to the page that holds a back-dated transaction', async () => {
+    transactionsCreate.mockResolvedValue({ data: { id: 'transaction-1' }, error: undefined });
+    mockTransactionsBefore(TRANSACTIONS_BEFORE_THIRD_PAGE);
+
+    await createTransaction(VALID_VALUES, LOCALE);
+
+    expect(fetchTransactions).toHaveBeenCalledWith({
+      dateFrom: '2025-02-04',
+      dateTo: '2025-02-28',
+      page: 1,
+      limit: 1,
+    });
+    expect(redirect).toHaveBeenCalledWith({
+      href: { pathname: '/transactions', query: { period: '2025-02', page: '3' } },
       locale: LOCALE,
     });
   });

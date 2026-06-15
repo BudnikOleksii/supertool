@@ -51,4 +51,18 @@ describe('transactionFormSchema', () => {
 
     expect(actual.success).toBe(false);
   });
+
+  it('rejects a format-valid but non-existent calendar date', () => {
+    const actual = transactionFormSchema.safeParse({ ...VALID_INPUT, date: '2025-02-30' });
+
+    expect(actual.success).toBe(false);
+    expect(actual.error?.issues[FIRST_ISSUE_INDEX]?.message).toBe('dateInvalid');
+  });
+
+  it('trims a whitespace-only note to an empty string', () => {
+    const actual = transactionFormSchema.safeParse({ ...VALID_INPUT, note: '   ' });
+
+    expect(actual.success).toBe(true);
+    expect(actual.data?.note).toBe('');
+  });
 });
