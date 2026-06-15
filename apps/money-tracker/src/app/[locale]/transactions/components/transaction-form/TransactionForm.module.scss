@@ -1,0 +1,32 @@
+@use "@supertool/ui/src/styles/breakpoints";
+
+.form {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.segmented {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: var(--spacing-2);
+}
+
+.segment.segment {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-3);
+
+  @include breakpoints.media-m {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}

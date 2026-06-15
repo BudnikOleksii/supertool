@@ -1,10 +1,13 @@
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { StartedTestContainer } from 'testcontainers';
 
+import { NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import type { TransactionType } from '../../src/database/schemas/enums.js';
+import type { CreateTransactionDto } from '../../src/modules/transactions/dtos/create-transaction.dto.js';
 import type { TransactionResponseDto } from '../../src/modules/transactions/dtos/transaction-response.dto.js';
 
 import { parseEnv } from '../../src/app/env.schema.js';
@@ -13,6 +16,7 @@ import { transactionCategories } from '../../src/database/schemas/transaction-ca
 import { transactions } from '../../src/database/schemas/transactions.js';
 import { users } from '../../src/database/schemas/users.js';
 import { TransactionsRepository } from '../../src/modules/transactions/transactions.repository.js';
+import { TransactionsService } from '../../src/modules/transactions/transactions.service.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -38,6 +42,7 @@ let pool: Pool | undefined = undefined;
 let authDatabasePool: Pool | undefined = undefined;
 let database: NodePgDatabase | undefined = undefined;
 let repository: TransactionsRepository | undefined = undefined;
+let service: TransactionsService | undefined = undefined;
 let operatorId = '';
 
 const moduleNotLoaded = (): Promise<void> => Promise.reject(new Error('module not loaded'));
@@ -58,6 +63,16 @@ const getRepository = (): TransactionsRepository => {
   }
   return repository;
 };
+
+const getService = (): TransactionsService => {
+  if (!service) {
+    throw new Error('Service is not initialised');
+  }
+  return service;
+};
+
+const getOppositeType = (type: TransactionType): TransactionType =>
+  type === 'expense' ? 'income' : 'expense';
 
 const getDatabase = (): NodePgDatabase => {
   if (!database) {
@@ -136,6 +151,46 @@ const loadChildCategoryTransaction = async (): Promise<{
   return row;
 };
 
+const loadOperatorChildCategory = async (): Promise<{
+  id: string;
+  type: TransactionType;
+  name: string;
+  parentName: string;
+}> => {
+  const result = await getPool().query<{
+    id: string;
+    type: TransactionType;
+    name: string;
+    parentName: string;
+  }>(
+    `SELECT child.id, child.type, child.name, parent.name AS "parentName"
+     FROM transaction_categories child
+     JOIN transaction_categories parent ON parent.id = child.parent_id
+     WHERE child.user_id = $1
+     LIMIT 1`,
+    [operatorId],
+  );
+  const [row] = result.rows;
+  if (!row) {
+    throw new Error('Seed produced no operator child category to test against');
+  }
+  return row;
+};
+
+const insertSecondUserCategory = async (): Promise<{ userId: string; categoryId: string }> => {
+  const userId = generateId();
+  const categoryId = generateId();
+
+  await getDatabase()
+    .insert(users)
+    .values({ id: userId, name: 'Second User', email: `second-${userId}@example.com` });
+  await getDatabase()
+    .insert(transactionCategories)
+    .values({ id: categoryId, userId, name: 'Other Category', type: 'expense' });
+
+  return { userId, categoryId };
+};
+
 const insertSecondUserTransaction = async (
   window: MonthWindow,
 ): Promise<{ userId: string; transactionId: string }> => {
@@ -184,6 +239,7 @@ const connectDatabase = (databaseUrl: string): void => {
   pool = new Pool({ connectionString: databaseUrl });
   database = drizzle(pool);
   repository = new TransactionsRepository(database);
+  service = new TransactionsService(repository);
 };
 
 beforeAll(async () => {
@@ -292,5 +348,74 @@ describe('TransactionsRepository (Testcontainers Postgres)', () => {
     const actualRow = data.find((row) => row.id === childTransaction.id);
     expect(actualRow?.categoryName).toBe(childTransaction.childName);
     expect(actualRow?.categoryParentName).toBe(childTransaction.parentName);
+  });
+});
+
+const loadStoredTransaction = async (
+  id: string,
+): Promise<{ importKey: string | null; amount: string; userId: string } | undefined> => {
+  const result = await getPool().query<{
+    importKey: string | null;
+    amount: string;
+    userId: string;
+  }>(
+    `SELECT import_key AS "importKey", amount, user_id AS "userId" FROM transactions WHERE id = $1`,
+    [id],
+  );
+
+  return result.rows[0];
+};
+
+describe('TransactionsService create (Testcontainers Postgres)', () => {
+  it('inserts a user-scoped row with NULL import_key and the exact string amount (AC1)', async () => {
+    const category = await loadOperatorChildCategory();
+    const input = { amount: '12.34', date: '2025-03-15', note: 'Integration note' };
+
+    const created = await getService().create(operatorId, {
+      type: category.type,
+      amount: input.amount,
+      currency: 'UAH',
+      categoryId: category.id,
+      date: input.date,
+      note: input.note,
+    });
+
+    expect(created.amount).toBe(input.amount);
+    expect(created.categoryName).toBe(category.name);
+    expect(created.categoryParentName).toBe(category.parentName);
+    expect(created.note).toBe(input.note);
+
+    const storedRow = await loadStoredTransaction(created.id);
+    expect(storedRow).toEqual({ importKey: null, amount: input.amount, userId: operatorId });
+  });
+
+  it('rejects creating a transaction against another user category (FR21)', async () => {
+    const { categoryId } = await insertSecondUserCategory();
+    const inputDto: CreateTransactionDto = {
+      type: 'expense',
+      amount: '50.00',
+      currency: 'UAH',
+      categoryId,
+      date: '2025-03-15',
+    };
+
+    await expect(getService().create(operatorId, inputDto)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('rejects creating a transaction whose type differs from the category type (AC2)', async () => {
+    const category = await loadOperatorChildCategory();
+    const inputDto: CreateTransactionDto = {
+      type: getOppositeType(category.type),
+      amount: '50.00',
+      currency: 'UAH',
+      categoryId: category.id,
+      date: '2025-03-15',
+    };
+
+    await expect(getService().create(operatorId, inputDto)).rejects.toBeInstanceOf(
+      UnprocessableEntityException,
+    );
   });
 });

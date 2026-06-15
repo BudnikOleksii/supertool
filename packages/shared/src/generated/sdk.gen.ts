@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type { HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
+import type { HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, TransactionsCreateData, TransactionsCreateErrors, TransactionsCreateResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -83,5 +83,16 @@ export class TransactionCategoriesApiService {
 export class TransactionsApiService {
     public static transactionsFindAll<ThrowOnError extends boolean = false>(options?: Options<TransactionsFindAllData, ThrowOnError>): RequestResult<TransactionsFindAllResponses, TransactionsFindAllErrors, ThrowOnError> {
         return (options?.client ?? client).get<TransactionsFindAllResponses, TransactionsFindAllErrors, ThrowOnError>({ url: '/api/v1/transactions', ...options });
+    }
+    
+    public static transactionsCreate<ThrowOnError extends boolean = false>(options: Options<TransactionsCreateData, ThrowOnError>): RequestResult<TransactionsCreateResponses, TransactionsCreateErrors, ThrowOnError> {
+        return (options.client ?? client).post<TransactionsCreateResponses, TransactionsCreateErrors, ThrowOnError>({
+            url: '/api/v1/transactions',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
     }
 }

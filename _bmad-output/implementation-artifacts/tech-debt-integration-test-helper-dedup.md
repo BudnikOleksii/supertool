@@ -4,7 +4,7 @@ baseline_commit: 31786b3714a613d0d07eb5f09f2f1df83cb1e51b
 
 # Tech Debt: Dedupe integration-test boilerplate + HTTP status codes
 
-Status: review
+Status: done
 
 Origin: follow-up from the code review of story 2.6 (Organize Categories). The source-side
 constant dedup (NAME_MIN/MAX_LENGTH, ErrorCode.ValidationError, UNKNOWN_ERROR_CODE) already
