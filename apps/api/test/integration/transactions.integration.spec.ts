@@ -3,9 +3,7 @@ import type { StartedTestContainer } from 'testcontainers';
 
 import { NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { resolve } from 'node:path';
 import { Pool } from 'pg';
-import { GenericContainer, Wait } from 'testcontainers';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import type { TransactionType } from '../../src/database/schemas/enums.js';
@@ -19,12 +17,15 @@ import { transactions } from '../../src/database/schemas/transactions.js';
 import { users } from '../../src/database/schemas/users.js';
 import { TransactionsRepository } from '../../src/modules/transactions/transactions.repository.js';
 import { TransactionsService } from '../../src/modules/transactions/transactions.service.js';
+import {
+  BOOT_TIMEOUT_MS,
+  buildDatabaseUrl,
+  MIGRATIONS_FOLDER,
+  startPostgresContainer,
+} from '../helpers/postgres-container.js';
 
 process.env.TESTCONTAINERS_RYUK_DISABLED = 'true';
 
-const POSTGRES_PORT = 5432;
-const CONTAINER_READY_OCCURRENCES = 2;
-const BOOT_TIMEOUT_MS = 180_000;
 const HIGH_LIMIT = 1000;
 const SMALL_LIMIT = 5;
 const FIRST_PAGE = 1;
@@ -35,8 +36,6 @@ interface MonthWindow {
   dateFrom: string;
   dateTo: string;
 }
-
-const migrationsFolder = resolve(process.cwd(), 'src/database/migrations');
 
 let container: StartedTestContainer | undefined = undefined;
 let pool: Pool | undefined = undefined;
@@ -81,18 +80,6 @@ const getDatabase = (): NodePgDatabase => {
   }
   return database;
 };
-
-const startPostgresContainer = async (): Promise<StartedTestContainer> =>
-  new GenericContainer('postgres:16-alpine')
-    .withEnvironment({ POSTGRES_USER: 'test', POSTGRES_PASSWORD: 'test', POSTGRES_DB: 'test' })
-    .withExposedPorts(POSTGRES_PORT)
-    .withWaitStrategy(
-      Wait.forLogMessage(
-        /database system is ready to accept connections/u,
-        CONTAINER_READY_OCCURRENCES,
-      ),
-    )
-    .start();
 
 const padTwoDigits = (value: number): string => String(value).padStart(TWO_DIGITS, '0');
 
@@ -257,13 +244,13 @@ const connectDatabase = (databaseUrl: string): void => {
 
 beforeAll(async () => {
   container = await startPostgresContainer();
-  const databaseUrl = `postgres://test:test@${container.getHost()}:${container.getMappedPort(POSTGRES_PORT)}/test`;
+  const databaseUrl = buildDatabaseUrl(container);
   process.env.DATABASE_URL = databaseUrl;
 
   await loadSeedModules();
   connectDatabase(databaseUrl);
 
-  await prepareDatabase({ databaseUrl, migrationsFolder });
+  await prepareDatabase({ databaseUrl, migrationsFolder: MIGRATIONS_FOLDER });
   await runSeed({ databaseUrl });
 
   operatorId = await loadOperatorId(parseEnv().SEED_OPERATOR_EMAIL);
