@@ -46,7 +46,14 @@ describe('TransactionList', () => {
 
     const renderTransactionList = TransactionList;
     render(
-      await renderTransactionList({ transactionList, locale: LOCALE, period: PERIOD, page: PAGE }),
+      await renderTransactionList({
+        transactionList,
+        locale: LOCALE,
+        period: PERIOD,
+        page: PAGE,
+        sortBy: 'date',
+        sortOrder: 'desc',
+      }),
     );
 
     expect(screen.getByText('Food / Groceries')).toBeTruthy();
@@ -61,7 +68,14 @@ describe('TransactionList', () => {
 
     const renderTransactionList = TransactionList;
     render(
-      await renderTransactionList({ transactionList, locale: LOCALE, period: PERIOD, page: PAGE }),
+      await renderTransactionList({
+        transactionList,
+        locale: LOCALE,
+        period: PERIOD,
+        page: PAGE,
+        sortBy: 'date',
+        sortOrder: 'desc',
+      }),
     );
 
     expect(screen.getByText('Salary')).toBeTruthy();
@@ -75,7 +89,14 @@ describe('TransactionList', () => {
 
     const renderTransactionList = TransactionList;
     render(
-      await renderTransactionList({ transactionList, locale: LOCALE, period: PERIOD, page: PAGE }),
+      await renderTransactionList({
+        transactionList,
+        locale: LOCALE,
+        period: PERIOD,
+        page: PAGE,
+        sortBy: 'date',
+        sortOrder: 'desc',
+      }),
     );
 
     expect(screen.getAllByRole('row')).toHaveLength(transactionList.length + HEADER_ROW_COUNT);

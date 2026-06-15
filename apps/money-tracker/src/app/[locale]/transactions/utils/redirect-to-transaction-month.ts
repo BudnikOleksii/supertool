@@ -1,10 +1,10 @@
 import { revalidatePath } from 'next/cache';
 
 import { redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
+import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '@supertool/shared/constants/pagination';
 
 import { fetchTransactions } from '../../../../actions/fetch-transactions';
 import { ROUTES } from '../../../../constants/routes';
-import { FIRST_PAGE, TRANSACTIONS_PAGE_SIZE } from '../constants';
 import { buildTransactionsRedirectQuery } from './build-transactions-redirect-query';
 import { getNextCalendarDate } from './get-next-calendar-date';
 import { getMonthDateRange, parsePeriod } from './period';
@@ -28,7 +28,7 @@ const getTransactionPage = async (date: string, period: string): Promise<number>
 
   const transactionsBefore = result.transactions.meta.total;
 
-  return Math.floor(transactionsBefore / TRANSACTIONS_PAGE_SIZE) + FIRST_PAGE;
+  return Math.floor(transactionsBefore / DEFAULT_PAGE_SIZE) + FIRST_PAGE;
 };
 
 export const redirectToTransactionMonth = async (date: string, locale: string): Promise<never> => {

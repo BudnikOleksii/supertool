@@ -8,12 +8,16 @@ import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
+import { fetchCategoryList } from '../../../actions/fetch-category-list';
 import { fetchProfile } from '../../../actions/fetch-profile';
 import { ROUTES } from '../../../constants/routes';
 import { MonthStepper } from './components/month-stepper/MonthStepper';
+import { TransactionFilters } from './components/transaction-filters/TransactionFilters';
 import { TransactionListServer } from './components/transaction-list-server/TransactionListServer';
 import { TransactionListSkeleton } from './components/transaction-list-skeleton/TransactionListSkeleton';
 import styles from './page.module.scss';
+import { buildTransactionsSuspenseKey } from './utils/build-transactions-suspense-key';
+import { checkHasActiveFilters } from './utils/check-has-active-filters';
 import { parseTransactionsSearchParams } from './utils/parse-transactions-search-params';
 
 interface Props {
@@ -35,21 +39,32 @@ const TransactionsPage: FC<Props> = async (props) => {
   }
 
   const translate = await getTranslations(I18N_NAMESPACE.transactionsPage);
-  const { period, page } = parseTransactionsSearchParams(searchParams);
+  const params = parseTransactionsSearchParams(searchParams);
+  const categoryList = await fetchCategoryList();
 
   return (
     <section className={styles.container}>
       <header className={styles.header}>
         <Typography variant="title-l">{translate('title')}</Typography>
         <div className={styles.controls}>
-          <MonthStepper period={period} />
+          <MonthStepper period={params.period} />
           <Button component={Link} href={ROUTES.transactionsNew}>
             {translate('addTransaction')}
           </Button>
         </div>
       </header>
-      <Suspense key={`${period}-${String(page)}`} fallback={transactionListFallback}>
-        <TransactionListServer period={period} page={page} locale={locale} />
+      <TransactionFilters categoryList={categoryList} params={params} />
+      <Suspense key={buildTransactionsSuspenseKey(params)} fallback={transactionListFallback}>
+        <TransactionListServer
+          period={params.period}
+          page={params.page}
+          locale={locale}
+          type={params.type}
+          categoryId={params.categoryId}
+          sortBy={params.sortBy}
+          sortOrder={params.sortOrder}
+          hasActiveFilters={checkHasActiveFilters(params)}
+        />
       </Suspense>
     </section>
   );

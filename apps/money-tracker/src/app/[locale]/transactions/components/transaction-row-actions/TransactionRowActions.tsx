@@ -7,6 +7,11 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-state';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
+import type {
+  SortOrder,
+  TransactionSortBy,
+  TransactionType,
+} from '@supertool/shared/generated/types.gen';
 import { Alert, AlertDescription } from '@supertool/ui/src/components/atoms/alert/Alert';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import {
@@ -29,6 +34,10 @@ interface Props {
   id: string;
   period: string;
   page: number;
+  type?: TransactionType | undefined;
+  categoryId?: string | undefined;
+  sortBy: TransactionSortBy;
+  sortOrder: SortOrder;
   formattedAmount: string;
   formattedDate: string;
 }
@@ -37,6 +46,10 @@ export const TransactionRowActions: FC<Props> = ({
   id,
   period,
   page,
+  type,
+  categoryId,
+  sortBy,
+  sortOrder,
   formattedAmount,
   formattedDate,
 }) => {
@@ -48,6 +61,7 @@ export const TransactionRowActions: FC<Props> = ({
     period,
     page,
     locale,
+    view: { type, categoryId, sortBy, sortOrder },
   });
 
   return (

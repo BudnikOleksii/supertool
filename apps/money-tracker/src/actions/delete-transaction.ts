@@ -7,6 +7,8 @@ import type { ActionState } from '@supertool/next-shared/src/types/action-state'
 import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-state';
 import { TransactionsApiService } from '@supertool/shared/generated/sdk.gen';
 
+import type { TransactionViewParams } from '../app/[locale]/transactions/utils/build-transactions-redirect-query';
+
 import { redirectAfterTransactionDelete } from '../app/[locale]/transactions/utils/redirect-after-transaction-delete';
 
 interface DeleteTransactionParams {
@@ -14,6 +16,7 @@ interface DeleteTransactionParams {
   period: string;
   page: number;
   locale: string;
+  view: TransactionViewParams;
 }
 
 export const deleteTransaction = async ({
@@ -21,6 +24,7 @@ export const deleteTransaction = async ({
   period,
   page,
   locale,
+  view,
 }: DeleteTransactionParams): Promise<ActionState> => {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
@@ -34,5 +38,5 @@ export const deleteTransaction = async ({
     return { status: 'error', code: error?.code ?? UNKNOWN_ERROR_CODE, message: error?.message };
   }
 
-  return redirectAfterTransactionDelete(period, page, locale);
+  return redirectAfterTransactionDelete({ period, page, locale, view });
 };

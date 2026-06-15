@@ -7,12 +7,28 @@ vi.mock('next-intl/server', () => ({
   getTranslations: async () => (key: string) => key,
 }));
 
+vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
+  Link: ({ children }: { children: React.ReactNode }) => <a href="#test">{children}</a>,
+}));
+
+const PERIOD = '2025-03';
+
 describe('TransactionEmptyState', () => {
-  it('renders the localized empty-state copy', async () => {
+  it('renders the empty-month copy without a clear affordance', async () => {
     const renderEmptyState = TransactionEmptyState;
-    render(await renderEmptyState({}));
+    render(await renderEmptyState({ variant: 'emptyMonth', period: PERIOD }));
 
     expect(screen.getByText('empty.title')).toBeTruthy();
     expect(screen.getByText('empty.description')).toBeTruthy();
+    expect(screen.queryByText('noMatches.clear')).toBeNull();
+  });
+
+  it('renders the no-matches copy with a clear affordance', async () => {
+    const renderEmptyState = TransactionEmptyState;
+    render(await renderEmptyState({ variant: 'noMatches', period: PERIOD }));
+
+    expect(screen.getByText('noMatches.title')).toBeTruthy();
+    expect(screen.getByText('noMatches.description')).toBeTruthy();
+    expect(screen.getByText('noMatches.clear')).toBeTruthy();
   });
 });

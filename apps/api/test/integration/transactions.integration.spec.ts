@@ -6,6 +6,10 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { FIRST_PAGE } from '@supertool/shared/constants/pagination';
+import type { TransactionSortOrder } from '@supertool/shared/constants/transaction-sort';
+import { DEFAULT_SORT_BY, DEFAULT_SORT_ORDER } from '@supertool/shared/constants/transaction-sort';
+
 import type { TransactionType } from '../../src/database/schemas/enums.js';
 import type { CreateTransactionDto } from '../../src/modules/transactions/dtos/create-transaction.dto.js';
 import type { TransactionResponseDto } from '../../src/modules/transactions/dtos/transaction-response.dto.js';
@@ -28,9 +32,12 @@ process.env.TESTCONTAINERS_RYUK_DISABLED = 'true';
 
 const HIGH_LIMIT = 1000;
 const SMALL_LIMIT = 5;
-const FIRST_PAGE = 1;
-const SECOND_PAGE = 2;
+const SECOND_PAGE = FIRST_PAGE + 1;
 const TWO_DIGITS = 2;
+const FIRST_ROW_INDEX = 0;
+const DEEP_SUBTREE_TRANSACTION_COUNT = 1;
+
+const DEFAULT_SORT = { sortBy: DEFAULT_SORT_BY, sortOrder: DEFAULT_SORT_ORDER };
 
 interface MonthWindow {
   dateFrom: string;
@@ -269,6 +276,7 @@ describe('TransactionsRepository (Testcontainers Postgres)', () => {
     const { data, total } = await getRepository().findAllByUserId(operatorId, {
       dateFrom: window.dateFrom,
       dateTo: window.dateTo,
+      ...DEFAULT_SORT,
       page: FIRST_PAGE,
       limit: HIGH_LIMIT,
     });
@@ -284,12 +292,14 @@ describe('TransactionsRepository (Testcontainers Postgres)', () => {
     const firstPage = await getRepository().findAllByUserId(operatorId, {
       dateFrom: window.dateFrom,
       dateTo: window.dateTo,
+      ...DEFAULT_SORT,
       page: FIRST_PAGE,
       limit: SMALL_LIMIT,
     });
     const secondPage = await getRepository().findAllByUserId(operatorId, {
       dateFrom: window.dateFrom,
       dateTo: window.dateTo,
+      ...DEFAULT_SORT,
       page: SECOND_PAGE,
       limit: SMALL_LIMIT,
     });
@@ -309,10 +319,12 @@ describe('TransactionsRepository (Testcontainers Postgres)', () => {
     const operatorResult = await getRepository().findAllByUserId(operatorId, {
       dateFrom: window.dateFrom,
       dateTo: window.dateTo,
+      ...DEFAULT_SORT,
       page: FIRST_PAGE,
       limit: HIGH_LIMIT,
     });
     const otherResult = await getRepository().findAllByUserId(userId, {
+      ...DEFAULT_SORT,
       page: FIRST_PAGE,
       limit: HIGH_LIMIT,
     });
@@ -327,6 +339,7 @@ describe('TransactionsRepository (Testcontainers Postgres)', () => {
     const { data } = await getRepository().findAllByUserId(operatorId, {
       dateFrom: window.dateFrom,
       dateTo: window.dateTo,
+      ...DEFAULT_SORT,
       page: FIRST_PAGE,
       limit: SMALL_LIMIT,
     });
@@ -341,6 +354,7 @@ describe('TransactionsRepository (Testcontainers Postgres)', () => {
     const { data } = await getRepository().findAllByUserId(operatorId, {
       dateFrom: childTransaction.date,
       dateTo: childTransaction.date,
+      ...DEFAULT_SORT,
       page: FIRST_PAGE,
       limit: HIGH_LIMIT,
     });
@@ -348,6 +362,267 @@ describe('TransactionsRepository (Testcontainers Postgres)', () => {
     const actualRow = data.find((row) => row.id === childTransaction.id);
     expect(actualRow?.categoryName).toBe(childTransaction.childName);
     expect(actualRow?.categoryParentName).toBe(childTransaction.parentName);
+  });
+});
+
+interface CategorySubtree {
+  parentId: string;
+  type: TransactionType;
+  subtreeCount: number;
+  idList: string[];
+  childIdList: string[];
+}
+
+const countByType = async (type: TransactionType): Promise<number> => {
+  const result = await getPool().query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count FROM transactions WHERE user_id = $1 AND type = $2`,
+    [operatorId, type],
+  );
+  return result.rows[0]?.count ?? 0;
+};
+
+const countSubtreeByType = async (idList: string[], type: TransactionType): Promise<number> => {
+  const result = await getPool().query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count FROM transactions WHERE user_id = $1 AND category_id = ANY($2) AND type = $3`,
+    [operatorId, idList, type],
+  );
+  return result.rows[0]?.count ?? 0;
+};
+
+const loadLeafCategoryWithTransactions = async (): Promise<{ id: string; count: number }> => {
+  const result = await getPool().query<{ id: string; count: number }>(
+    `SELECT child.id, COUNT(t.id)::int AS count
+     FROM transaction_categories child
+     JOIN transactions t ON t.category_id = child.id AND t.user_id = child.user_id
+     WHERE child.user_id = $1 AND child.parent_id IS NOT NULL
+     GROUP BY child.id
+     ORDER BY count DESC
+     LIMIT 1`,
+    [operatorId],
+  );
+  const [row] = result.rows;
+  if (!row) {
+    throw new Error('Seed produced no leaf category with transactions to test against');
+  }
+  return row;
+};
+
+const loadCategorySubtree = async (): Promise<CategorySubtree> => {
+  const parentResult = await getPool().query<{ parentId: string; type: TransactionType }>(
+    `SELECT parent.id AS "parentId", parent.type AS "type"
+     FROM transaction_categories parent
+     WHERE parent.user_id = $1 AND parent.parent_id IS NULL
+       AND EXISTS (
+         SELECT 1 FROM transactions t
+         JOIN transaction_categories child ON child.id = t.category_id AND child.user_id = t.user_id
+         WHERE t.user_id = $1 AND child.parent_id = parent.id
+       )
+     LIMIT 1`,
+    [operatorId],
+  );
+  const [parent] = parentResult.rows;
+  if (!parent) {
+    throw new Error('Seed produced no parent category with child transactions to test against');
+  }
+
+  const idResult = await getPool().query<{ id: string }>(
+    `SELECT id FROM transaction_categories WHERE user_id = $1 AND (id = $2 OR parent_id = $2)`,
+    [operatorId, parent.parentId],
+  );
+  const idList = idResult.rows.map((row) => row.id);
+  const childIdList = idList.filter((id) => id !== parent.parentId);
+
+  const countResult = await getPool().query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count FROM transactions WHERE user_id = $1 AND category_id = ANY($2)`,
+    [operatorId, idList],
+  );
+
+  return {
+    parentId: parent.parentId,
+    type: parent.type,
+    subtreeCount: countResult.rows[0]?.count ?? 0,
+    idList,
+    childIdList,
+  };
+};
+
+const insertDeepCategoryChain = async (): Promise<{
+  userId: string;
+  grandparentId: string;
+  deepTransactionId: string;
+}> => {
+  const userId = generateId();
+  const grandparentId = generateId();
+  const parentId = generateId();
+  const childId = generateId();
+  const deepTransactionId = generateId();
+
+  await getDatabase()
+    .insert(users)
+    .values({ id: userId, name: 'Deep User', email: `deep-${userId}@example.com` });
+  await getDatabase()
+    .insert(transactionCategories)
+    .values([
+      { id: grandparentId, userId, name: 'Deep Grandparent', type: 'expense' },
+      { id: parentId, userId, name: 'Deep Parent', type: 'expense', parentId: grandparentId },
+      { id: childId, userId, name: 'Deep Child', type: 'expense', parentId },
+    ]);
+  await getDatabase().insert(transactions).values({
+    id: deepTransactionId,
+    userId,
+    categoryId: childId,
+    type: 'expense',
+    amount: '12.34',
+    currency: 'UAH',
+    date: '2025-01-15',
+  });
+
+  return { userId, grandparentId, deepTransactionId };
+};
+
+const checkAmountOrdered = (
+  list: TransactionResponseDto[],
+  sortOrder: TransactionSortOrder,
+): boolean =>
+  list.every((row, index) => {
+    const previous = list[index - 1];
+    if (previous === undefined) {
+      return true;
+    }
+    const previousAmount = Number(previous.amount);
+    const currentAmount = Number(row.amount);
+    if (previousAmount !== currentAmount) {
+      return sortOrder === 'asc'
+        ? previousAmount <= currentAmount
+        : previousAmount >= currentAmount;
+    }
+    return previous.id > row.id;
+  });
+
+const checkDateOrdered = (
+  list: TransactionResponseDto[],
+  sortOrder: TransactionSortOrder,
+): boolean =>
+  list.every((row, index) => {
+    const previous = list[index - 1];
+    if (previous === undefined) {
+      return true;
+    }
+    if (previous.date !== row.date) {
+      return sortOrder === 'asc' ? previous.date <= row.date : previous.date >= row.date;
+    }
+    return previous.id > row.id;
+  });
+
+describe('TransactionsRepository filters and sorting (Testcontainers Postgres)', () => {
+  it('applies the type filter as an equality condition (AC1)', async () => {
+    const expectedTotal = await countByType('expense');
+
+    const { data, total } = await getRepository().findAllByUserId(operatorId, {
+      type: 'expense',
+      ...DEFAULT_SORT,
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+
+    expect(data.length).toBeGreaterThan(0);
+    expect(data.every((row) => row.type === 'expense')).toBe(true);
+    expect(total).toBe(expectedTotal);
+  });
+
+  it('filters by a leaf category id and matches the filtered total (AC1)', async () => {
+    const leaf = await loadLeafCategoryWithTransactions();
+
+    const { data, total } = await getRepository().findAllByUserId(operatorId, {
+      categoryId: leaf.id,
+      ...DEFAULT_SORT,
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+
+    expect(data.length).toBeGreaterThan(0);
+    expect(data.every((row) => row.categoryId === leaf.id)).toBe(true);
+    expect(total).toBe(leaf.count);
+  });
+
+  it('includes descendant categories when filtering by a parent id (AC1)', async () => {
+    const subtree = await loadCategorySubtree();
+
+    const { data, total } = await getRepository().findAllByUserId(operatorId, {
+      categoryId: subtree.parentId,
+      ...DEFAULT_SORT,
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+
+    expect(total).toBe(subtree.subtreeCount);
+    expect(data.every((row) => subtree.idList.includes(row.categoryId))).toBe(true);
+    expect(data.some((row) => subtree.childIdList.includes(row.categoryId))).toBe(true);
+  });
+
+  it('resolves multi-level descendants when filtering by an ancestor id (AC1)', async () => {
+    const chain = await insertDeepCategoryChain();
+
+    const { data, total } = await getRepository().findAllByUserId(chain.userId, {
+      categoryId: chain.grandparentId,
+      ...DEFAULT_SORT,
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+
+    expect(total).toBe(DEEP_SUBTREE_TRANSACTION_COUNT);
+    expect(data.some((row) => row.id === chain.deepTransactionId)).toBe(true);
+  });
+
+  it('honors a combined type and category filter (AC1)', async () => {
+    const subtree = await loadCategorySubtree();
+    const expectedTotal = await countSubtreeByType(subtree.idList, subtree.type);
+
+    const { data, total } = await getRepository().findAllByUserId(operatorId, {
+      type: subtree.type,
+      categoryId: subtree.parentId,
+      ...DEFAULT_SORT,
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+
+    expect(total).toBe(expectedTotal);
+    expect(data.every((row) => row.type === subtree.type)).toBe(true);
+    expect(data.every((row) => subtree.idList.includes(row.categoryId))).toBe(true);
+  });
+
+  it('orders by numeric amount ascending and descending with a stable id tiebreaker (AC1)', async () => {
+    const ascending = await getRepository().findAllByUserId(operatorId, {
+      sortBy: 'amount',
+      sortOrder: 'asc',
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+    const descending = await getRepository().findAllByUserId(operatorId, {
+      sortBy: 'amount',
+      sortOrder: 'desc',
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+
+    expect(ascending.data.length).toBeGreaterThan(0);
+    expect(checkAmountOrdered(ascending.data, 'asc')).toBe(true);
+    expect(checkAmountOrdered(descending.data, 'desc')).toBe(true);
+    expect(Number(ascending.data[FIRST_ROW_INDEX]?.amount)).toBeLessThanOrEqual(
+      Number(descending.data[FIRST_ROW_INDEX]?.amount),
+    );
+  });
+
+  it('reverses the default date order when sorting by date ascending (AC1)', async () => {
+    const { data } = await getRepository().findAllByUserId(operatorId, {
+      sortBy: 'date',
+      sortOrder: 'asc',
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+
+    expect(data.length).toBeGreaterThan(0);
+    expect(checkDateOrdered(data, 'asc')).toBe(true);
   });
 });
 

@@ -1,7 +1,12 @@
-import type { SQL } from 'drizzle-orm';
+import type { AnyColumn, SQL } from 'drizzle-orm';
 
 import { Inject, Injectable } from '@nestjs/common';
-import { aliasedTable, and, count, desc, eq, gte, lte } from 'drizzle-orm';
+import { aliasedTable, and, asc, count, desc, eq, gte, inArray, lte, sql } from 'drizzle-orm';
+
+import type {
+  TransactionSortBy,
+  TransactionSortOrder,
+} from '@supertool/shared/constants/transaction-sort';
 
 import type { Database } from '../../database/database.types';
 import type { TransactionType } from '../../database/schemas/enums';
@@ -14,9 +19,15 @@ import { transactions } from '../../database/schemas/transactions';
 
 const SINGLE_ROW_LIMIT = 1;
 
+const SUBTREE_MAX_DEPTH = 100;
+
 interface FindAllByUserIdQuery {
   dateFrom?: string | undefined;
   dateTo?: string | undefined;
+  type?: TransactionType | undefined;
+  categoryId?: string | undefined;
+  sortBy: TransactionSortBy;
+  sortOrder: TransactionSortOrder;
   page: number;
   limit: number;
 }
@@ -68,7 +79,11 @@ const TRANSACTION_LIST_COLUMNS = {
   updatedAt: transactions.updatedAt,
 };
 
-const buildScopedConditions = (userId: string, query: FindAllByUserIdQuery): SQL[] => {
+const buildScopedConditions = (
+  userId: string,
+  query: FindAllByUserIdQuery,
+  categoryIdList: string[] | undefined,
+): SQL[] => {
   const conditions: SQL[] = [eq(transactions.userId, userId)];
 
   if (query.dateFrom !== undefined) {
@@ -79,7 +94,27 @@ const buildScopedConditions = (userId: string, query: FindAllByUserIdQuery): SQL
     conditions.push(lte(transactions.date, query.dateTo));
   }
 
+  if (query.type !== undefined) {
+    conditions.push(eq(transactions.type, query.type));
+  }
+
+  if (categoryIdList !== undefined) {
+    conditions.push(inArray(transactions.categoryId, categoryIdList));
+  }
+
   return conditions;
+};
+
+const SORT_COLUMN_BY_KEY: Record<TransactionSortBy, AnyColumn> = {
+  date: transactions.date,
+  amount: transactions.amount,
+};
+
+const buildOrderBy = (sortBy: TransactionSortBy, sortOrder: TransactionSortOrder): SQL[] => {
+  const primaryColumn = SORT_COLUMN_BY_KEY[sortBy];
+  const applyDirection = sortOrder === 'asc' ? asc : desc;
+
+  return [applyDirection(primaryColumn), desc(transactions.id)];
 };
 
 const mapRowToResponse = (row: {
@@ -116,11 +151,16 @@ export class TransactionsRepository {
     userId: string,
     query: FindAllByUserIdQuery,
   ): Promise<FindAllByUserIdResult> {
-    const whereClause = and(...buildScopedConditions(userId, query));
+    const categoryIdList =
+      query.categoryId === undefined
+        ? undefined
+        : await this.getCategorySubtreeIds(userId, query.categoryId);
+
+    const whereClause = and(...buildScopedConditions(userId, query, categoryIdList));
 
     const dataQuery = this.selectJoinedTransactions()
       .where(whereClause)
-      .orderBy(desc(transactions.date), desc(transactions.id))
+      .orderBy(...buildOrderBy(query.sortBy, query.sortOrder))
       .limit(query.limit)
       .offset((query.page - 1) * query.limit);
 
@@ -129,6 +169,24 @@ export class TransactionsRepository {
     const [rows, totalResult] = await Promise.all([dataQuery, countQuery]);
 
     return { data: rows.map(mapRowToResponse), total: totalResult[0]?.total ?? 0 };
+  }
+
+  private async getCategorySubtreeIds(userId: string, categoryId: string): Promise<string[]> {
+    const result = await this.db.execute<{ id: string }>(sql`
+      WITH RECURSIVE subtree AS (
+        SELECT id, 1 AS depth
+        FROM transaction_categories
+        WHERE id = ${categoryId} AND user_id = ${userId}
+        UNION ALL
+        SELECT tc.id, s.depth + 1
+        FROM transaction_categories tc
+        INNER JOIN subtree s ON tc.parent_id = s.id
+        WHERE tc.user_id = ${userId} AND s.depth < ${SUBTREE_MAX_DEPTH}
+      )
+      SELECT id FROM subtree
+    `);
+
+    return result.rows.map((row) => row.id);
   }
 
   async findOneByUserIdAndId(userId: string, id: string): Promise<TransactionResponseDto | null> {

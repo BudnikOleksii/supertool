@@ -1,10 +1,13 @@
 import { revalidatePath } from 'next/cache';
 
 import { redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
+import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '@supertool/shared/constants/pagination';
+
+import type { TransactionViewParams } from './build-transactions-redirect-query';
 
 import { fetchTransactions } from '../../../../actions/fetch-transactions';
 import { ROUTES } from '../../../../constants/routes';
-import { EMPTY_LIST_LENGTH, FIRST_PAGE, TRANSACTIONS_PAGE_SIZE } from '../constants';
+import { EMPTY_COUNT } from '../constants';
 import { buildTransactionsRedirectQuery } from './build-transactions-redirect-query';
 import { getMonthDateRange, parsePeriod } from './period';
 
@@ -25,18 +28,26 @@ const getLastPageForPeriod = async (period: string): Promise<number> => {
 
   const { total } = result.transactions.meta;
 
-  if (total === EMPTY_LIST_LENGTH) {
+  if (total === EMPTY_COUNT) {
     return FIRST_PAGE;
   }
 
-  return Math.ceil(total / TRANSACTIONS_PAGE_SIZE);
+  return Math.ceil(total / DEFAULT_PAGE_SIZE);
 };
 
-export const redirectAfterTransactionDelete = async (
-  period: string,
-  page: number,
-  locale: string,
-): Promise<never> => {
+interface RedirectAfterDeleteParams {
+  period: string;
+  page: number;
+  locale: string;
+  view: TransactionViewParams;
+}
+
+export const redirectAfterTransactionDelete = async ({
+  period,
+  page,
+  locale,
+  view,
+}: RedirectAfterDeleteParams): Promise<never> => {
   const lastPage = await getLastPageForPeriod(period);
   const targetPage = Math.min(page, lastPage);
 
@@ -45,7 +56,7 @@ export const redirectAfterTransactionDelete = async (
   return redirect({
     href: {
       pathname: ROUTES.transactions,
-      query: buildTransactionsRedirectQuery(period, targetPage),
+      query: buildTransactionsRedirectQuery(period, targetPage, view),
     },
     locale,
   });

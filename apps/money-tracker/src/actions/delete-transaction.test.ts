@@ -37,6 +37,12 @@ const CURRENT_PAGE = 2;
 const LOCALE = 'en';
 const SINGLE_PAGE_TOTAL = 10;
 const TWO_PAGE_TOTAL = 60;
+const VIEW = {
+  type: 'expense',
+  categoryId: 'category-1',
+  sortBy: 'amount',
+  sortOrder: 'asc',
+} as const;
 
 describe('deleteTransaction', () => {
   afterEach(() => {
@@ -52,6 +58,7 @@ describe('deleteTransaction', () => {
       period: PERIOD,
       page: CURRENT_PAGE,
       locale: LOCALE,
+      view: VIEW,
     });
 
     expect(transactionsRemove).toHaveBeenCalledWith({
@@ -60,7 +67,16 @@ describe('deleteTransaction', () => {
     });
     expect(revalidatePath).toHaveBeenCalledWith('/transactions');
     expect(redirect).toHaveBeenCalledWith({
-      href: { pathname: '/transactions', query: { period: PERIOD } },
+      href: {
+        pathname: '/transactions',
+        query: {
+          period: PERIOD,
+          type: 'expense',
+          categoryId: 'category-1',
+          sortBy: 'amount',
+          sortOrder: 'asc',
+        },
+      },
       locale: LOCALE,
     });
   });
@@ -74,10 +90,21 @@ describe('deleteTransaction', () => {
       period: PERIOD,
       page: CURRENT_PAGE,
       locale: LOCALE,
+      view: VIEW,
     });
 
     expect(redirect).toHaveBeenCalledWith({
-      href: { pathname: '/transactions', query: { period: PERIOD, page: '2' } },
+      href: {
+        pathname: '/transactions',
+        query: {
+          period: PERIOD,
+          page: '2',
+          type: 'expense',
+          categoryId: 'category-1',
+          sortBy: 'amount',
+          sortOrder: 'asc',
+        },
+      },
       locale: LOCALE,
     });
   });
@@ -92,6 +119,7 @@ describe('deleteTransaction', () => {
       period: PERIOD,
       page: CURRENT_PAGE,
       locale: LOCALE,
+      view: VIEW,
     });
 
     expect(actual).toEqual({

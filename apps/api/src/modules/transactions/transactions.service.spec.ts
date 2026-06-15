@@ -1,12 +1,14 @@
 import { NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 
+import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '@supertool/shared/constants/pagination';
+import { DEFAULT_SORT_BY, DEFAULT_SORT_ORDER } from '@supertool/shared/constants/transaction-sort';
+
 import type { CreateTransactionDto } from './dtos/create-transaction.dto';
 import type { TransactionResponseDto } from './dtos/transaction-response.dto';
 import type { UpdateTransactionDto } from './dtos/update-transaction.dto';
 import type { TransactionsRepository } from './transactions.repository';
 
-import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '../../shared/constants/pagination';
 import { TransactionsService } from './transactions.service';
 
 const buildTransaction = (id: string): TransactionResponseDto => ({
@@ -35,6 +37,10 @@ describe('TransactionsService', () => {
     expect(findAllByUserId).toHaveBeenCalledWith('user-id', {
       dateFrom: undefined,
       dateTo: undefined,
+      type: undefined,
+      categoryId: undefined,
+      sortBy: DEFAULT_SORT_BY,
+      sortOrder: DEFAULT_SORT_ORDER,
       page: FIRST_PAGE,
       limit: DEFAULT_PAGE_SIZE,
     });
@@ -55,10 +61,43 @@ describe('TransactionsService', () => {
     expect(findAllByUserId).toHaveBeenCalledWith('user-id', {
       dateFrom: '2025-02-01',
       dateTo: '2025-02-28',
+      type: undefined,
+      categoryId: undefined,
+      sortBy: DEFAULT_SORT_BY,
+      sortOrder: DEFAULT_SORT_ORDER,
       page: 2,
       limit: 10,
     });
     expect(actual.meta).toEqual({ page: 2, limit: 10, total: 0 });
+  });
+
+  it('forwards supplied filters and sort to the repository', async () => {
+    const findAllByUserId = vi.fn().mockResolvedValue({ data: [], total: 0 });
+    const repository = { findAllByUserId };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    const inputQuery = {
+      dateFrom: '2025-02-01',
+      dateTo: '2025-02-28',
+      type: 'expense' as const,
+      categoryId: 'category-id',
+      sortBy: 'amount' as const,
+      sortOrder: 'asc' as const,
+      page: 1,
+      limit: 50,
+    };
+    await service.findAll('user-id', inputQuery);
+
+    expect(findAllByUserId).toHaveBeenCalledWith('user-id', {
+      dateFrom: '2025-02-01',
+      dateTo: '2025-02-28',
+      type: 'expense',
+      categoryId: 'category-id',
+      sortBy: 'amount',
+      sortOrder: 'asc',
+      page: 1,
+      limit: 50,
+    });
   });
 
   it('throws NotFoundException when the category does not belong to the user', async () => {

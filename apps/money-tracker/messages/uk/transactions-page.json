@@ -28,9 +28,36 @@
     "previous": "Попередній місяць",
     "next": "Наступний місяць"
   },
+  "filters": {
+    "typeLabel": "Фільтрувати за типом",
+    "typeAll": "Усі типи",
+    "typeIncome": "Дохід",
+    "typeExpense": "Витрата",
+    "categoryPlaceholder": "Усі категорії",
+    "categorySearchLabel": "Пошук категорій",
+    "categoryEmptyMessage": "Категорій не знайдено",
+    "categoryAll": "Усі категорії",
+    "sortByLabel": "Сортувати за",
+    "sortByDate": "Датою",
+    "sortByAmount": "Сумою",
+    "sortOrderLabel": "Порядок сортування",
+    "sortOrderDescending": "Спадання",
+    "sortOrderAscending": "Зростання",
+    "clear": "Очистити фільтри"
+  },
+  "pagination": {
+    "previous": "Попередня сторінка",
+    "next": "Наступна сторінка",
+    "info": "Сторінка {page} з {total}"
+  },
   "empty": {
     "title": "Немає транзакцій за цей місяць",
     "description": "Коли ви додасте транзакції за цей період, вони з’являться тут."
+  },
+  "noMatches": {
+    "title": "Немає транзакцій за вашими фільтрами",
+    "description": "Спробуйте змінити або очистити фільтри, щоб побачити більше транзакцій.",
+    "clear": "Очистити фільтри"
   },
   "error": {
     "title": "Не вдалося завантажити транзакції",
