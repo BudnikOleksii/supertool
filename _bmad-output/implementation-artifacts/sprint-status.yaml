@@ -71,7 +71,7 @@ development_status:
   2-4-edit-delete-transactions: done
   2-5-filter-sort-the-list: done
   2-6-organize-categories: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
   # Epic 3: Dashboard & Stats
   epic-3: backlog
