@@ -156,6 +156,23 @@ export class TransactionCategoriesService {
     return category;
   }
 
+  private async loadReassignTargetOrThrow(
+    targetId: string,
+    userId: string,
+    tx: DatabaseExecutor,
+  ): Promise<CategoryResponseDto> {
+    const target = await this.repository.findByIdScoped(targetId, userId, tx);
+
+    if (!target) {
+      throw new UnprocessableEntityException({
+        code: ErrorCode.UnprocessableEntity,
+        message: 'Reassignment target category not found',
+      });
+    }
+
+    return target;
+  }
+
   private async loadParentOrThrow(
     parentId: string,
     userId: string,
@@ -238,7 +255,7 @@ export class TransactionCategoriesService {
       });
     }
 
-    const target = await this.loadScopedOrThrow(targetId, params.userId, tx);
+    const target = await this.loadReassignTargetOrThrow(targetId, params.userId, tx);
     this.assertSameType(target.type, params.type);
 
     return targetId;
@@ -282,7 +299,7 @@ export class TransactionCategoriesService {
       });
     }
 
-    const target = await this.loadScopedOrThrow(targetId, params.userId, tx);
+    const target = await this.loadReassignTargetOrThrow(targetId, params.userId, tx);
     this.assertSameType(target.type, params.type);
     await this.assertChildTargetNotDescendant(targetId, params, tx);
   }

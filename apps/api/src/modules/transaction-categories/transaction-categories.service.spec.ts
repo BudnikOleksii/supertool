@@ -241,6 +241,38 @@ describe('TransactionCategoriesService.delete', () => {
     expect(repository.deleteScoped).toHaveBeenCalledWith('c1', 'user-id', FAKE_TX);
   });
 
+  it('rejects a missing transaction reassignment target with 422', async () => {
+    const repository = buildRepository({
+      findByIdScoped: vi
+        .fn()
+        .mockResolvedValueOnce(buildCategory({ id: 'c1', type: 'expense' }))
+        .mockResolvedValueOnce(undefined),
+      hasTransactions: vi.fn().mockResolvedValue(true),
+    });
+    const service = buildService(repository);
+
+    await expect(
+      service.delete('user-id', 'c1', { reassignTransactionsToCategoryId: 'missing' }),
+    ).rejects.toBeInstanceOf(UnprocessableEntityException);
+    expect(repository.deleteScoped).not.toHaveBeenCalled();
+  });
+
+  it('rejects a missing children reassignment target with 422', async () => {
+    const repository = buildRepository({
+      findByIdScoped: vi
+        .fn()
+        .mockResolvedValueOnce(buildCategory({ id: 'c1', type: 'expense' }))
+        .mockResolvedValueOnce(undefined),
+      hasChildren: vi.fn().mockResolvedValue(true),
+    });
+    const service = buildService(repository);
+
+    await expect(
+      service.delete('user-id', 'c1', { reassignChildrenToParentId: 'missing' }),
+    ).rejects.toBeInstanceOf(UnprocessableEntityException);
+    expect(repository.deleteScoped).not.toHaveBeenCalled();
+  });
+
   it('rejects reassigning transactions to a different type with 422', async () => {
     const repository = buildRepository({
       findByIdScoped: vi
