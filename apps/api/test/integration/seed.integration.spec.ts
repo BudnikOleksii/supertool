@@ -2,7 +2,6 @@ import type { StartedTestContainer } from 'testcontainers';
 
 import { resolve } from 'node:path';
 import { Pool } from 'pg';
-import { GenericContainer, Wait } from 'testcontainers';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import type { SeedSourceRecord } from '../../src/database/seeds/seed.types.js';
@@ -11,16 +10,18 @@ import { parseEnv } from '../../src/app/env.schema.js';
 import { deriveCategoryHierarchy } from '../../src/database/seeds/derive-category-hierarchy.js';
 import { loadSeedData } from '../../src/database/seeds/load-seed-data.js';
 import { assertDecimalSafeSums } from '../helpers/decimal-safe-sums.js';
+import {
+  BOOT_TIMEOUT_MS,
+  buildDatabaseUrl,
+  MIGRATIONS_FOLDER,
+  startPostgresContainer,
+} from '../helpers/postgres-container.js';
 
 process.env.TESTCONTAINERS_RYUK_DISABLED = 'true';
 
-const POSTGRES_PORT = 5432;
-const CONTAINER_READY_OCCURRENCES = 2;
-const BOOT_TIMEOUT_MS = 180_000;
 const EXPECTED_RECORD_COUNT = 1880;
 const DUAL_LEVEL_NAME_LIST = ["Здоров'я", 'Навчання', 'Одяг'];
 
-const migrationsFolder = resolve(process.cwd(), 'src/database/migrations');
 const seedDataDir = resolve(process.cwd(), 'src/database/data');
 
 let container: StartedTestContainer | undefined = undefined;
@@ -54,18 +55,6 @@ const loadOperator = async (email: string): Promise<{ id: string; role: string }
   return operator;
 };
 
-const startPostgresContainer = async (): Promise<StartedTestContainer> =>
-  new GenericContainer('postgres:16-alpine')
-    .withEnvironment({ POSTGRES_USER: 'test', POSTGRES_PASSWORD: 'test', POSTGRES_DB: 'test' })
-    .withExposedPorts(POSTGRES_PORT)
-    .withWaitStrategy(
-      Wait.forLogMessage(
-        /database system is ready to accept connections/u,
-        CONTAINER_READY_OCCURRENCES,
-      ),
-    )
-    .start();
-
 const countScopedRows = async (
   table: 'transactions' | 'transaction_categories',
   whereClause = '1 = 1',
@@ -80,7 +69,7 @@ const countScopedRows = async (
 beforeAll(async () => {
   recordList = loadSeedData(seedDataDir);
   container = await startPostgresContainer();
-  databaseUrl = `postgres://test:test@${container.getHost()}:${container.getMappedPort(POSTGRES_PORT)}/test`;
+  databaseUrl = buildDatabaseUrl(container);
   process.env.DATABASE_URL = databaseUrl;
 
   ({ prepareDatabase } = await import('../../src/database/prepare-database.js'));
@@ -89,7 +78,7 @@ beforeAll(async () => {
 
   pool = new Pool({ connectionString: databaseUrl });
 
-  await prepareDatabase({ databaseUrl, migrationsFolder });
+  await prepareDatabase({ databaseUrl, migrationsFolder: MIGRATIONS_FOLDER });
 
   ({ id: operatorId, role: operatorRole } = await loadOperator(parseEnv().SEED_OPERATOR_EMAIL));
 }, BOOT_TIMEOUT_MS);

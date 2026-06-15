@@ -1,38 +1,29 @@
 import type { INestApplication } from '@nestjs/common';
 import type { StartedTestContainer } from 'testcontainers';
 
-import { Test } from '@nestjs/testing';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { randomUUID } from 'node:crypto';
-import { resolve } from 'node:path';
 import { Pool } from 'pg';
-import { GenericContainer, Wait } from 'testcontainers';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
+
+import { buildTestUser, createAuthClient } from '../helpers/auth-client.js';
+import { createHttpClient } from '../helpers/http-client.js';
+import { bootIntegrationApp, configureTestEnvironment } from '../helpers/integration-app.js';
+import {
+  BOOT_TIMEOUT_MS,
+  buildDatabaseUrl,
+  runMigrations,
+  startPostgresContainer,
+} from '../helpers/postgres-container.js';
 
 process.env.TESTCONTAINERS_RYUK_DISABLED = 'true';
 
-const POSTGRES_PORT = 5432;
-const HTTP_OK = 200;
-const HTTP_CREATED = 201;
-const HTTP_NO_CONTENT = 204;
-const HTTP_NOT_FOUND = 404;
-const HTTP_CONFLICT = 409;
-const HTTP_UNPROCESSABLE = 422;
-const CONTAINER_READY_OCCURRENCES = 2;
-const BOOT_TIMEOUT_MS = 180_000;
 const NO_ROWS = 0;
 const EXPECTED_TARGET_TRANSACTIONS = 2;
 const EXPECTED_GRANDCHILD_TRANSACTIONS = 1;
 
 const CATEGORIES_PATH = '/api/v1/transaction-categories';
-const migrationsFolder = resolve(process.cwd(), 'src/database/migrations');
-
-interface TestUser {
-  name: string;
-  email: string;
-  password: string;
-}
 
 interface CategoryBody {
   id: string;
@@ -43,16 +34,14 @@ interface CategoryBody {
   updatedAt: string;
 }
 
-const buildTestUser = (suffix: string): TestUser => ({
-  name: `User ${suffix}`,
-  email: `${suffix}@example.com`,
-  password: 'supersecret123',
-});
-
 let container: StartedTestContainer | undefined = undefined;
 let app: INestApplication | undefined = undefined;
 let pool: Pool | undefined = undefined;
 let baseUrl = '';
+
+const httpClient = createHttpClient(() => baseUrl);
+const { readJson, getJson, postJson, patchJson, deleteJson } = httpClient;
+const { registerAndSignIn } = createAuthClient(httpClient);
 
 const requirePool = (): Pool => {
   if (pool === undefined) {
@@ -60,57 +49,6 @@ const requirePool = (): Pool => {
   }
 
   return pool;
-};
-
-const readJson = async <T>(response: Response): Promise<T> => (await response.json()) as T;
-
-const buildHeaders = (cookie?: string): Record<string, string> => ({
-  'Content-Type': 'application/json',
-  ...(cookie === undefined ? {} : { Cookie: cookie }),
-});
-
-const postJson = async (path: string, body: unknown, cookie?: string): Promise<Response> =>
-  fetch(`${baseUrl}${path}`, {
-    method: 'POST',
-    headers: buildHeaders(cookie),
-    body: JSON.stringify(body),
-  });
-
-const patchJson = async (path: string, body: unknown, cookie?: string): Promise<Response> =>
-  fetch(`${baseUrl}${path}`, {
-    method: 'PATCH',
-    headers: buildHeaders(cookie),
-    body: JSON.stringify(body),
-  });
-
-const deleteJson = async (path: string, body: unknown, cookie?: string): Promise<Response> =>
-  fetch(`${baseUrl}${path}`, {
-    method: 'DELETE',
-    headers: buildHeaders(cookie),
-    body: JSON.stringify(body),
-  });
-
-const getJson = async (path: string, cookie?: string): Promise<Response> =>
-  fetch(`${baseUrl}${path}`, { headers: cookie === undefined ? {} : { Cookie: cookie } });
-
-const extractSessionCookie = (response: Response): string => {
-  const sessionCookie = response.headers
-    .getSetCookie()
-    .find((cookie) => cookie.startsWith('better-auth.session_token='));
-
-  if (sessionCookie === undefined) {
-    throw new Error('expected a better-auth session cookie in the response');
-  }
-
-  return sessionCookie.split(';')[0] ?? '';
-};
-
-const registerAndSignIn = async (user: TestUser): Promise<string> => {
-  await postJson('/api/v1/auth/sign-up/email', user);
-
-  return extractSessionCookie(
-    await postJson('/api/v1/auth/sign-in/email', { email: user.email, password: user.password }),
-  );
 };
 
 const createCategory = async (
@@ -238,52 +176,13 @@ const seedDependentsScenario = async (
   return { withTransactions, withChildrenParent };
 };
 
-const startPostgresContainer = async (): Promise<StartedTestContainer> =>
-  new GenericContainer('postgres:16-alpine')
-    .withEnvironment({ POSTGRES_USER: 'test', POSTGRES_PASSWORD: 'test', POSTGRES_DB: 'test' })
-    .withExposedPorts(POSTGRES_PORT)
-    .withWaitStrategy(
-      Wait.forLogMessage(
-        /database system is ready to accept connections/u,
-        CONTAINER_READY_OCCURRENCES,
-      ),
-    )
-    .start();
-
-const configureTestEnvironment = (databaseUrl: string): void => {
-  process.env.DATABASE_URL = databaseUrl;
-  process.env.BETTER_AUTH_SECRET = 'integration-test-secret';
-  process.env.AUTH_RATE_LIMIT_DISABLED = 'true';
-};
-
-const runMigrations = async (databaseUrl: string): Promise<void> => {
-  const migrationPool = new Pool({ connectionString: databaseUrl });
-  try {
-    await migrate(drizzle(migrationPool), { migrationsFolder });
-  } finally {
-    await migrationPool.end();
-  }
-};
-
-const bootApp = async (): Promise<INestApplication> => {
-  const { AppModule } = await import('../../src/app/app.module.js');
-  const { configureAppRouting } = await import('../../src/app/configure-app-routing.js');
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-  const nestApp = moduleRef.createNestApplication({ bodyParser: false });
-  configureAppRouting(nestApp);
-  await nestApp.listen(0);
-
-  return nestApp;
-};
-
 beforeAll(async () => {
   container = await startPostgresContainer();
-  const databaseUrl = `postgres://test:test@${container.getHost()}:${container.getMappedPort(POSTGRES_PORT)}/test`;
+  const databaseUrl = buildDatabaseUrl(container);
   configureTestEnvironment(databaseUrl);
   await runMigrations(databaseUrl);
   pool = new Pool({ connectionString: databaseUrl });
-  app = await bootApp();
-  baseUrl = await app.getUrl();
+  ({ app, baseUrl } = await bootIntegrationApp());
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
@@ -308,7 +207,7 @@ describe('transaction categories (Testcontainers Postgres)', () => {
       cookie,
     );
 
-    expect(response.status).toBe(HTTP_NO_CONTENT);
+    expect(response.status).toBe(HTTP_STATUS_CODE.NoContent);
     await verifyReassignIntegrity(scenario, cookie);
   });
 
@@ -329,8 +228,8 @@ describe('transaction categories (Testcontainers Postgres)', () => {
       cookie,
     );
 
-    expect(transactionResponse.status).toBe(HTTP_UNPROCESSABLE);
-    expect(childrenResponse.status).toBe(HTTP_UNPROCESSABLE);
+    expect(transactionResponse.status).toBe(HTTP_STATUS_CODE.UnprocessableEntity);
+    expect(childrenResponse.status).toBe(HTTP_STATUS_CODE.UnprocessableEntity);
   });
 
   it('prevents moving a category under one of its descendants (409)', async () => {
@@ -348,7 +247,7 @@ describe('transaction categories (Testcontainers Postgres)', () => {
       cookie,
     );
 
-    expect(response.status).toBe(HTTP_CONFLICT);
+    expect(response.status).toBe(HTTP_STATUS_CODE.Conflict);
   });
 
   it('scopes reads, updates, and deletes to the owning user (404 across users)', async () => {
@@ -369,8 +268,8 @@ describe('transaction categories (Testcontainers Postgres)', () => {
     );
 
     expect(intruderList.map((category) => category.id)).not.toContain(ownerCategory.id);
-    expect(renameResponse.status).toBe(HTTP_NOT_FOUND);
-    expect(deleteResponse.status).toBe(HTTP_NOT_FOUND);
+    expect(renameResponse.status).toBe(HTTP_STATUS_CODE.NotFound);
+    expect(deleteResponse.status).toBe(HTTP_STATUS_CODE.NotFound);
   });
 
   it('creates and lists a category for the owner', async () => {
@@ -380,8 +279,8 @@ describe('transaction categories (Testcontainers Postgres)', () => {
     const listResponse = await getJson(CATEGORIES_PATH, cookie);
     const list = await readJson<CategoryBody[]>(listResponse);
 
-    expect(created.status).toBe(HTTP_CREATED);
-    expect(listResponse.status).toBe(HTTP_OK);
+    expect(created.status).toBe(HTTP_STATUS_CODE.Created);
+    expect(listResponse.status).toBe(HTTP_STATUS_CODE.Ok);
     expect(list.some((category) => category.name === 'Salary')).toBe(true);
   });
 });
