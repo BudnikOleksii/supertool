@@ -5,9 +5,9 @@ import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '@supertool/shared/constants/pagin
 
 import { fetchTransactions } from '../../../../actions/fetch-transactions';
 import { ROUTES } from '../../../../constants/routes';
+import { getMonthDateRange, parsePeriod } from '../../../../utils/period';
 import { buildTransactionsRedirectQuery } from './build-transactions-redirect-query';
 import { getNextCalendarDate } from './get-next-calendar-date';
-import { getMonthDateRange, parsePeriod } from './period';
 
 const PERIOD_START_INDEX = 0;
 const PERIOD_LENGTH = 7;

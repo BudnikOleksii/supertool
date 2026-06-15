@@ -8,7 +8,7 @@ import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
 import { ROUTES } from '../../../../../constants/routes';
-import { PERIOD_SEARCH_PARAM } from '../../constants';
+import { PERIOD_SEARCH_PARAM } from '../../../../../constants/search-params';
 import styles from './TransactionEmptyState.module.scss';
 
 interface Props {

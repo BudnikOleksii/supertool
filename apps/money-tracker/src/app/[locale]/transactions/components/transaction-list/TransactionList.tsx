@@ -19,7 +19,7 @@ import {
   TableRow,
 } from '@supertool/ui/src/components/molecules/table/Table';
 
-import { formatTransactionAmount } from '../../utils/format-transaction-amount';
+import { formatAmount } from '../../../../../utils/format-amount';
 import { formatTransactionDate } from '../../utils/format-transaction-date';
 import { TransactionRowActions } from '../transaction-row-actions/TransactionRowActions';
 import styles from './TransactionList.module.scss';
@@ -72,11 +72,7 @@ export const TransactionList: FC<Props> = async ({
       <TableBody>
         {transactionList.map((transaction) => {
           const formattedDate = formatTransactionDate(transaction.date, locale);
-          const formattedAmount = formatTransactionAmount(
-            transaction.amount,
-            transaction.currency,
-            locale,
-          );
+          const formattedAmount = formatAmount(transaction.amount, transaction.currency, locale);
 
           return (
             <TableRow key={transaction.id}>

@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type { HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, TransactionsCreateData, TransactionsCreateErrors, TransactionsCreateResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, TransactionsFindOneData, TransactionsFindOneErrors, TransactionsFindOneResponses, TransactionsRemoveData, TransactionsRemoveErrors, TransactionsRemoveResponses, TransactionsUpdateData, TransactionsUpdateErrors, TransactionsUpdateResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
+import type { AnalyticsGetMonthlySummaryData, AnalyticsGetMonthlySummaryErrors, AnalyticsGetMonthlySummaryResponses, HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, TransactionsCreateData, TransactionsCreateErrors, TransactionsCreateResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, TransactionsFindOneData, TransactionsFindOneErrors, TransactionsFindOneResponses, TransactionsRemoveData, TransactionsRemoveErrors, TransactionsRemoveResponses, TransactionsUpdateData, TransactionsUpdateErrors, TransactionsUpdateResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -113,5 +113,11 @@ export class TransactionsApiService {
                 ...options.headers
             }
         });
+    }
+}
+
+export class AnalyticsApiService {
+    public static analyticsGetMonthlySummary<ThrowOnError extends boolean = false>(options: Options<AnalyticsGetMonthlySummaryData, ThrowOnError>): RequestResult<AnalyticsGetMonthlySummaryResponses, AnalyticsGetMonthlySummaryErrors, ThrowOnError> {
+        return (options.client ?? client).get<AnalyticsGetMonthlySummaryResponses, AnalyticsGetMonthlySummaryErrors, ThrowOnError>({ url: '/api/v1/analytics/summary', ...options });
     }
 }

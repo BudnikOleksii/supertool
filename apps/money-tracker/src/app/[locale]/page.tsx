@@ -25,9 +25,10 @@ const HomePage: FC<Props> = (props) => {
     <section>
       <h1>{translate('title')}</h1>
       <p>{translate('description')}</p>
-      <Button component={Link} href={ROUTES.categories}>
-        {translate('categoriesLink')}
+      <Button component={Link} href={ROUTES.dashboard}>
+        {translate('dashboardLink')}
       </Button>
+      <Link href={ROUTES.categories}>{translate('categoriesLink')}</Link>
       <Link href={ROUTES.transactions}>{translate('transactionsLink')}</Link>
     </section>
   );

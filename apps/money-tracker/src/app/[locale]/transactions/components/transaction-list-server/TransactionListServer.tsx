@@ -12,9 +12,9 @@ import type { TransactionViewParams } from '../../utils/build-transactions-redir
 
 import { fetchTransactions } from '../../../../../actions/fetch-transactions';
 import { ROUTES } from '../../../../../constants/routes';
+import { getMonthDateRange, parsePeriod } from '../../../../../utils/period';
 import { EMPTY_COUNT } from '../../constants';
 import { buildTransactionsRedirectQuery } from '../../utils/build-transactions-redirect-query';
-import { getMonthDateRange, parsePeriod } from '../../utils/period';
 import { TransactionEmptyState } from '../transaction-empty-state/TransactionEmptyState';
 import { TransactionError } from '../transaction-error/TransactionError';
 import { TransactionList } from '../transaction-list/TransactionList';

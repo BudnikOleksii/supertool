@@ -11,17 +11,16 @@ import type {
 } from '@supertool/shared/constants/transaction-sort';
 import type { TransactionType } from '@supertool/shared/generated/types.gen';
 
+import { PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../../../../constants/search-params';
 import { TRANSACTION_TYPE_LIST } from '../../../../constants/transaction';
+import { normalizeSearchParam } from '../../../../utils/normalize-search-param';
+import { formatPeriod, getCurrentPeriod, parsePeriod } from '../../../../utils/period';
 import {
   CATEGORY_SEARCH_PARAM,
-  FIRST_ELEMENT_INDEX,
-  PAGE_SEARCH_PARAM,
-  PERIOD_SEARCH_PARAM,
   SORT_BY_SEARCH_PARAM,
   SORT_ORDER_SEARCH_PARAM,
   TYPE_SEARCH_PARAM,
 } from '../constants';
-import { formatPeriod, getCurrentPeriod, parsePeriod } from './period';
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
 
@@ -33,9 +32,6 @@ export interface TransactionsSearchParams {
   sortBy: TransactionSortBy;
   sortOrder: TransactionSortOrder;
 }
-
-const normalizeParam = (value: string | string[] | undefined): string | undefined =>
-  Array.isArray(value) ? value[FIRST_ELEMENT_INDEX] : value;
 
 const parsePage = (value: string | undefined): number => {
   const parsedPage = Number(value);
@@ -62,15 +58,15 @@ const parseSortOrder = (value: string | undefined): TransactionSortOrder =>
 export const parseTransactionsSearchParams = (
   searchParams: RawSearchParams,
 ): TransactionsSearchParams => {
-  const rawPeriod = normalizeParam(searchParams[PERIOD_SEARCH_PARAM]);
+  const rawPeriod = normalizeSearchParam(searchParams[PERIOD_SEARCH_PARAM]);
   const periodParts = parsePeriod(rawPeriod ?? getCurrentPeriod());
 
   return {
     period: formatPeriod(periodParts),
-    page: parsePage(normalizeParam(searchParams[PAGE_SEARCH_PARAM])),
-    type: parseType(normalizeParam(searchParams[TYPE_SEARCH_PARAM])),
-    categoryId: parseCategoryId(normalizeParam(searchParams[CATEGORY_SEARCH_PARAM])),
-    sortBy: parseSortBy(normalizeParam(searchParams[SORT_BY_SEARCH_PARAM])),
-    sortOrder: parseSortOrder(normalizeParam(searchParams[SORT_ORDER_SEARCH_PARAM])),
+    page: parsePage(normalizeSearchParam(searchParams[PAGE_SEARCH_PARAM])),
+    type: parseType(normalizeSearchParam(searchParams[TYPE_SEARCH_PARAM])),
+    categoryId: parseCategoryId(normalizeSearchParam(searchParams[CATEGORY_SEARCH_PARAM])),
+    sortBy: parseSortBy(normalizeSearchParam(searchParams[SORT_BY_SEARCH_PARAM])),
+    sortOrder: parseSortOrder(normalizeSearchParam(searchParams[SORT_ORDER_SEARCH_PARAM])),
   };
 };

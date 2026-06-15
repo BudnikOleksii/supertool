@@ -10,8 +10,8 @@ import { Typography } from '@supertool/ui/src/components/atoms/typography/Typogr
 
 import { fetchCategoryList } from '../../../actions/fetch-category-list';
 import { fetchProfile } from '../../../actions/fetch-profile';
+import { MonthStepper } from '../../../components/month-stepper/MonthStepper';
 import { ROUTES } from '../../../constants/routes';
-import { MonthStepper } from './components/month-stepper/MonthStepper';
 import { TransactionFilters } from './components/transaction-filters/TransactionFilters';
 import { TransactionListServer } from './components/transaction-list-server/TransactionListServer';
 import { TransactionListSkeleton } from './components/transaction-list-skeleton/TransactionListSkeleton';

@@ -160,5 +160,7 @@ export const CURRENCY_CODE_LIST = [
 
 export type CurrencyCode = (typeof CURRENCY_CODE_LIST)[number];
 
+export const NO_CURRENCY = '';
+
 export const checkIsCurrencyCode = (value: string): value is CurrencyCode =>
   CURRENCY_CODE_LIST.some((currencyCode) => currencyCode === value);

@@ -1,6 +1,7 @@
 {
   "title": "Money Tracker",
   "description": "Track your income and expenses in one place.",
+  "dashboardLink": "Open dashboard",
   "categoriesLink": "Manage categories",
   "transactionsLink": "View transactions"
 }

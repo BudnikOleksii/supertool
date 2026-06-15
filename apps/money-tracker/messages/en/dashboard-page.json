@@ -1,0 +1,16 @@
+{
+  "title": "Dashboard",
+  "summary": {
+    "income": "Income",
+    "expense": "Expense",
+    "net": "Net"
+  },
+  "empty": {
+    "title": "No activity this month",
+    "description": "Add transactions for this period to see your monthly summary."
+  },
+  "error": {
+    "title": "Couldn’t load summary",
+    "description": "Something went wrong while loading this month. Please try again."
+  }
+}

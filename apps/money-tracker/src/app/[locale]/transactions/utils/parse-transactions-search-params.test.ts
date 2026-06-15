@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { FIRST_PAGE, MAX_PAGE } from '@supertool/shared/constants/pagination';
 
+import { getCurrentPeriod } from '../../../../utils/period';
 import { parseTransactionsSearchParams } from './parse-transactions-search-params';
-import { getCurrentPeriod } from './period';
 
 describe('parseTransactionsSearchParams', () => {
   it('reads a valid period and page from the search params', () => {

@@ -1,5 +1,9 @@
 {
   "label": "Tools",
+  "monthNav": {
+    "previous": "Previous month",
+    "next": "Next month"
+  },
   "tools": {
     "moneyTracker": "Money Tracker"
   },
