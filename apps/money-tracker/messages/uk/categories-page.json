@@ -1,0 +1,51 @@
+{
+  "title": "Категорії",
+  "description": "Упорядкуйте категорії доходів і витрат у звичну для вас структуру.",
+  "createButton": "Нова категорія",
+  "editButton": "Редагувати",
+  "deleteButton": "Видалити",
+  "incomeType": "Дохід",
+  "expenseType": "Витрати",
+  "emptyTitle": "Ще немає категорій",
+  "emptyDescription": "Створіть першу категорію, щоб почати впорядковувати свої гроші.",
+  "noSubcategories": "Немає підкатегорій",
+  "form": {
+    "createTitle": "Нова категорія",
+    "editTitle": "Редагувати категорію",
+    "backToCategories": "Назад до категорій",
+    "nameLabel": "Назва",
+    "namePlaceholder": "напр. Продукти",
+    "typeLabel": "Тип",
+    "parentLabel": "Батьківська категорія",
+    "parentPlaceholder": "Оберіть батьківську категорію",
+    "parentSearchLabel": "Пошук категорій",
+    "parentEmptyMessage": "Немає відповідних категорій",
+    "topLevelOption": "Без батьківської (верхній рівень)",
+    "submitCreate": "Створити категорію",
+    "submitSave": "Зберегти зміни",
+    "cancel": "Скасувати"
+  },
+  "delete": {
+    "title": "Видалити категорію",
+    "description": "Видалити «{name}»? Цю дію не можна скасувати.",
+    "reassignDescription": "«{name}» усе ще має пов’язані елементи. Оберіть, куди їх перемістити перед видаленням.",
+    "reassignTransactionsLabel": "Перемістити транзакції до",
+    "reassignTransactionsPlaceholder": "Оберіть категорію",
+    "reassignChildrenLabel": "Перемістити підкатегорії до",
+    "reassignChildrenTopLevel": "Верхній рівень (без батьківської)",
+    "confirm": "Видалити",
+    "cancel": "Скасувати"
+  },
+  "errors": {
+    "nameRequired": "Введіть назву категорії.",
+    "typeRequired": "Оберіть тип.",
+    "reassignTransactionsRequired": "Оберіть, куди перемістити транзакції.",
+    "reassignChildrenRequired": "Оберіть, куди перемістити підкатегорії.",
+    "VALIDATION_ERROR": "Деякі дані некоректні. Перевірте поля та спробуйте ще раз.",
+    "CONFLICT": "Категорія з такою назвою вже існує в цьому місці.",
+    "UNPROCESSABLE_ENTITY": "Ця категорія має пов’язані елементи. Спершу оберіть, куди їх перемістити.",
+    "NOT_FOUND": "Цієї категорії більше не існує.",
+    "UNAUTHORIZED": "Ваша сесія завершилася. Увійдіть знову, щоб продовжити.",
+    "UNKNOWN": "Щось пішло не так. Спробуйте ще раз."
+  }
+}

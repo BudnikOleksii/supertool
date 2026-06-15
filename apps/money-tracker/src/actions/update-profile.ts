@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 
 import { createServerApiClient } from '@supertool/next-shared/src/client/create-server-api-client';
 import type { ActionState } from '@supertool/next-shared/src/types/action-state';
+import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-state';
+import { ErrorCode } from '@supertool/shared/constants/error-codes';
 import { UsersApiService } from '@supertool/shared/generated/sdk.gen';
 
 import type { ProfileFormValues } from '../app/[locale]/settings/constants/profile-form-schema';
@@ -21,7 +23,7 @@ export const updateProfile = async (values: ProfileFormValues): Promise<ActionSt
   const parsed = profileFormSchema.safeParse(values);
 
   if (!parsed.success) {
-    return { status: 'error', code: 'VALIDATION_ERROR' };
+    return { status: 'error', code: ErrorCode.ValidationError };
   }
 
   const cookieStore = await cookies();
@@ -39,7 +41,7 @@ export const updateProfile = async (values: ProfileFormValues): Promise<ActionSt
   });
 
   if (error || !data) {
-    return { status: 'error', code: error?.code ?? 'UNKNOWN', message: error?.message };
+    return { status: 'error', code: error?.code ?? UNKNOWN_ERROR_CODE, message: error?.message };
   }
 
   revalidateProfileViews();

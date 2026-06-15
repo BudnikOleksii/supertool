@@ -43,6 +43,31 @@ export type UpdateUserDto = {
 
 export type TransactionType = 'income' | 'expense';
 
+export type CategoryResponseDto = {
+    id: string;
+    name: string;
+    type: TransactionType;
+    parentId: string | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type CreateCategoryDto = {
+    name: string;
+    type: TransactionType;
+    parentId?: string;
+};
+
+export type UpdateCategoryDto = {
+    name?: string;
+    parentId?: string | null;
+};
+
+export type DeleteCategoryDto = {
+    reassignTransactionsToCategoryId?: string;
+    reassignChildrenToParentId?: string | null;
+};
+
 export type TransactionResponseDto = {
     id: string;
     date: string;
@@ -119,6 +144,93 @@ export type UsersUpdateMeResponses = {
 };
 
 export type UsersUpdateMeResponse = UsersUpdateMeResponses[keyof UsersUpdateMeResponses];
+
+export type TransactionCategoriesFindAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/transaction-categories';
+};
+
+export type TransactionCategoriesFindAllErrors = {
+    401: ErrorResponseDto;
+};
+
+export type TransactionCategoriesFindAllError = TransactionCategoriesFindAllErrors[keyof TransactionCategoriesFindAllErrors];
+
+export type TransactionCategoriesFindAllResponses = {
+    200: Array<CategoryResponseDto>;
+};
+
+export type TransactionCategoriesFindAllResponse = TransactionCategoriesFindAllResponses[keyof TransactionCategoriesFindAllResponses];
+
+export type TransactionCategoriesCreateData = {
+    body: CreateCategoryDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/transaction-categories';
+};
+
+export type TransactionCategoriesCreateErrors = {
+    401: ErrorResponseDto;
+    409: ErrorResponseDto;
+    422: ErrorResponseDto;
+};
+
+export type TransactionCategoriesCreateError = TransactionCategoriesCreateErrors[keyof TransactionCategoriesCreateErrors];
+
+export type TransactionCategoriesCreateResponses = {
+    201: CategoryResponseDto;
+};
+
+export type TransactionCategoriesCreateResponse = TransactionCategoriesCreateResponses[keyof TransactionCategoriesCreateResponses];
+
+export type TransactionCategoriesRemoveData = {
+    body: DeleteCategoryDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/transaction-categories/{id}';
+};
+
+export type TransactionCategoriesRemoveErrors = {
+    401: ErrorResponseDto;
+    404: ErrorResponseDto;
+    422: ErrorResponseDto;
+};
+
+export type TransactionCategoriesRemoveError = TransactionCategoriesRemoveErrors[keyof TransactionCategoriesRemoveErrors];
+
+export type TransactionCategoriesRemoveResponses = {
+    204: void;
+};
+
+export type TransactionCategoriesRemoveResponse = TransactionCategoriesRemoveResponses[keyof TransactionCategoriesRemoveResponses];
+
+export type TransactionCategoriesUpdateData = {
+    body: UpdateCategoryDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/transaction-categories/{id}';
+};
+
+export type TransactionCategoriesUpdateErrors = {
+    401: ErrorResponseDto;
+    404: ErrorResponseDto;
+    409: ErrorResponseDto;
+    422: ErrorResponseDto;
+};
+
+export type TransactionCategoriesUpdateError = TransactionCategoriesUpdateErrors[keyof TransactionCategoriesUpdateErrors];
+
+export type TransactionCategoriesUpdateResponses = {
+    200: CategoryResponseDto;
+};
+
+export type TransactionCategoriesUpdateResponse = TransactionCategoriesUpdateResponses[keyof TransactionCategoriesUpdateResponses];
 
 export type TransactionsFindAllData = {
     body?: never;
