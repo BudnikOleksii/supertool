@@ -5,6 +5,7 @@ import {
   getMonthDateRange,
   getNextPeriod,
   getPreviousPeriod,
+  getTrailingMonthsRange,
   parsePeriod,
 } from './period';
 
@@ -47,6 +48,40 @@ describe('getMonthDateRange', () => {
 
   it('resolves the non-leap-year last day of February', () => {
     expect(getMonthDateRange({ year: 2025, month: 2 }).dateTo).toBe('2025-02-28');
+  });
+});
+
+const WINDOW_MONTHS = 12;
+const QUARTER_MONTHS = 3;
+const SINGLE_MONTH = 1;
+
+describe('getTrailingMonthsRange', () => {
+  it('spans a 12-month window ending at the anchor, crossing the year boundary', () => {
+    expect(getTrailingMonthsRange({ year: 2025, month: 3 }, WINDOW_MONTHS)).toEqual({
+      dateFrom: '2024-04-01',
+      dateTo: '2025-03-31',
+    });
+  });
+
+  it('stays within the same year for a window that does not cross January', () => {
+    expect(getTrailingMonthsRange({ year: 2025, month: 12 }, QUARTER_MONTHS)).toEqual({
+      dateFrom: '2025-10-01',
+      dateTo: '2025-12-31',
+    });
+  });
+
+  it('resolves the anchor last day for a leap-year February anchor', () => {
+    expect(getTrailingMonthsRange({ year: 2024, month: 2 }, WINDOW_MONTHS)).toEqual({
+      dateFrom: '2023-03-01',
+      dateTo: '2024-02-29',
+    });
+  });
+
+  it('returns the anchor month itself for a single-month window', () => {
+    expect(getTrailingMonthsRange({ year: 2025, month: 6 }, SINGLE_MONTH)).toEqual({
+      dateFrom: '2025-06-01',
+      dateTo: '2025-06-30',
+    });
   });
 });
 

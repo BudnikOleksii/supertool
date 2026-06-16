@@ -17,6 +17,8 @@ import { DashboardBreakdownSkeleton } from './components/dashboard-breakdown-ske
 import { DashboardBreakdown } from './components/dashboard-breakdown/DashboardBreakdown';
 import { DashboardSummarySkeleton } from './components/dashboard-summary-skeleton/DashboardSummarySkeleton';
 import { DashboardSummary } from './components/dashboard-summary/DashboardSummary';
+import { DashboardTrendSkeleton } from './components/dashboard-trend-skeleton/DashboardTrendSkeleton';
+import { DashboardTrend } from './components/dashboard-trend/DashboardTrend';
 import styles from './page.module.scss';
 
 interface Props {
@@ -26,6 +28,7 @@ interface Props {
 
 const summaryFallback = <DashboardSummarySkeleton />;
 const breakdownFallback = <DashboardBreakdownSkeleton />;
+const trendFallback = <DashboardTrendSkeleton />;
 
 const DashboardPage: FC<Props> = async (props) => {
   const [{ locale }, searchParams] = await Promise.all([props.params, props.searchParams]);
@@ -52,6 +55,9 @@ const DashboardPage: FC<Props> = async (props) => {
       </Suspense>
       <Suspense key={`breakdown-${period}`} fallback={breakdownFallback}>
         <DashboardBreakdown period={period} locale={locale} />
+      </Suspense>
+      <Suspense key={`trend-${period}`} fallback={trendFallback}>
+        <DashboardTrend period={period} locale={locale} />
       </Suspense>
     </section>
   );

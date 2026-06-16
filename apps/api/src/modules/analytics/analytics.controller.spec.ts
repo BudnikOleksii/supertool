@@ -49,4 +49,24 @@ describe('AnalyticsController', () => {
     ).resolves.toEqual(expectedResult);
     expect(getCategoryBreakdown).toHaveBeenCalledWith('user-id', inputQuery);
   });
+
+  it('forwards the session user id and query to the trend service', async () => {
+    const expectedResult = {
+      trend: [{ month: '2025-02', income: '300.00', expense: '120.50' }],
+      currency: 'UAH',
+    };
+    const getMonthlyTrend = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [AnalyticsController],
+      providers: [{ provide: AnalyticsService, useValue: { getMonthlyTrend } }],
+    }).compile();
+
+    const controller = moduleRef.get(AnalyticsController);
+    const inputQuery = { dateFrom: '2024-03-01', dateTo: '2025-02-28' };
+
+    await expect(controller.getMonthlyTrend(createSession('user-id'), inputQuery)).resolves.toEqual(
+      expectedResult,
+    );
+    expect(getMonthlyTrend).toHaveBeenCalledWith('user-id', inputQuery);
+  });
 });

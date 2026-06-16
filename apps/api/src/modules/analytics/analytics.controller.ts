@@ -19,7 +19,10 @@ import { CategoryBreakdownResponseDto } from './dtos/category-breakdown-response
 import { FindBreakdownQueryDto } from './dtos/find-breakdown-query.dto';
 // oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
 import { FindSummaryQueryDto } from './dtos/find-summary-query.dto';
+// oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
+import { FindTrendQueryDto } from './dtos/find-trend-query.dto';
 import { MonthlySummaryResponseDto } from './dtos/monthly-summary-response.dto';
+import { TrendResponseDto } from './dtos/trend-response.dto';
 
 @ApiTags('analytics')
 @Controller('analytics')
@@ -48,5 +51,17 @@ export class AnalyticsController {
     @Query() query: FindBreakdownQueryDto,
   ): Promise<CategoryBreakdownResponseDto> {
     return this.analyticsService.getCategoryBreakdown(session.user.id, query);
+  }
+
+  @Get('trend')
+  @UseGuards(AuthGuard)
+  @ApiOkResponse({ type: TrendResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiBadRequestResponse({ type: ErrorResponseDto })
+  async getMonthlyTrend(
+    @Session() session: UserSession<typeof auth>,
+    @Query() query: FindTrendQueryDto,
+  ): Promise<TrendResponseDto> {
+    return this.analyticsService.getMonthlyTrend(session.user.id, query);
   }
 }

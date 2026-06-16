@@ -596,3 +596,189 @@ describe('AnalyticsService category breakdown (Testcontainers Postgres)', () => 
     expect(breakdown.totalExpense).toBe(summary.expense);
   });
 });
+
+const TREND_WINDOW = { dateFrom: '2030-01-01', dateTo: '2030-12-31' };
+const TREND_YEAR = 2030;
+const MONTHS_PER_YEAR = 12;
+const EXPECTED_TREND_ROW_COUNT = 12;
+const EMPTY_TREND_MONTH = '2030-02';
+
+interface TrendSeedTransaction {
+  date: string;
+  type: string;
+  amount: string;
+  currency: string;
+}
+
+const TREND_USER_TRANSACTIONS: TrendSeedTransaction[] = [
+  { date: '2030-01-10', type: 'income', amount: '100.00', currency: SEED_CURRENCY },
+  { date: '2030-01-20', type: 'expense', amount: '40.00', currency: SEED_CURRENCY },
+  { date: '2030-03-05', type: 'expense', amount: '25.50', currency: SEED_CURRENCY },
+  { date: '2030-12-31', type: 'income', amount: '1000.00', currency: SEED_CURRENCY },
+  { date: '2029-12-15', type: 'expense', amount: '999.99', currency: SEED_CURRENCY },
+  { date: '2030-01-15', type: 'expense', amount: '555.55', currency: FOREIGN_CURRENCY },
+];
+
+const TREND_CROSS_USER_TRANSACTION: TrendSeedTransaction = {
+  date: '2030-06-10',
+  type: 'expense',
+  amount: '777.00',
+  currency: SEED_CURRENCY,
+};
+
+const insertDatedTransaction = async (params: {
+  userId: string;
+  categoryId: string;
+  amount: string;
+  currency: string;
+  type: string;
+  date: string;
+}): Promise<void> => {
+  await getPool().query(
+    `INSERT INTO transactions (id, user_id, category_id, type, amount, currency, date, note)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, '')`,
+    [
+      generateId(),
+      params.userId,
+      params.categoryId,
+      params.type,
+      params.amount,
+      params.currency,
+      params.date,
+    ],
+  );
+};
+
+const sumByType = (recordList: TrendSeedTransaction[], type: string): string =>
+  recordList
+    .filter((record) => record.type === type)
+    .reduce((total, record) => total.plus(new Decimal(record.amount)), new Decimal(0))
+    .toFixed(MONEY_SCALE);
+
+const computeExpectedTrend = (): { month: string; income: string; expense: string }[] =>
+  [...Array(MONTHS_PER_YEAR).keys()].map((index) => {
+    const month = `${TREND_YEAR}-${padTwoDigits(index + 1)}`;
+    const monthRecordList = TREND_USER_TRANSACTIONS.filter(
+      (record) => record.currency === SEED_CURRENCY && record.date.startsWith(month),
+    );
+
+    return {
+      month,
+      income: sumByType(monthRecordList, 'income'),
+      expense: sumByType(monthRecordList, 'expense'),
+    };
+  });
+
+const seedTrendFixture = async (): Promise<{ userId: string }> => {
+  const userId = await insertUser('Trend User');
+  const categoryId = await insertExpenseCategory({ userId, name: 'Trend', parentId: null });
+  await Promise.all(
+    TREND_USER_TRANSACTIONS.map((record) =>
+      insertDatedTransaction({ userId, categoryId, ...record }),
+    ),
+  );
+
+  const otherUserId = await insertUser('Trend Other User');
+  const otherCategoryId = await insertExpenseCategory({
+    userId: otherUserId,
+    name: 'Trend Other',
+    parentId: null,
+  });
+  await insertDatedTransaction({
+    userId: otherUserId,
+    categoryId: otherCategoryId,
+    ...TREND_CROSS_USER_TRANSACTION,
+  });
+
+  return { userId };
+};
+
+describe('AnalyticsRepository monthly trend (Testcontainers Postgres)', () => {
+  it('returns exactly 12 monthly buckets in ascending chronological order (AC1, AC5c)', async () => {
+    const fixture = await seedTrendFixture();
+
+    const result = await getAnalyticsRepository().getMonthlyTrend({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: TREND_WINDOW.dateFrom,
+      dateTo: TREND_WINDOW.dateTo,
+    });
+
+    const monthList = result.trend.map((row) => row.month);
+    const expectedMonthList = computeExpectedTrend().map((row) => row.month);
+    expect(result.trend).toHaveLength(EXPECTED_TREND_ROW_COUNT);
+    expect(monthList).toEqual(expectedMonthList);
+  });
+
+  it('matches each month income and expense to independently summed seed totals (AC5a, FR18)', async () => {
+    const fixture = await seedTrendFixture();
+
+    const result = await getAnalyticsRepository().getMonthlyTrend({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: TREND_WINDOW.dateFrom,
+      dateTo: TREND_WINDOW.dateTo,
+    });
+
+    expect(result.trend).toEqual(computeExpectedTrend());
+    expect(result.currency).toBe(SEED_CURRENCY);
+    expect(typeof result.trend[0]?.income).toBe('string');
+  });
+
+  it('fills a transaction-free in-window month with zeros and still includes it (AC5b zero-month)', async () => {
+    const fixture = await seedTrendFixture();
+
+    const result = await getAnalyticsRepository().getMonthlyTrend({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: TREND_WINDOW.dateFrom,
+      dateTo: TREND_WINDOW.dateTo,
+    });
+
+    const emptyMonthRow = result.trend.find((row) => row.month === EMPTY_TREND_MONTH);
+    expect(emptyMonthRow).toEqual({ month: EMPTY_TREND_MONTH, income: '0.00', expense: '0.00' });
+  });
+
+  it('excludes a transaction in the month just before the window (AC5f boundary)', async () => {
+    const fixture = await seedTrendFixture();
+
+    const result = await getAnalyticsRepository().getMonthlyTrend({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: TREND_WINDOW.dateFrom,
+      dateTo: TREND_WINDOW.dateTo,
+    });
+
+    expect(result.trend.some((row) => row.month === '2029-12')).toBe(false);
+    const januaryRow = result.trend.find((row) => row.month === '2030-01');
+    expect(januaryRow?.expense).toBe('40.00');
+  });
+
+  it('excludes cross-currency and cross-user transactions from the trend (AC5d, AC5e)', async () => {
+    const fixture = await seedTrendFixture();
+
+    const result = await getAnalyticsRepository().getMonthlyTrend({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: TREND_WINDOW.dateFrom,
+      dateTo: TREND_WINDOW.dateTo,
+    });
+
+    const januaryRow = result.trend.find((row) => row.month === '2030-01');
+    const juneRow = result.trend.find((row) => row.month === '2030-06');
+    expect(januaryRow?.expense).toBe('40.00');
+    expect(juneRow).toEqual({ month: '2030-06', income: '0.00', expense: '0.00' });
+  });
+});
+
+describe('AnalyticsService monthly trend (Testcontainers Postgres)', () => {
+  it('resolves the user default currency and returns 12 scoped monthly buckets (AC1)', async () => {
+    const fixture = await seedTrendFixture();
+
+    const trend = await getAnalyticsService().getMonthlyTrend(fixture.userId, TREND_WINDOW);
+
+    expect(trend.currency).toBe(SEED_CURRENCY);
+    expect(trend.trend).toHaveLength(EXPECTED_TREND_ROW_COUNT);
+    expect(trend.trend).toEqual(computeExpectedTrend());
+  });
+});

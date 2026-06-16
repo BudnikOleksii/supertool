@@ -144,6 +144,7 @@ packages/
 | zod | 4.3.6 | **4.4.3** | |
 | react-hook-form | 7.71.1 | **7.78.0** | |
 | sass | 1.93.3 | **1.100.0** | |
+| recharts | 3.8.1 | **3.8.1** | app-level dashboard charting (`apps/money-tracker` only, NOT `packages/ui`); React 19 compatible; introduced by story 3.3 (twelve-month trend), the first charting dependency |
 | pg | 8.20.0 | **8.21.0** | |
 | pnpm | 10.10.0 | **11.5.2** | major bump — verify Turborepo 2.9 compat at scaffold time |
 | node (engines) | 22.15.0 | 22.x LTS line | pin the current 22.x LTS patch at scaffold time |

@@ -135,6 +135,17 @@ export type CategoryBreakdownResponseDto = {
     currency: string;
 };
 
+export type TrendMonthDto = {
+    month: string;
+    income: string;
+    expense: string;
+};
+
+export type TrendResponseDto = {
+    trend: Array<TrendMonthDto>;
+    currency: string;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -438,3 +449,26 @@ export type AnalyticsGetCategoryBreakdownResponses = {
 };
 
 export type AnalyticsGetCategoryBreakdownResponse = AnalyticsGetCategoryBreakdownResponses[keyof AnalyticsGetCategoryBreakdownResponses];
+
+export type AnalyticsGetMonthlyTrendData = {
+    body?: never;
+    path?: never;
+    query: {
+        dateFrom: string;
+        dateTo: string;
+    };
+    url: '/api/v1/analytics/trend';
+};
+
+export type AnalyticsGetMonthlyTrendErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type AnalyticsGetMonthlyTrendError = AnalyticsGetMonthlyTrendErrors[keyof AnalyticsGetMonthlyTrendErrors];
+
+export type AnalyticsGetMonthlyTrendResponses = {
+    200: TrendResponseDto;
+};
+
+export type AnalyticsGetMonthlyTrendResponse = AnalyticsGetMonthlyTrendResponses[keyof AnalyticsGetMonthlyTrendResponses];
