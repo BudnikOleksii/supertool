@@ -13,6 +13,8 @@ import { ROUTES } from '../../../constants/routes';
 import { PERIOD_SEARCH_PARAM } from '../../../constants/search-params';
 import { normalizeSearchParam } from '../../../utils/normalize-search-param';
 import { formatPeriod, parsePeriod } from '../../../utils/period';
+import { DashboardBreakdownSkeleton } from './components/dashboard-breakdown-skeleton/DashboardBreakdownSkeleton';
+import { DashboardBreakdown } from './components/dashboard-breakdown/DashboardBreakdown';
 import { DashboardSummarySkeleton } from './components/dashboard-summary-skeleton/DashboardSummarySkeleton';
 import { DashboardSummary } from './components/dashboard-summary/DashboardSummary';
 import styles from './page.module.scss';
@@ -23,6 +25,7 @@ interface Props {
 }
 
 const summaryFallback = <DashboardSummarySkeleton />;
+const breakdownFallback = <DashboardBreakdownSkeleton />;
 
 const DashboardPage: FC<Props> = async (props) => {
   const [{ locale }, searchParams] = await Promise.all([props.params, props.searchParams]);
@@ -46,6 +49,9 @@ const DashboardPage: FC<Props> = async (props) => {
       </header>
       <Suspense key={period} fallback={summaryFallback}>
         <DashboardSummary period={period} locale={locale} />
+      </Suspense>
+      <Suspense key={`breakdown-${period}`} fallback={breakdownFallback}>
+        <DashboardBreakdown period={period} locale={locale} />
       </Suspense>
     </section>
   );

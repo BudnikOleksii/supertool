@@ -12,5 +12,16 @@
   "error": {
     "title": "Couldn’t load summary",
     "description": "Something went wrong while loading this month. Please try again."
+  },
+  "breakdown": {
+    "title": "Expenses by category",
+    "empty": {
+      "title": "No expenses this month",
+      "description": "Add expense transactions for this period to see the category breakdown."
+    },
+    "error": {
+      "title": "Couldn’t load breakdown",
+      "description": "Something went wrong while loading the category breakdown. Please try again."
+    }
   }
 }
