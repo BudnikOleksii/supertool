@@ -37,6 +37,7 @@
 
 generated: 2026-06-10
 last_updated: 2026-06-16
+# (4-4 → done 2026-06-16)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -90,7 +91,7 @@ development_status:
   4-1-mobile-navigation-drawer-in-app-navigation: done
   4-2-mobile-usable-transactions-list: backlog
   4-3-first-run-period-auto-fit: backlog
-  4-4-dashboard-widget-visual-qa-defect-fixes: backlog
+  4-4-dashboard-widget-visual-qa-defect-fixes: done
   epic-4-retrospective: optional
 
   # Epic 5: Import Your Data & See Your Money

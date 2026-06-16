@@ -2,7 +2,6 @@
 
 import type { FC } from 'react';
 
-import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import {
   Bar,
@@ -21,6 +20,7 @@ const CHART_HEIGHT = 300;
 const GRID_OPACITY = 0.4;
 const CURSOR_OPACITY = 0.15;
 const TOOLTIP_RADIUS = '0.5rem';
+const THEME_ATTRIBUTE = 'data-theme';
 
 interface TrendChartDatum {
   label: string;
@@ -48,6 +48,16 @@ interface ChartColors {
   outline: string;
 }
 
+const CHART_COLOR_TOKENS = {
+  income: '--on-success-container',
+  expense: '--error',
+  axis: '--on-surface-variant',
+  grid: '--outline-variant',
+  surface: '--surface-container',
+  onSurface: '--on-surface',
+  outline: '--outline-variant',
+} as const;
+
 const EMPTY_COLORS: ChartColors = {
   income: '',
   expense: '',
@@ -58,18 +68,20 @@ const EMPTY_COLORS: ChartColors = {
   outline: '',
 };
 
-const readToken = (token: string): string =>
-  getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-
-const readChartColors = (): ChartColors => ({
-  income: readToken('--on-success-container'),
-  expense: readToken('--error'),
-  axis: readToken('--on-surface-variant'),
-  grid: readToken('--outline-variant'),
-  surface: readToken('--surface-container'),
-  onSurface: readToken('--on-surface'),
-  outline: readToken('--outline-variant'),
+export const resolveChartColors = (readToken: (token: string) => string): ChartColors => ({
+  income: readToken(CHART_COLOR_TOKENS.income),
+  expense: readToken(CHART_COLOR_TOKENS.expense),
+  axis: readToken(CHART_COLOR_TOKENS.axis),
+  grid: readToken(CHART_COLOR_TOKENS.grid),
+  surface: readToken(CHART_COLOR_TOKENS.surface),
+  onSurface: readToken(CHART_COLOR_TOKENS.onSurface),
+  outline: readToken(CHART_COLOR_TOKENS.outline),
 });
+
+export const checkHasChartColors = (colors: ChartColors): boolean => colors.income !== '';
+
+const readDocumentToken = (token: string): string =>
+  getComputedStyle(document.documentElement).getPropertyValue(token).trim();
 
 export const DashboardTrendContent: FC<Props> = ({
   chartData,
@@ -78,14 +90,27 @@ export const DashboardTrendContent: FC<Props> = ({
   currency,
   locale,
 }) => {
-  const { resolvedTheme } = useTheme();
   const [colors, setColors] = useState<ChartColors>(EMPTY_COLORS);
 
   useEffect(() => {
-    setColors(readChartColors());
-  }, [resolvedTheme]);
+    const syncColors = () => {
+      setColors(resolveChartColors(readDocumentToken));
+    };
 
-  if (colors.income === '') {
+    syncColors();
+
+    const observer = new MutationObserver(syncColors);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: [THEME_ATTRIBUTE],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  if (!checkHasChartColors(colors)) {
     return <div style={{ height: CHART_HEIGHT }} aria-hidden="true" />;
   }
 
