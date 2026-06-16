@@ -9,7 +9,7 @@ import { usePathname, useRouter } from '@supertool/next-shared/src/i18n/navigati
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Pagination } from '@supertool/ui/src/components/molecules/pagination/Pagination';
 
-import { PAGE_SEARCH_PARAM } from '../../constants';
+import { PAGE_SEARCH_PARAM } from '../../../../../constants/search-params';
 
 interface Props {
   page: number;

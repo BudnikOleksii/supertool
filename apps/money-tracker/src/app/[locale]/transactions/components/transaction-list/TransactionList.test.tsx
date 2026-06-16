@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { TransactionResponseDto } from '@supertool/shared/generated/types.gen';
 
-import { formatTransactionAmount } from '../../utils/format-transaction-amount';
+import { formatAmount } from '../../../../../utils/format-amount';
 import { formatTransactionDate } from '../../utils/format-transaction-date';
 import { TransactionList } from './TransactionList';
 
@@ -57,7 +57,7 @@ describe('TransactionList', () => {
     );
 
     expect(screen.getByText('Food / Groceries')).toBeTruthy();
-    expect(screen.getByText(formatTransactionAmount('1234.56', 'USD', LOCALE))).toBeTruthy();
+    expect(screen.getByText(formatAmount('1234.56', 'USD', LOCALE))).toBeTruthy();
     expect(screen.getByText(formatTransactionDate('2025-02-03', LOCALE))).toBeTruthy();
   });
 

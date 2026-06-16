@@ -343,7 +343,7 @@ supertool/                              # existing repo root
 │   │   ├── messages/en.json  uk.json
 │   │   └── src/
 │   │       ├── env.ts                  # zod-validated
-│   │       ├── app/[locale]/           # layout (shell), page → dashboard, transactions/, categories/, settings/, sign-in/, sign-up/
+│   │       ├── app/[locale]/           # layout (shell), page → landing, dashboard/, transactions/, categories/, settings/, sign-in/, sign-up/
 │   │       ├── actions/                # fetch-* (reads), create/update/delete-* ('use server')
 │   │       ├── components/             # transaction-form/, transaction-list/, category-tree/, dashboard-summary/, category-breakdown/, trend-chart/, month-stepper/ … (no currency-filter — single profile-default currency, 2026-06-15)
 │   │       ├── constants/  hooks/  utils/  i18n/

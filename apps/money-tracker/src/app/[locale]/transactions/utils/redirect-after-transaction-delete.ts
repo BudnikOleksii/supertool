@@ -7,9 +7,9 @@ import type { TransactionViewParams } from './build-transactions-redirect-query'
 
 import { fetchTransactions } from '../../../../actions/fetch-transactions';
 import { ROUTES } from '../../../../constants/routes';
+import { getMonthDateRange, parsePeriod } from '../../../../utils/period';
 import { EMPTY_COUNT } from '../constants';
 import { buildTransactionsRedirectQuery } from './build-transactions-redirect-query';
-import { getMonthDateRange, parsePeriod } from './period';
 
 const COUNT_PROBE_LIMIT = 1;
 

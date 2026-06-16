@@ -9,7 +9,7 @@ import { usePathname, useRouter } from '@supertool/next-shared/src/i18n/navigati
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 
-import { PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../../constants';
+import { PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../../constants/search-params';
 import { formatPeriodLabel } from '../../utils/format-period-label';
 import { getNextPeriod, getPreviousPeriod, parsePeriod } from '../../utils/period';
 import { ChevronLeftIcon, ChevronRightIcon } from './ChevronIcon';
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const MonthStepper: FC<Props> = ({ period }) => {
-  const translate = useTranslations(`${I18N_NAMESPACE.transactionsPage}.monthNav`);
+  const translate = useTranslations(`${I18N_NAMESPACE.navigation}.monthNav`);
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();

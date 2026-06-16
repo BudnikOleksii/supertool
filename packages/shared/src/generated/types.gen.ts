@@ -115,6 +115,13 @@ export type UpdateTransactionDto = {
     note?: string;
 };
 
+export type MonthlySummaryResponseDto = {
+    income: string;
+    expense: string;
+    net: string;
+    currency: string;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -372,3 +379,26 @@ export type TransactionsUpdateResponses = {
 };
 
 export type TransactionsUpdateResponse = TransactionsUpdateResponses[keyof TransactionsUpdateResponses];
+
+export type AnalyticsGetMonthlySummaryData = {
+    body?: never;
+    path?: never;
+    query: {
+        dateFrom: string;
+        dateTo: string;
+    };
+    url: '/api/v1/analytics/summary';
+};
+
+export type AnalyticsGetMonthlySummaryErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type AnalyticsGetMonthlySummaryError = AnalyticsGetMonthlySummaryErrors[keyof AnalyticsGetMonthlySummaryErrors];
+
+export type AnalyticsGetMonthlySummaryResponses = {
+    200: MonthlySummaryResponseDto;
+};
+
+export type AnalyticsGetMonthlySummaryResponse = AnalyticsGetMonthlySummaryResponses[keyof AnalyticsGetMonthlySummaryResponses];

@@ -24,10 +24,6 @@
     "income": "Income",
     "expense": "Expense"
   },
-  "monthNav": {
-    "previous": "Previous month",
-    "next": "Next month"
-  },
   "filters": {
     "typeLabel": "Filter by type",
     "typeAll": "All types",

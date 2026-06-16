@@ -1,0 +1,17 @@
+@use "@supertool/ui/src/styles/breakpoints";
+
+.grid {
+  display: grid;
+
+  grid-template-columns: 1fr;
+
+  gap: var(--spacing-4);
+
+  @include breakpoints.media-m {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.stat {
+  border-radius: var(--radius-lg);
+}

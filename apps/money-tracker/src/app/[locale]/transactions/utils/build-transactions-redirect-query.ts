@@ -5,10 +5,9 @@ import type {
   TransactionType,
 } from '@supertool/shared/generated/types.gen';
 
+import { PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../../../../constants/search-params';
 import {
   CATEGORY_SEARCH_PARAM,
-  PAGE_SEARCH_PARAM,
-  PERIOD_SEARCH_PARAM,
   SORT_BY_SEARCH_PARAM,
   SORT_ORDER_SEARCH_PARAM,
   TYPE_SEARCH_PARAM,

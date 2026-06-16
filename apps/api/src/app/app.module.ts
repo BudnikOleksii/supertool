@@ -8,6 +8,7 @@ import type { Env } from './env.schema';
 import { auth } from '../auth/auth';
 import { AuthDatabaseLifecycle } from '../auth/auth-database.lifecycle';
 import { DatabaseModule } from '../database/database.module';
+import { AnalyticsModule } from '../modules/analytics/analytics.module';
 import { HealthModule } from '../modules/health/health.module';
 import { TransactionCategoriesModule } from '../modules/transaction-categories/transaction-categories.module';
 import { TransactionsModule } from '../modules/transactions/transactions.module';
@@ -42,6 +43,7 @@ const BODY_PARSER_LIMIT = '2mb';
     UsersModule,
     TransactionCategoriesModule,
     TransactionsModule,
+    AnalyticsModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: GlobalExceptionFilter }, AuthDatabaseLifecycle],
 })

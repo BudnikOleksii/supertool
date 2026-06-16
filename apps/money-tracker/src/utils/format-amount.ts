@@ -14,11 +14,7 @@ const getCurrencyFormatter = (locale: string, currency: string): Intl.NumberForm
   return formatter;
 };
 
-export const formatTransactionAmount = (
-  amount: string,
-  currency: string,
-  locale: string,
-): string => {
+export const formatAmount = (amount: string, currency: string, locale: string): string => {
   const numericAmount = Number(amount);
 
   if (!Number.isFinite(numericAmount)) {

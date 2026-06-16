@@ -2,9 +2,9 @@ import { useSearchParams } from 'next/navigation';
 
 import { usePathname, useRouter } from '@supertool/next-shared/src/i18n/navigation/navigation';
 
+import { PAGE_SEARCH_PARAM } from '../../../../../../constants/search-params';
 import {
   CATEGORY_SEARCH_PARAM,
-  PAGE_SEARCH_PARAM,
   SORT_BY_SEARCH_PARAM,
   SORT_ORDER_SEARCH_PARAM,
   TYPE_SEARCH_PARAM,
