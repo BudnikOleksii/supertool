@@ -103,7 +103,6 @@ describe('DashboardBreakdown', () => {
 
     expect(screen.getByText('empty.title')).toBeTruthy();
   });
-  });
 
   it('renders the error state when the breakdown request fails', async () => {
     fetchCategoryBreakdownMock.mockResolvedValue({ status: 'error' });
