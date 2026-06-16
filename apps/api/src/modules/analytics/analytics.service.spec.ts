@@ -97,4 +97,45 @@ describe('AnalyticsService', () => {
     expect(actual).toEqual({ breakdown: [], totalExpense: '0.00', currency: '' });
     expect(getCategoryBreakdown).not.toHaveBeenCalled();
   });
+
+  it('scopes the trend to the user default currency and forwards the date window', async () => {
+    const expectedTrend = {
+      trend: [
+        { month: '2025-01', income: '300.00', expense: '120.50' },
+        { month: '2025-02', income: '0.00', expense: '0.00' },
+      ],
+      currency: 'UAH',
+    };
+    const getMonthlyTrend = vi.fn().mockResolvedValue(expectedTrend);
+    const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: 'UAH' });
+    const service = buildAnalyticsService({ getMonthlyTrend }, { findByIdScoped });
+
+    const actual = await service.getMonthlyTrend('user-id', {
+      dateFrom: '2024-03-01',
+      dateTo: '2025-02-28',
+    });
+
+    expect(findByIdScoped).toHaveBeenCalledWith('user-id');
+    expect(getMonthlyTrend).toHaveBeenCalledWith({
+      userId: 'user-id',
+      currency: 'UAH',
+      dateFrom: '2024-03-01',
+      dateTo: '2025-02-28',
+    });
+    expect(actual).toEqual(expectedTrend);
+  });
+
+  it('returns an empty trend without querying when the user has no default currency', async () => {
+    const getMonthlyTrend = vi.fn();
+    const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: null });
+    const service = buildAnalyticsService({ getMonthlyTrend }, { findByIdScoped });
+
+    const actual = await service.getMonthlyTrend('user-id', {
+      dateFrom: '2024-03-01',
+      dateTo: '2025-02-28',
+    });
+
+    expect(actual).toEqual({ trend: [], currency: '' });
+    expect(getMonthlyTrend).not.toHaveBeenCalled();
+  });
 });

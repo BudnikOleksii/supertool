@@ -37,7 +37,7 @@
 
 generated: 2026-06-10
 last_updated: 2026-06-16
-# (3-2 → done)
+# (3-3 → review)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -79,5 +79,5 @@ development_status:
   epic-3: in-progress
   3-1-monthly-money-summary: done
   3-2-expense-breakdown-by-category: done
-  3-3-twelve-month-trend: backlog
+  3-3-twelve-month-trend: done
   epic-3-retrospective: optional

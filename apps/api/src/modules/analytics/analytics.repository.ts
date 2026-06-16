@@ -4,6 +4,7 @@ import { sql } from 'drizzle-orm';
 import type { Database } from '../../database/database.types';
 import type { CategoryBreakdownResponseDto } from './dtos/category-breakdown-response.dto';
 import type { MonthlySummaryResponseDto } from './dtos/monthly-summary-response.dto';
+import type { TrendResponseDto } from './dtos/trend-response.dto';
 
 import { DRIZZLE } from '../../database/database.constants';
 import { transactionTypeEnum } from '../../database/schemas/enums';
@@ -26,6 +27,13 @@ interface MonthlySummaryQuery {
 }
 
 interface CategoryBreakdownQuery {
+  userId: string;
+  currency: string;
+  dateFrom: string;
+  dateTo: string;
+}
+
+interface MonthlyTrendQuery {
   userId: string;
   currency: string;
   dateFrom: string;
@@ -109,6 +117,34 @@ export class AnalyticsRepository {
     return {
       breakdown: breakdownList,
       totalExpense: firstRow?.totalExpense ?? ZERO_AMOUNT,
+      currency: query.currency,
+    };
+  }
+
+  async getMonthlyTrend(query: MonthlyTrendQuery): Promise<TrendResponseDto> {
+    const result = await this.db.execute<{ month: string; income: string; expense: string }>(sql`
+      WITH months AS (
+        SELECT generate_series(
+          date_trunc('month', ${query.dateFrom}::date),
+          date_trunc('month', ${query.dateTo}::date),
+          interval '1 month'
+        )::date AS month_start
+      )
+      SELECT
+        to_char(m.month_start, 'YYYY-MM') AS month,
+        COALESCE(SUM(t.amount) FILTER (WHERE t.type::text = ${INCOME_TYPE}), 0)${moneyCast()} AS income,
+        COALESCE(SUM(t.amount) FILTER (WHERE t.type::text = ${EXPENSE_TYPE}), 0)${moneyCast()} AS expense
+      FROM months m
+      LEFT JOIN transactions t
+        ON date_trunc('month', t.date)::date = m.month_start
+        AND t.user_id = ${query.userId}
+        AND t.currency = ${query.currency}
+      GROUP BY m.month_start
+      ORDER BY m.month_start ASC
+    `);
+
+    return {
+      trend: result.rows,
       currency: query.currency,
     };
   }

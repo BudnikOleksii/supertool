@@ -23,5 +23,18 @@
       "title": "Couldn’t load breakdown",
       "description": "Something went wrong while loading the category breakdown. Please try again."
     }
+  },
+  "trend": {
+    "title": "Income vs. expense trend",
+    "income": "Income",
+    "expense": "Expense",
+    "empty": {
+      "title": "No activity in this period",
+      "description": "Add transactions across these months to see your income and expense trend."
+    },
+    "error": {
+      "title": "Couldn’t load trend",
+      "description": "Something went wrong while loading the trend. Please try again."
+    }
   }
 }

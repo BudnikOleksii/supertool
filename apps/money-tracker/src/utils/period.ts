@@ -18,6 +18,7 @@ const FIRST_DAY_OF_MONTH = '01';
 const MONTH_INDEX_OFFSET = 1;
 const ADJACENT_STEP = 1;
 const LAST_DAY_PROBE = 0;
+const MONTHS_PER_YEAR = 12;
 
 const formatTwoDigits = (value: number): string => String(value).padStart(TWO_DIGITS, '0');
 
@@ -54,6 +55,18 @@ export const getMonthDateRange = ({ year, month }: PeriodParts): MonthDateRange 
   return {
     dateFrom: `${formatYear(year)}-${formatTwoDigits(month)}-${FIRST_DAY_OF_MONTH}`,
     dateTo: `${formatYear(year)}-${formatTwoDigits(month)}-${formatTwoDigits(lastDay)}`,
+  };
+};
+
+export const getTrailingMonthsRange = (anchor: PeriodParts, monthCount: number): MonthDateRange => {
+  const anchorIndex = anchor.year * MONTHS_PER_YEAR + (anchor.month - MONTH_INDEX_OFFSET);
+  const startIndex = anchorIndex - (monthCount - ADJACENT_STEP);
+  const startYear = Math.floor(startIndex / MONTHS_PER_YEAR);
+  const startMonth = (startIndex % MONTHS_PER_YEAR) + MONTH_INDEX_OFFSET;
+
+  return {
+    dateFrom: `${formatYear(startYear)}-${formatTwoDigits(startMonth)}-${FIRST_DAY_OF_MONTH}`,
+    dateTo: getMonthDateRange(anchor).dateTo,
   };
 };
 
