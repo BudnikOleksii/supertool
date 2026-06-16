@@ -92,12 +92,17 @@ describe('DashboardBreakdown', () => {
   it('renders the empty state when the user has no default currency', async () => {
     fetchCategoryBreakdownMock.mockResolvedValue({
       status: 'success',
-      breakdown: { breakdown: [], totalExpense: '0.00', currency: '' },
+      breakdown: {
+        breakdown: [{ categoryId: 'cat-1', categoryName: 'Groceries', total: '1.00', share: 100 }],
+        totalExpense: '1.00',
+        currency: '',
+      },
     });
 
     render(await renderDashboardBreakdown({ period: PERIOD, locale: LOCALE }));
 
     expect(screen.getByText('empty.title')).toBeTruthy();
+  });
   });
 
   it('renders the error state when the breakdown request fails', async () => {
