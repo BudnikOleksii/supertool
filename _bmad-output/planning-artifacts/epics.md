@@ -153,7 +153,13 @@ A user can record and browse real money data daily: fast transaction entry (NFR5
 A user can answer "where did money go" in one screen: per-period totals (income/expense/net) in the profile-default currency (no currency picker — simplified 2026-06-15; per-currency SQL aggregation retained for correctness), expense breakdown grouped by top-level category, and a trailing 12-month income/expense trend — all computed as SQL aggregations (D1).
 **FRs covered:** FR13, FR14, FR15, FR16
 
-**Dependencies:** strictly forward — Epic 2 builds on Epic 1 (auth, shell, pipeline); Epic 3 builds on Epic 2 (transaction/category data). Each epic delivers standalone user value.
+### Spike: Reference-Parity Gap Analysis (pre-Epic-4 — BLOCKS next-epic planning)
+supertool money-tracker is a PoC, not an MVP (Epic 3 retro 2026-06-16). Before planning Epic 4, run the reference money tracker (`example/track-my-life`) locally and capture its full UI (all screens, mobile especially) and feature set; diff against the current supertool money-tracker to produce a prioritized gap backlog (`reference-parity-gap-backlog.md`). That backlog is the input to `create-epics-and-stories` for Epic 4+. Parity bar: **same features as the reference, and UI/UX at least as good as the reference.**
+
+### Epic 4: Money-Tracker Reference Parity (TBD — pending reference-parity spike)
+Scope derived from the spike's gap backlog. Theme: feature parity + UI/UX ≥ reference, mobile-first. Other platform tools remain lower priority until money-tracker reaches reference parity.
+
+**Dependencies:** strictly forward — Epic 2 builds on Epic 1 (auth, shell, pipeline); Epic 3 builds on Epic 2 (transaction/category data). Epic 4 scope is gated on the reference-parity spike. Each epic delivers standalone user value.
 
 ## Epic 1: Platform Foundation & Identity
 
