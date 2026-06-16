@@ -53,6 +53,40 @@
   }
 }
 
+.label {
+  padding: var(--spacing-2) var(--spacing-3);
+
+  font-family: var(--default-font-family);
+  font-size: var(--font-body-s-size);
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface-variant);
+}
+
+.separator {
+  height: 1px;
+
+  margin: var(--spacing-1) 0;
+
+  background-color: var(--outline-variant);
+}
+
+.radioItem {
+  padding-left: var(--spacing-2);
+}
+
+.radioIndicator {
+  display: flex;
+
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  width: 18px;
+  height: 18px;
+
+  color: var(--primary);
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;

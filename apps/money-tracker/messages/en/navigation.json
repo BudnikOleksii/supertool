@@ -1,5 +1,21 @@
 {
   "label": "Tools",
+  "primaryNav": "Primary navigation",
+  "labels": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "transactionsByDate": "By date",
+    "transactionsByCategory": "By category",
+    "recurringTransactions": "Recurring",
+    "transactionsImport": "Import",
+    "categories": "Categories",
+    "settings": "Settings"
+  },
+  "actions": {
+    "openMenu": "Open menu",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar"
+  },
   "monthNav": {
     "previous": "Previous month",
     "next": "Next month"
