@@ -11,6 +11,7 @@
     "actions": "Actions"
   },
   "actions": {
+    "copy": "Duplicate",
     "edit": "Edit",
     "delete": "Delete"
   },
@@ -33,6 +34,7 @@
     "categorySearchLabel": "Search categories",
     "categoryEmptyMessage": "No categories found",
     "categoryAll": "All categories",
+    "categoryAllInParent": "All {category}",
     "sortByLabel": "Sort by",
     "sortByDate": "Date",
     "sortByAmount": "Amount",

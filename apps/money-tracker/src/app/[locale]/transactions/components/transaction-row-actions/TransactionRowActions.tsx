@@ -2,6 +2,7 @@
 
 import type { FC } from 'react';
 
+import { Copy, Pencil, Trash2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { Link } from '@supertool/next-shared/src/i18n/navigation/navigation';
@@ -26,9 +27,11 @@ import {
   AlertDialogTrigger,
 } from '@supertool/ui/src/components/molecules/alert-dialog/AlertDialog';
 
-import { getTransactionEditPath } from '../../../../../constants/routes';
+import { getTransactionCopyPath, getTransactionEditPath } from '../../../../../constants/routes';
 import { useDeleteTransaction } from './hooks/use-delete-transaction';
 import styles from './TransactionRowActions.module.scss';
+
+const ICON_SIZE = 16;
 
 interface Props {
   id: string;
@@ -66,13 +69,28 @@ export const TransactionRowActions: FC<Props> = ({
 
   return (
     <div className={styles.actions}>
-      <Button component={Link} href={getTransactionEditPath(id)} variant="ghost" size="sm">
-        {translate('actions.edit')}
+      <Button
+        component={Link}
+        href={getTransactionCopyPath(id)}
+        variant="ghost"
+        size="icon"
+        aria-label={translate('actions.copy')}
+      >
+        <Copy size={ICON_SIZE} />
+      </Button>
+      <Button
+        component={Link}
+        href={getTransactionEditPath(id)}
+        variant="ghost"
+        size="icon"
+        aria-label={translate('actions.edit')}
+      >
+        <Pencil size={ICON_SIZE} />
       </Button>
       <AlertDialog open={open} onOpenChange={handleOpenChange}>
         <AlertDialogTrigger asChild>
-          <Button variant="ghost" size="sm">
-            {translate('actions.delete')}
+          <Button variant="ghost" size="icon" aria-label={translate('actions.delete')}>
+            <Trash2 size={ICON_SIZE} />
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent size="sm">

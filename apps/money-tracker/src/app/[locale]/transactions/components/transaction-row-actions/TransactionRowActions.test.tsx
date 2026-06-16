@@ -13,7 +13,11 @@ vi.mock('next-intl', () => ({
 }));
 
 vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
-  Link: ({ children }: { children: React.ReactNode }) => <a href="#test">{children}</a>,
+  Link: ({ children, ...props }: React.ComponentProps<'a'>) => (
+    <a {...props} href="#test">
+      {children}
+    </a>
+  ),
 }));
 
 const TRANSACTION_ID = 'transaction-1';

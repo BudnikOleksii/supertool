@@ -3,6 +3,7 @@
 import type { FC } from 'react';
 
 import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
 
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import {
@@ -12,13 +13,12 @@ import {
 import type { CategoryResponseDto } from '@supertool/shared/generated/types.gen';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Select } from '@supertool/ui/src/components/atoms/select/Select';
-import { Combobox } from '@supertool/ui/src/components/molecules/combobox/Combobox';
 
 import type { TransactionsSearchParams } from '../../utils/parse-transactions-search-params';
 
 import { TRANSACTION_TYPE } from '../../../../../constants/transaction';
-import { buildFilterCategoryOptionList } from '../../utils/build-filter-category-option-list';
 import { checkHasActiveFilters } from '../../utils/check-has-active-filters';
+import { CategoryPicker } from '../category-picker/CategoryPicker';
 import { ALL_OPTION_VALUE } from './constants';
 import { useTransactionFilters } from './hooks/use-transaction-filters';
 import styles from './TransactionFilters.module.scss';
@@ -38,15 +38,25 @@ export const TransactionFilters: FC<Props> = ({ categoryList, params }) => {
     handleClearFilters,
   } = useTransactionFilters();
 
+  const activeCategoryId = params.categoryId ?? '';
+  const isActiveCategoryValid =
+    activeCategoryId === '' ||
+    categoryList.some(
+      (category) =>
+        category.id === activeCategoryId &&
+        (params.type === undefined || category.type === params.type),
+    );
+
+  useEffect(() => {
+    if (!isActiveCategoryValid) {
+      handleCategoryChange(ALL_OPTION_VALUE);
+    }
+  }, [isActiveCategoryValid, handleCategoryChange]);
+
   const typeOptionList = [
     { value: ALL_OPTION_VALUE, label: translate('typeAll') },
     { value: TRANSACTION_TYPE.income, label: translate('typeIncome') },
     { value: TRANSACTION_TYPE.expense, label: translate('typeExpense') },
-  ];
-
-  const categoryOptionList = [
-    { value: ALL_OPTION_VALUE, label: translate('categoryAll') },
-    ...buildFilterCategoryOptionList(categoryList, params.type),
   ];
 
   const sortByOptionList = [
@@ -70,13 +80,18 @@ export const TransactionFilters: FC<Props> = ({ categoryList, params }) => {
         />
       </div>
       <div className={styles.control}>
-        <Combobox
-          optionList={categoryOptionList}
+        <CategoryPicker
+          categoryList={categoryList}
+          transactionType={params.type ?? ''}
           value={params.categoryId ?? ''}
           onValueChange={handleCategoryChange}
           placeholder={translate('categoryPlaceholder')}
-          searchLabel={translate('categorySearchLabel')}
-          emptyMessage={translate('categoryEmptyMessage')}
+          ariaLabel={translate('categoryAll')}
+          getParentOptionLabel={(parentName) =>
+            translate('categoryAllInParent', { category: parentName })
+          }
+          showAllOption
+          allCategoriesLabel={translate('categoryAll')}
         />
       </div>
       <div className={styles.control}>
