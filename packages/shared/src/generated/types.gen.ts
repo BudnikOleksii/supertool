@@ -122,6 +122,19 @@ export type MonthlySummaryResponseDto = {
     currency: string;
 };
 
+export type CategoryBreakdownItemDto = {
+    categoryId: string;
+    categoryName: string;
+    total: string;
+    share: number;
+};
+
+export type CategoryBreakdownResponseDto = {
+    breakdown: Array<CategoryBreakdownItemDto>;
+    totalExpense: string;
+    currency: string;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -402,3 +415,26 @@ export type AnalyticsGetMonthlySummaryResponses = {
 };
 
 export type AnalyticsGetMonthlySummaryResponse = AnalyticsGetMonthlySummaryResponses[keyof AnalyticsGetMonthlySummaryResponses];
+
+export type AnalyticsGetCategoryBreakdownData = {
+    body?: never;
+    path?: never;
+    query: {
+        dateFrom: string;
+        dateTo: string;
+    };
+    url: '/api/v1/analytics/breakdown';
+};
+
+export type AnalyticsGetCategoryBreakdownErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type AnalyticsGetCategoryBreakdownError = AnalyticsGetCategoryBreakdownErrors[keyof AnalyticsGetCategoryBreakdownErrors];
+
+export type AnalyticsGetCategoryBreakdownResponses = {
+    200: CategoryBreakdownResponseDto;
+};
+
+export type AnalyticsGetCategoryBreakdownResponse = AnalyticsGetCategoryBreakdownResponses[keyof AnalyticsGetCategoryBreakdownResponses];

@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { NO_CURRENCY } from '@supertool/shared/constants/currency';
 
+import type { CategoryBreakdownResponseDto } from './dtos/category-breakdown-response.dto';
+import type { FindBreakdownQueryDto } from './dtos/find-breakdown-query.dto';
 import type { FindSummaryQueryDto } from './dtos/find-summary-query.dto';
 import type { MonthlySummaryResponseDto } from './dtos/monthly-summary-response.dto';
 
@@ -29,6 +31,25 @@ export class AnalyticsService {
     }
 
     return this.analyticsRepository.getMonthlySummary({
+      userId,
+      currency,
+      dateFrom: query.dateFrom,
+      dateTo: query.dateTo,
+    });
+  }
+
+  async getCategoryBreakdown(
+    userId: string,
+    query: FindBreakdownQueryDto,
+  ): Promise<CategoryBreakdownResponseDto> {
+    const user = await this.usersRepository.findByIdScoped(userId);
+    const currency = user?.defaultCurrency ?? null;
+
+    if (currency === null) {
+      return { breakdown: [], totalExpense: ZERO_AMOUNT, currency: NO_CURRENCY };
+    }
+
+    return this.analyticsRepository.getCategoryBreakdown({
       userId,
       currency,
       dateFrom: query.dateFrom,

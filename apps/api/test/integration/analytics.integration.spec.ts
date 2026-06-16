@@ -175,6 +175,159 @@ const insertOtherUserWithTransaction = async (window: MonthWindow): Promise<stri
   return otherUserId;
 };
 
+const BREAKDOWN_WINDOW = { dateFrom: '2099-03-01', dateTo: '2099-03-31' };
+const BREAKDOWN_DATE = '2099-03-15';
+const FOOD_ROOT_TOTAL = '60.00';
+const TRANSPORT_ROOT_TOTAL = '100.00';
+const BREAKDOWN_TOTAL_EXPENSE = '160.00';
+const FOOD_SHARE = 37.5;
+const TRANSPORT_SHARE = 62.5;
+const EXPECTED_BREAKDOWN_ROW_COUNT = 2;
+
+interface BreakdownFixture {
+  userId: string;
+  foodRootId: string;
+  transportRootId: string;
+}
+
+const insertExpenseCategory = async (params: {
+  userId: string;
+  name: string;
+  parentId: string | null;
+}): Promise<string> => {
+  const id = generateId();
+  await getPool().query(
+    `INSERT INTO transaction_categories (id, user_id, name, type, parent_id) VALUES ($1, $2, $3, 'expense', $4)`,
+    [id, params.userId, params.name, params.parentId],
+  );
+  return id;
+};
+
+const insertTransaction = async (params: {
+  userId: string;
+  categoryId: string;
+  amount: string;
+  currency: string;
+  type: string;
+}): Promise<void> => {
+  await getPool().query(
+    `INSERT INTO transactions (id, user_id, category_id, type, amount, currency, date, note)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, '')`,
+    [
+      generateId(),
+      params.userId,
+      params.categoryId,
+      params.type,
+      params.amount,
+      params.currency,
+      BREAKDOWN_DATE,
+    ],
+  );
+};
+
+const insertUser = async (name: string): Promise<string> => {
+  const userId = generateId();
+  await getPool().query(
+    `INSERT INTO users (id, name, email, default_currency) VALUES ($1, $2, $3, $4)`,
+    [
+      userId,
+      name,
+      `${name.replace(/\s+/gu, '-').toLowerCase()}-${userId}@example.com`,
+      SEED_CURRENCY,
+    ],
+  );
+  return userId;
+};
+
+interface BreakdownHierarchy {
+  foodRootId: string;
+  restaurantsId: string;
+  fastFoodId: string;
+  transportRootId: string;
+}
+
+const insertBreakdownHierarchy = async (userId: string): Promise<BreakdownHierarchy> => {
+  const foodRootId = await insertExpenseCategory({ userId, name: 'Food', parentId: null });
+  const restaurantsId = await insertExpenseCategory({
+    userId,
+    name: 'Restaurants',
+    parentId: foodRootId,
+  });
+  const fastFoodId = await insertExpenseCategory({
+    userId,
+    name: 'Fast Food',
+    parentId: restaurantsId,
+  });
+  const transportRootId = await insertExpenseCategory({
+    userId,
+    name: 'Transport',
+    parentId: null,
+  });
+
+  return { foodRootId, restaurantsId, fastFoodId, transportRootId };
+};
+
+const insertBreakdownTransactions = async (
+  userId: string,
+  hierarchy: BreakdownHierarchy,
+): Promise<void> => {
+  const transactionList = [
+    { categoryId: hierarchy.foodRootId, amount: '10.00', currency: SEED_CURRENCY, type: 'expense' },
+    {
+      categoryId: hierarchy.restaurantsId,
+      amount: '20.00',
+      currency: SEED_CURRENCY,
+      type: 'expense',
+    },
+    { categoryId: hierarchy.fastFoodId, amount: '30.00', currency: SEED_CURRENCY, type: 'expense' },
+    {
+      categoryId: hierarchy.transportRootId,
+      amount: '100.00',
+      currency: SEED_CURRENCY,
+      type: 'expense',
+    },
+    { categoryId: hierarchy.foodRootId, amount: '500.00', currency: SEED_CURRENCY, type: 'income' },
+    {
+      categoryId: hierarchy.foodRootId,
+      amount: '999.99',
+      currency: FOREIGN_CURRENCY,
+      type: 'expense',
+    },
+  ];
+
+  await Promise.all(transactionList.map((entry) => insertTransaction({ userId, ...entry })));
+};
+
+const insertCrossUserExpense = async (): Promise<void> => {
+  const otherUserId = await insertUser('Other Breakdown User');
+  const otherCategoryId = generateId();
+  await getPool().query(
+    `INSERT INTO transaction_categories (id, user_id, name, type) VALUES ($1, $2, 'Other', 'expense')`,
+    [otherCategoryId, otherUserId],
+  );
+  await insertTransaction({
+    userId: otherUserId,
+    categoryId: otherCategoryId,
+    amount: '321.00',
+    currency: SEED_CURRENCY,
+    type: 'expense',
+  });
+};
+
+const seedBreakdownFixture = async (): Promise<BreakdownFixture> => {
+  const userId = await insertUser('Breakdown User');
+  const hierarchy = await insertBreakdownHierarchy(userId);
+
+  await insertBreakdownTransactions(userId, hierarchy);
+  await insertCrossUserExpense();
+
+  return {
+    userId,
+    foodRootId: hierarchy.foodRootId,
+    transportRootId: hierarchy.transportRootId,
+  };
+};
+
 const loadSeedModules = async (): Promise<void> => {
   ({ prepareDatabase } = await import('../../src/database/prepare-database.js'));
   ({ runSeed } = await import('../../src/database/run-seed.js'));
@@ -324,5 +477,122 @@ describe('AnalyticsService monthly summary (Testcontainers Postgres)', () => {
     expect(summary.income).toBe(expected.income);
     expect(summary.expense).toBe(expected.expense);
     expect(summary.net).toBe(expected.net);
+  });
+});
+
+describe('AnalyticsRepository category breakdown (Testcontainers Postgres)', () => {
+  it('rolls every descendant spend up to its top-level ancestor (AC2 restructured hierarchy)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsRepository().getCategoryBreakdown({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+    });
+
+    const foodRow = result.breakdown.find((row) => row.categoryId === fixture.foodRootId);
+    const transportRow = result.breakdown.find((row) => row.categoryId === fixture.transportRootId);
+
+    expect(result.breakdown).toHaveLength(EXPECTED_BREAKDOWN_ROW_COUNT);
+    expect(foodRow?.total).toBe(FOOD_ROOT_TOTAL);
+    expect(transportRow?.total).toBe(TRANSPORT_ROOT_TOTAL);
+    expect(result.breakdown.some((row) => row.categoryName === 'Restaurants')).toBe(false);
+    expect(result.breakdown.some((row) => row.categoryName === 'Fast Food')).toBe(false);
+  });
+
+  it('orders breakdown rows by amount descending (AC4c)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsRepository().getCategoryBreakdown({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+    });
+
+    expect(result.breakdown.map((row) => row.categoryId)).toEqual([
+      fixture.transportRootId,
+      fixture.foodRootId,
+    ]);
+  });
+
+  it('reconciles the breakdown totals exactly with the summary expense (AC4b, FR18)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const breakdown = await getAnalyticsRepository().getCategoryBreakdown({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+    });
+    const summary = await getAnalyticsRepository().getMonthlySummary({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+    });
+
+    const summedTotal = breakdown.breakdown
+      .reduce((total, row) => total.plus(new Decimal(row.total)), new Decimal(0))
+      .toFixed(MONEY_SCALE);
+
+    expect(breakdown.totalExpense).toBe(BREAKDOWN_TOTAL_EXPENSE);
+    expect(summedTotal).toBe(summary.expense);
+    expect(breakdown.totalExpense).toBe(summary.expense);
+  });
+
+  it('computes share-of-total as a percentage that reflects each root total', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsRepository().getCategoryBreakdown({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+    });
+
+    const foodRow = result.breakdown.find((row) => row.categoryId === fixture.foodRootId);
+    const transportRow = result.breakdown.find((row) => row.categoryId === fixture.transportRootId);
+
+    expect(foodRow?.share).toBeCloseTo(FOOD_SHARE);
+    expect(transportRow?.share).toBeCloseTo(TRANSPORT_SHARE);
+  });
+
+  it('excludes cross-currency and cross-user expenses from the breakdown (AC4d, AC4e)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsRepository().getCategoryBreakdown({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+    });
+
+    expect(result.breakdown).toHaveLength(EXPECTED_BREAKDOWN_ROW_COUNT);
+    expect(result.totalExpense).toBe(BREAKDOWN_TOTAL_EXPENSE);
+  });
+});
+
+describe('AnalyticsService category breakdown (Testcontainers Postgres)', () => {
+  it('resolves the seeded operator default currency for the breakdown (AC1)', async () => {
+    const window = await loadLatestMonthWindow();
+
+    const breakdown = await getAnalyticsService().getCategoryBreakdown(operatorId, {
+      dateFrom: window.dateFrom,
+      dateTo: window.dateTo,
+    });
+    const summary = await getAnalyticsService().getMonthlySummary(operatorId, {
+      dateFrom: window.dateFrom,
+      dateTo: window.dateTo,
+    });
+
+    const summedTotal = breakdown.breakdown
+      .reduce((total, row) => total.plus(new Decimal(row.total)), new Decimal(0))
+      .toFixed(MONEY_SCALE);
+
+    expect(breakdown.currency).toBe(SEED_CURRENCY);
+    expect(summedTotal).toBe(summary.expense);
+    expect(breakdown.totalExpense).toBe(summary.expense);
   });
 });
