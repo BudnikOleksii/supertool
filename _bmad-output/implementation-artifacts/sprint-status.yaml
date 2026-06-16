@@ -1,6 +1,6 @@
 # generated: 2026-06-10
-# last_updated: 2026-06-15
-# (epic-3 → in-progress, 3-1 → ready-for-dev)
+# last_updated: 2026-06-16
+# (epic-4 → in-progress; 4-1 → ready-for-dev)
 # project: supertool
 # project_key: NOKEY
 # tracking_system: file-system
@@ -37,7 +37,6 @@
 
 generated: 2026-06-10
 last_updated: 2026-06-16
-# (epic-3 → done; epic-3 retro done; spike-reference-parity → ready-for-dev; epic-4 → backlog)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -82,11 +81,42 @@ development_status:
   3-3-twelve-month-trend: done
   epic-3-retrospective: done
 
-  # Pre-Epic-4: reference-parity spike — BLOCKS next-epic planning (Epic 3 retro 2026-06-16).
-  # Run example/track-my-life locally, capture its UI (mobile especially) + feature set,
-  # diff vs supertool → reference-parity-gap-backlog.md → feeds create-epics-and-stories.
-  # Done 2026-06-16 → reference-parity-gap-backlog.md (planning-artifacts). Next: create-epics-and-stories.
+  # Pre-Epic-4: reference-parity spike — done 2026-06-16 → reference-parity-gap-backlog.md
+  # (planning-artifacts). Fed create-epics-and-stories → Epics 4-7 below.
   spike-reference-parity: done
 
-  # Epic 4: Money-Tracker Reference Parity — scope from the gap backlog (Epic 4 = Core money loop to parity)
-  epic-4: backlog
+  # Epic 4: Mobile-First & Existing-Screen Quality
+  epic-4: in-progress
+  4-1-mobile-navigation-drawer-in-app-navigation: done
+  4-2-mobile-usable-transactions-list: backlog
+  4-3-first-run-period-auto-fit: backlog
+  4-4-dashboard-widget-visual-qa-defect-fixes: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Import Your Data & See Your Money
+  epic-5: backlog
+  5-1-transaction-import-endpoint: backlog
+  5-2-standalone-import-page: backlog
+  5-3-onboarding-flow: backlog
+  5-4-dashboard-analytics-endpoints-top-categories-daily-spending: backlog
+  5-5-dashboard-widgets-top-categories-daily-spending-recent-transactions-filter-bar: backlog
+  5-6-transactions-by-category-drill-down: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Manage Transactions at Scale
+  epic-6: backlog
+  6-1-transactions-list-ux-enrichment: backlog
+  6-2-bulk-delete-transactions: backlog
+  6-3-export-transactions-csv-json: backlog
+  6-4-search-transactions: backlog
+  6-5-analytics-response-caching: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Account & Landing
+  epic-7: backlog
+  7-1-first-last-name-capture: backlog
+  7-2-change-password: backlog
+  7-3-delete-account: backlog
+  7-4-marketing-landing-page: backlog
+  7-5-security-hardening-helmet-compression: backlog
+  epic-7-retrospective: optional

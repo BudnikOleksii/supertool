@@ -8,6 +8,9 @@ export const ROUTES = {
   categoriesNew: '/categories/new',
   transactions: '/transactions',
   transactionsNew: '/transactions/new',
+  transactionsByCategory: '/transactions/by-category',
+  transactionsRecurring: '/transactions/recurring',
+  transactionsImport: '/transactions/import',
 } as const;
 
 export const getCategoryEditPath = (id: string): string => `${ROUTES.categories}/${id}/edit`;

@@ -1,0 +1,218 @@
+@use "@supertool/ui/src/styles/breakpoints";
+@use "@supertool/ui/src/styles/mixins";
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+
+  background-color: color-mix(in srgb, var(--scrim) 40%, transparent);
+
+  animation: backdropFadeIn 0.2s ease;
+
+  @include breakpoints.media-l {
+    display: none;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+
+  display: flex;
+
+  flex-direction: column;
+
+  width: 256px;
+  height: 100dvh;
+
+  padding: var(--spacing-3) var(--spacing-2);
+
+  background-color: var(--surface-container-low);
+  border-right: 1px solid var(--outline-variant);
+
+  transform: translateX(-100%);
+
+  transition:
+    width 0.2s ease,
+    transform 0.2s ease;
+
+  @include breakpoints.media-l {
+    position: sticky;
+
+    transform: translateX(0);
+  }
+}
+
+.mobileOpen {
+  transform: translateX(0);
+}
+
+.collapsed {
+  @include breakpoints.media-l {
+    width: var(--spacing-16);
+  }
+
+  .brand,
+  .navLabel,
+  .chevron,
+  .submenu {
+    @include breakpoints.media-l {
+      display: none;
+    }
+  }
+}
+
+.brand {
+  display: flex;
+
+  align-items: center;
+
+  min-height: 40px;
+
+  margin-bottom: var(--spacing-3);
+  padding: 0 var(--spacing-2);
+
+  overflow: hidden;
+}
+
+.nav {
+  display: flex;
+
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-1);
+
+  overflow-y: auto;
+}
+
+.group {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.navItem {
+  display: flex;
+
+  align-items: center;
+  gap: var(--spacing-3);
+
+  width: 100%;
+
+  padding: var(--spacing-2) var(--spacing-3);
+
+  font-family: var(--default-font-family);
+  font-size: var(--font-body-m-size);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  text-decoration: none;
+  color: var(--on-surface-variant);
+
+  cursor: pointer;
+
+  background: none;
+  border: none;
+  border-radius: var(--radius-xl);
+
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+
+  @include mixins.hover {
+    color: var(--on-surface);
+
+    background-color: var(--surface-container-highest);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+  }
+
+  &[aria-current="page"] {
+    color: var(--on-primary-container);
+
+    background-color: var(--primary-container);
+  }
+}
+
+.parentActive {
+  color: var(--on-surface);
+}
+
+.disabled {
+  cursor: not-allowed;
+
+  opacity: 0.45;
+}
+
+.navIcon {
+  display: flex;
+
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  width: 24px;
+  height: 24px;
+}
+
+.navLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+
+  margin-left: auto;
+
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.childItem {
+  padding-left: var(--spacing-10);
+}
+
+.footer {
+  display: none;
+
+  padding-top: var(--spacing-2);
+
+  border-top: 1px solid var(--outline-variant);
+
+  @include breakpoints.media-l {
+    display: block;
+  }
+}
+
+.collapseButton.collapseButton {
+  width: 100%;
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

@@ -13,7 +13,8 @@
   "dependencies": {
     "@supertool/next-shared": "workspace:*",
     "@supertool/shared": "workspace:*",
-    "@supertool/ui": "workspace:*"
+    "@supertool/ui": "workspace:*",
+    "lucide-react": "1.18.0"
   },
   "devDependencies": {
     "@supertool/typescript-config": "workspace:*",

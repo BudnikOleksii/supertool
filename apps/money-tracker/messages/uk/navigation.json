@@ -1,5 +1,21 @@
 {
   "label": "Інструменти",
+  "primaryNav": "Основна навігація",
+  "labels": {
+    "dashboard": "Панель",
+    "transactions": "Транзакції",
+    "transactionsByDate": "За датою",
+    "transactionsByCategory": "За категоріями",
+    "recurringTransactions": "Регулярні",
+    "transactionsImport": "Імпорт",
+    "categories": "Категорії",
+    "settings": "Налаштування"
+  },
+  "actions": {
+    "openMenu": "Відкрити меню",
+    "expand": "Розгорнути панель",
+    "collapse": "Згорнути панель"
+  },
   "monthNav": {
     "previous": "Попередній місяць",
     "next": "Наступний місяць"
