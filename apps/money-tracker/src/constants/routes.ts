@@ -20,4 +20,4 @@ export const getTransactionEditPath = (id: string): string => `${ROUTES.transact
 export const COPY_FROM_SEARCH_PARAM = 'copyFrom';
 
 export const getTransactionCopyPath = (id: string): string =>
-  `${ROUTES.transactionsNew}?${COPY_FROM_SEARCH_PARAM}=${id}`;
+  `${ROUTES.transactionsNew}?${new URLSearchParams({ [COPY_FROM_SEARCH_PARAM]: id }).toString()}`;

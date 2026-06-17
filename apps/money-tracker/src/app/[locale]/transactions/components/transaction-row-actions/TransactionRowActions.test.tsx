@@ -13,11 +13,7 @@ vi.mock('next-intl', () => ({
 }));
 
 vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
-  Link: ({ children, ...props }: React.ComponentProps<'a'>) => (
-    <a {...props} href="#test">
-      {children}
-    </a>
-  ),
+  Link: ({ children, ...props }: React.ComponentProps<'a'>) => <a {...props}>{children}</a>,
 }));
 
 const TRANSACTION_ID = 'transaction-1';
@@ -52,6 +48,17 @@ const openDialog = (): void => {
 describe('TransactionRowActions', () => {
   afterEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('links the copy and edit actions to their generated routes', () => {
+    renderActions();
+
+    expect(screen.getByRole('link', { name: 'actions.copy' }).getAttribute('href')).toBe(
+      `/transactions/new?copyFrom=${TRANSACTION_ID}`,
+    );
+    expect(screen.getByRole('link', { name: 'actions.edit' }).getAttribute('href')).toBe(
+      `/transactions/${TRANSACTION_ID}/edit`,
+    );
   });
 
   it('calls deleteTransaction with the id when the deletion is confirmed', async () => {
