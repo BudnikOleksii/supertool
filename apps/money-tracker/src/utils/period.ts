@@ -19,6 +19,8 @@ const MONTH_INDEX_OFFSET = 1;
 const ADJACENT_STEP = 1;
 const LAST_DAY_PROBE = 0;
 const MONTHS_PER_YEAR = 12;
+const PERIOD_START_INDEX = 0;
+const PERIOD_LENGTH = 7;
 
 const formatTwoDigits = (value: number): string => String(value).padStart(TWO_DIGITS, '0');
 
@@ -33,21 +35,30 @@ export const getCurrentPeriod = (): string => {
   return formatPeriod({ year: now.getFullYear(), month: now.getMonth() + MONTH_INDEX_OFFSET });
 };
 
-export const parsePeriod = (value: string | undefined): PeriodParts => {
-  if (value === undefined || !PERIOD_PATTERN.test(value)) {
-    return parsePeriod(getCurrentPeriod());
+export const checkIsValidPeriod = (value: string): boolean => {
+  if (!PERIOD_PATTERN.test(value)) {
+    return false;
   }
 
   const [yearPart, monthPart] = value.split('-');
   const year = Number(yearPart);
   const month = Number(monthPart);
 
-  if (year < MIN_YEAR || month < FIRST_MONTH || month > LAST_MONTH) {
+  return year >= MIN_YEAR && month >= FIRST_MONTH && month <= LAST_MONTH;
+};
+
+export const parsePeriod = (value: string | undefined): PeriodParts => {
+  if (value === undefined || !checkIsValidPeriod(value)) {
     return parsePeriod(getCurrentPeriod());
   }
 
-  return { year, month };
+  const [yearPart, monthPart] = value.split('-');
+
+  return { year: Number(yearPart), month: Number(monthPart) };
 };
+
+export const getPeriodFromDate = (date: string): string =>
+  formatPeriod(parsePeriod(date.slice(PERIOD_START_INDEX, PERIOD_LENGTH)));
 
 export const getMonthDateRange = ({ year, month }: PeriodParts): MonthDateRange => {
   const lastDay = new Date(year, month, LAST_DAY_PROBE).getDate();

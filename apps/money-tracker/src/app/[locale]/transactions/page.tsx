@@ -12,6 +12,9 @@ import { fetchCategoryList } from '../../../actions/fetch-category-list';
 import { fetchProfile } from '../../../actions/fetch-profile';
 import { MonthStepper } from '../../../components/month-stepper/MonthStepper';
 import { ROUTES } from '../../../constants/routes';
+import { PERIOD_SEARCH_PARAM } from '../../../constants/search-params';
+import { normalizeSearchParam } from '../../../utils/normalize-search-param';
+import { resolveDefaultPeriod } from '../../../utils/resolve-default-period';
 import { TransactionFilters } from './components/transaction-filters/TransactionFilters';
 import { TransactionListServer } from './components/transaction-list-server/TransactionListServer';
 import { TransactionListSkeleton } from './components/transaction-list-skeleton/TransactionListSkeleton';
@@ -39,7 +42,10 @@ const TransactionsPage: FC<Props> = async (props) => {
   }
 
   const translate = await getTranslations(I18N_NAMESPACE.transactionsPage);
-  const params = parseTransactionsSearchParams(searchParams);
+  const period = await resolveDefaultPeriod(
+    normalizeSearchParam(searchParams[PERIOD_SEARCH_PARAM]),
+  );
+  const params = parseTransactionsSearchParams(searchParams, period);
   const categoryList = await fetchCategoryList();
 
   return (

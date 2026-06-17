@@ -12,7 +12,7 @@ import { MonthStepper } from '../../../components/month-stepper/MonthStepper';
 import { ROUTES } from '../../../constants/routes';
 import { PERIOD_SEARCH_PARAM } from '../../../constants/search-params';
 import { normalizeSearchParam } from '../../../utils/normalize-search-param';
-import { formatPeriod, parsePeriod } from '../../../utils/period';
+import { resolveDefaultPeriod } from '../../../utils/resolve-default-period';
 import { DashboardBreakdownSkeleton } from './components/dashboard-breakdown-skeleton/DashboardBreakdownSkeleton';
 import { DashboardBreakdown } from './components/dashboard-breakdown/DashboardBreakdown';
 import { DashboardSummarySkeleton } from './components/dashboard-summary-skeleton/DashboardSummarySkeleton';
@@ -42,7 +42,9 @@ const DashboardPage: FC<Props> = async (props) => {
   }
 
   const translate = await getTranslations(I18N_NAMESPACE.dashboardPage);
-  const period = formatPeriod(parsePeriod(normalizeSearchParam(searchParams[PERIOD_SEARCH_PARAM])));
+  const period = await resolveDefaultPeriod(
+    normalizeSearchParam(searchParams[PERIOD_SEARCH_PARAM]),
+  );
 
   return (
     <section className={styles.container}>

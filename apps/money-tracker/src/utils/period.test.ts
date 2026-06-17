@@ -1,13 +1,45 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  checkIsValidPeriod,
   getCurrentPeriod,
   getMonthDateRange,
   getNextPeriod,
+  getPeriodFromDate,
   getPreviousPeriod,
   getTrailingMonthsRange,
   parsePeriod,
 } from './period';
+
+describe('checkIsValidPeriod', () => {
+  it('accepts a well-formed in-range period', () => {
+    expect(checkIsValidPeriod('2025-03')).toBe(true);
+  });
+
+  it('rejects a malformed pattern', () => {
+    expect(checkIsValidPeriod('not-a-period')).toBe(false);
+    expect(checkIsValidPeriod('2025-3')).toBe(false);
+  });
+
+  it('rejects an out-of-range month', () => {
+    expect(checkIsValidPeriod('2025-13')).toBe(false);
+    expect(checkIsValidPeriod('2025-00')).toBe(false);
+  });
+
+  it('rejects a sub-1000 year that JavaScript Date would misread', () => {
+    expect(checkIsValidPeriod('0099-01')).toBe(false);
+  });
+});
+
+describe('getPeriodFromDate', () => {
+  it('extracts the YYYY-MM period from a YYYY-MM-DD date', () => {
+    expect(getPeriodFromDate('2025-02-03')).toBe('2025-02');
+  });
+
+  it('keeps the year boundary intact for a December date', () => {
+    expect(getPeriodFromDate('2021-12-31')).toBe('2021-12');
+  });
+});
 
 describe('parsePeriod', () => {
   it('parses a valid YYYY-MM period', () => {

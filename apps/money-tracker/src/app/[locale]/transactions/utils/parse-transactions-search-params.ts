@@ -11,10 +11,9 @@ import type {
 } from '@supertool/shared/constants/transaction-sort';
 import type { TransactionType } from '@supertool/shared/generated/types.gen';
 
-import { PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../../../../constants/search-params';
+import { PAGE_SEARCH_PARAM } from '../../../../constants/search-params';
 import { TRANSACTION_TYPE_LIST } from '../../../../constants/transaction';
 import { normalizeSearchParam } from '../../../../utils/normalize-search-param';
-import { formatPeriod, getCurrentPeriod, parsePeriod } from '../../../../utils/period';
 import {
   CATEGORY_SEARCH_PARAM,
   SORT_BY_SEARCH_PARAM,
@@ -57,16 +56,12 @@ const parseSortOrder = (value: string | undefined): TransactionSortOrder =>
 
 export const parseTransactionsSearchParams = (
   searchParams: RawSearchParams,
-): TransactionsSearchParams => {
-  const rawPeriod = normalizeSearchParam(searchParams[PERIOD_SEARCH_PARAM]);
-  const periodParts = parsePeriod(rawPeriod ?? getCurrentPeriod());
-
-  return {
-    period: formatPeriod(periodParts),
-    page: parsePage(normalizeSearchParam(searchParams[PAGE_SEARCH_PARAM])),
-    type: parseType(normalizeSearchParam(searchParams[TYPE_SEARCH_PARAM])),
-    categoryId: parseCategoryId(normalizeSearchParam(searchParams[CATEGORY_SEARCH_PARAM])),
-    sortBy: parseSortBy(normalizeSearchParam(searchParams[SORT_BY_SEARCH_PARAM])),
-    sortOrder: parseSortOrder(normalizeSearchParam(searchParams[SORT_ORDER_SEARCH_PARAM])),
-  };
-};
+  period: string,
+): TransactionsSearchParams => ({
+  period,
+  page: parsePage(normalizeSearchParam(searchParams[PAGE_SEARCH_PARAM])),
+  type: parseType(normalizeSearchParam(searchParams[TYPE_SEARCH_PARAM])),
+  categoryId: parseCategoryId(normalizeSearchParam(searchParams[CATEGORY_SEARCH_PARAM])),
+  sortBy: parseSortBy(normalizeSearchParam(searchParams[SORT_BY_SEARCH_PARAM])),
+  sortOrder: parseSortOrder(normalizeSearchParam(searchParams[SORT_ORDER_SEARCH_PARAM])),
+});
