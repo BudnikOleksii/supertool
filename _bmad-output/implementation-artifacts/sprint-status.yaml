@@ -36,8 +36,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-10
-last_updated: 2026-06-16
-# (4-4 → done 2026-06-16)
+last_updated: 2026-06-17
+# (4-3 → done 2026-06-17, code review passed)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -90,7 +90,7 @@ development_status:
   epic-4: in-progress
   4-1-mobile-navigation-drawer-in-app-navigation: done
   4-2-mobile-usable-transactions-list: done
-  4-3-first-run-period-auto-fit: backlog
+  4-3-first-run-period-auto-fit: done
   4-4-dashboard-widget-visual-qa-defect-fixes: done
   epic-4-retrospective: optional
 
