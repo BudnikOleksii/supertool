@@ -11,6 +11,7 @@
     "actions": "Дії"
   },
   "actions": {
+    "copy": "Дублювати",
     "edit": "Редагувати",
     "delete": "Видалити"
   },
@@ -33,6 +34,7 @@
     "categorySearchLabel": "Пошук категорій",
     "categoryEmptyMessage": "Категорій не знайдено",
     "categoryAll": "Усі категорії",
+    "categoryAllInParent": "Усі: {category}",
     "sortByLabel": "Сортувати за",
     "sortByDate": "Датою",
     "sortByAmount": "Сумою",

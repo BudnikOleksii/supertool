@@ -1,0 +1,71 @@
+@use "@supertool/ui/src/styles/mixins";
+
+.card {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+
+  padding: var(--spacing-3) var(--spacing-4);
+
+  border-bottom: 1px solid var(--outline-variant);
+
+  transition: background-color 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @include mixins.hover {
+    background-color: var(--surface-container);
+  }
+}
+
+.info {
+  display: flex;
+
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--spacing);
+
+  min-width: 0;
+}
+
+.primary {
+  display: flex;
+
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.secondary {
+  display: flex;
+
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+
+  min-width: 0;
+}
+
+.category {
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface-variant);
+}
+
+.note {
+  min-width: 0;
+
+  color: var(--on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  flex-shrink: 0;
+}

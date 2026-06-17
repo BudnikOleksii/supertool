@@ -19,27 +19,27 @@ import { createTransaction } from '../../../../../../actions/create-transaction'
 import { updateTransaction } from '../../../../../../actions/update-transaction';
 import { TRANSACTION_TYPE } from '../../../../../../constants/transaction';
 import { transactionFormSchema } from '../../../constants/transaction-form-schema';
-import { buildCategoryOptionList } from '../../../utils/build-category-option-list';
 import { getTodayDate } from '../../../utils/get-today-date';
 
 interface UseTransactionFormParams {
   categoryList: CategoryResponseDto[];
   defaultCurrency: string | null;
   transaction?: TransactionResponseDto | undefined;
+  copyFrom?: TransactionResponseDto | undefined;
 }
 
 const getDefaultValues = (
   defaultCurrency: string | null,
-  transaction: TransactionResponseDto | undefined,
+  prefill: TransactionResponseDto | undefined,
 ): DefaultValues<TransactionFormValues> => {
-  if (transaction) {
+  if (prefill) {
     return {
-      type: transaction.type,
-      amount: transaction.amount,
-      categoryId: transaction.categoryId,
-      date: transaction.date,
-      note: transaction.note,
-      ...(checkIsCurrencyCode(transaction.currency) ? { currency: transaction.currency } : {}),
+      type: prefill.type,
+      amount: prefill.amount,
+      categoryId: prefill.categoryId,
+      date: prefill.date,
+      note: prefill.note,
+      ...(checkIsCurrencyCode(prefill.currency) ? { currency: prefill.currency } : {}),
     };
   }
 
@@ -59,6 +59,7 @@ export const useTransactionForm = ({
   categoryList,
   defaultCurrency,
   transaction,
+  copyFrom,
 }: UseTransactionFormParams) => {
   const locale = useLocale();
   const isEditing = transaction !== undefined;
@@ -73,25 +74,29 @@ export const useTransactionForm = ({
     formState: { errors },
   } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionFormSchema),
-    defaultValues: getDefaultValues(defaultCurrency, transaction),
+    defaultValues: getDefaultValues(defaultCurrency, transaction ?? copyFrom),
     mode: 'onBlur',
   });
 
   const selectedType = watch('type');
 
-  const categoryOptionList = useMemo(
-    () => buildCategoryOptionList(categoryList, selectedType),
+  const validCategoryIdSet = useMemo(
+    () =>
+      new Set(
+        categoryList
+          .filter((category) => category.type === selectedType)
+          .map((category) => category.id),
+      ),
     [categoryList, selectedType],
   );
 
   useEffect(() => {
     const selectedCategoryId = getValues('categoryId');
-    const isStillValid = categoryOptionList.some((option) => option.value === selectedCategoryId);
 
-    if (selectedCategoryId !== '' && !isStillValid) {
+    if (selectedCategoryId !== '' && !validCategoryIdSet.has(selectedCategoryId)) {
       setValue('categoryId', '');
     }
-  }, [categoryOptionList, getValues, setValue]);
+  }, [validCategoryIdSet, getValues, setValue]);
 
   const [state, submitAction] = useActionState(
     async (_previousState: ActionState, values: TransactionFormValues): Promise<ActionState> =>
@@ -120,7 +125,7 @@ export const useTransactionForm = ({
     isEditing,
     isPending,
     state,
-    categoryOptionList,
+    selectedType,
     handleFormSubmit,
   };
 };

@@ -16,3 +16,8 @@ export const ROUTES = {
 export const getCategoryEditPath = (id: string): string => `${ROUTES.categories}/${id}/edit`;
 
 export const getTransactionEditPath = (id: string): string => `${ROUTES.transactions}/${id}/edit`;
+
+export const COPY_FROM_SEARCH_PARAM = 'copyFrom';
+
+export const getTransactionCopyPath = (id: string): string =>
+  `${ROUTES.transactionsNew}?${new URLSearchParams({ [COPY_FROM_SEARCH_PARAM]: id }).toString()}`;

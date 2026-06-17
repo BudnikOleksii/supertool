@@ -1,23 +1,33 @@
-.amountColumn {
-  font-variant-numeric: tabular-nums;
-  text-align: right;
+.list {
+  display: flex;
+
+  flex-direction: column;
+
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl);
 }
 
-.dateCell {
-  white-space: nowrap;
+.dateGroup {
+  &:not(:first-child) {
+    border-top: 1px solid var(--outline-variant);
+  }
 }
 
-.noteCell {
-  max-width: 16rem;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
+.dateHeader {
+  padding: var(--spacing-2) var(--spacing-4);
 
   color: var(--on-surface-variant);
-  white-space: nowrap;
+
+  background-color: var(--surface-container);
 }
 
-.actionsColumn {
-  text-align: right;
-  white-space: nowrap;
+.dateGroup:first-child .dateHeader {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.cardList {
+  display: flex;
+
+  flex-direction: column;
 }

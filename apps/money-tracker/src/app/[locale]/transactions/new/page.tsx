@@ -15,18 +15,20 @@ import {
 
 import { fetchCategoryList } from '../../../../actions/fetch-category-list';
 import { fetchProfile } from '../../../../actions/fetch-profile';
-import { ROUTES } from '../../../../constants/routes';
+import { fetchTransaction } from '../../../../actions/fetch-transaction';
+import { COPY_FROM_SEARCH_PARAM, ROUTES } from '../../../../constants/routes';
 import { TransactionForm } from '../components/transaction-form/TransactionForm';
 import styles from './page.module.scss';
 
 interface Props {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 const EMPTY_CATEGORY_COUNT = 0;
 
 const NewTransactionPage: FC<Props> = async (props) => {
-  const { locale } = await props.params;
+  const [{ locale }, searchParams] = await Promise.all([props.params, props.searchParams]);
 
   setRequestLocale(locale);
 
@@ -36,9 +38,13 @@ const NewTransactionPage: FC<Props> = async (props) => {
     return redirect({ href: ROUTES.signIn, locale });
   }
 
-  const [translate, categoryList] = await Promise.all([
+  const copyFromValue = searchParams[COPY_FROM_SEARCH_PARAM];
+  const copyFromId =
+    typeof copyFromValue === 'string' && copyFromValue.trim() !== '' ? copyFromValue : null;
+  const [translate, categoryList, copyFrom] = await Promise.all([
     getTranslations(I18N_NAMESPACE.transactionForm),
     fetchCategoryList(),
+    copyFromId === null ? Promise.resolve(null) : fetchTransaction(copyFromId),
   ]);
 
   return (
@@ -59,6 +65,7 @@ const NewTransactionPage: FC<Props> = async (props) => {
             <TransactionForm
               categoryList={categoryList}
               defaultCurrency={profile.defaultCurrency ?? null}
+              copyFrom={copyFrom ?? undefined}
             />
           )}
         </CardContent>

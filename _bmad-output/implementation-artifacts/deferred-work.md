@@ -124,6 +124,11 @@
 - Dual active-route detection in the sidebar: `getActiveHref` (AppSidebar.tsx:36-44) uses prefix/longest-match but its result only drives submenu auto-open; the rendered link's `aria-current="page"` comes from `NavigationLink` exact-match. Deep sub-paths (e.g. `/categories/<id>/edit`, `/transactions/<id>`) therefore surface no active nav item. Documented as accepted scope for 4-1 (Dev Notes: prefix-match active state optional, not AC-required). Revisit if prefix-match active highlighting is wanted — unify the two matchers (pass `activeHref` down to `SidebarNavLink`).
 - Sidebar brand may clip to "Mor Trac" in the expanded 256px rail via `.brand { overflow: hidden }` (AppSidebar.module.scss:68-79), per `visual-qa/4-1-mobile-navigation/v2-desktop-light-usermenu.png`. Other captures show the brand intact, so likely a capture artifact — verify against the live UI; if real, give the brand single-line/ellipsis handling.
 
+## Deferred from: code review of 4-2-mobile-usable-transactions-list (2026-06-16)
+
+- **Deeply nested (3rd-level) categories unselectable in `CategoryPicker`** — `mainCategoryList` is `parentId === null` and the sub-pane renders only one child level, so a grandchild category cannot be reached or displayed. Latent because seed data is two-level today. Revisit when a 3-level category hierarchy is introduced. (`apps/money-tracker/src/app/[locale]/transactions/components/category-picker/hooks/use-category-picker.ts`)
+- **`CategoryPicker` listbox keyboard polish** — no Home/End/typeahead, no arrow-wrap at list boundaries, ArrowDown on the closed trigger does not open the list. Matches the example reference pattern; treat as an accessibility enhancement. (`apps/money-tracker/src/app/[locale]/transactions/components/category-picker/CategoryPicker.tsx`)
+
 ## Deferred from: code review of 4-4-dashboard-widget-visual-qa-defect-fixes (2026-06-16)
 
 - `grid` and `outline` both map to the same token `--outline-variant` in `DashboardTrendContent`'s `CHART_COLOR_TOKENS` map. Redundant `ChartColors` fields, presentation-only (gridlines vs tooltip border), carried through the refactor unchanged. Collapse to one field if this file is touched again. [apps/money-tracker/src/app/[locale]/dashboard/components/dashboard-trend/DashboardTrendContent.tsx]

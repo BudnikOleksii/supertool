@@ -57,8 +57,8 @@ const EXISTING_TRANSACTION: TransactionResponseDto = {
   updatedAt: TIMESTAMP,
 };
 
-const openCategoryCombobox = (): void => {
-  fireEvent.click(screen.getByRole('combobox', { name: 'categoryPlaceholder' }));
+const openCategoryPicker = (): void => {
+  fireEvent.click(screen.getByRole('button', { name: 'categoryLabel' }));
 };
 
 const expectCategoryOptions = (presentName: string, absentName: string): void => {
@@ -89,16 +89,20 @@ describe('TransactionForm', () => {
   it('re-scopes the category options to the selected type and clears an invalid selection', async () => {
     render(<TransactionForm categoryList={CATEGORY_LIST} defaultCurrency={null} />);
 
-    openCategoryCombobox();
+    openCategoryPicker();
     expectCategoryOptions('Food', 'Salary');
 
     fireEvent.click(screen.getByRole('option', { name: 'Food' }));
-    screen.getByRole('combobox', { name: 'Food' });
+    expect(screen.getByRole('button', { name: 'categoryLabel' }).textContent).toContain('Food');
 
     fireEvent.click(screen.getByRole('button', { name: 'typeIncome' }));
-    await screen.findByRole('combobox', { name: 'categoryPlaceholder' });
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'categoryLabel' }).textContent).toContain(
+        'categoryPlaceholder',
+      );
+    });
 
-    openCategoryCombobox();
+    openCategoryPicker();
     expectCategoryOptions('Salary', 'Food');
   });
 
@@ -107,7 +111,7 @@ describe('TransactionForm', () => {
     render(<TransactionForm categoryList={CATEGORY_LIST} defaultCurrency="USD" />);
 
     fireEvent.change(screen.getByLabelText('amountLabel'), { target: { value: '12.50' } });
-    fireEvent.click(screen.getByRole('combobox', { name: 'categoryPlaceholder' }));
+    openCategoryPicker();
     fireEvent.click(screen.getByRole('option', { name: 'Food' }));
 
     fireEvent.click(screen.getByRole('button', { name: 'submit' }));
@@ -128,7 +132,7 @@ describe('TransactionForm', () => {
 
     expect((screen.getByLabelText('amountLabel') as HTMLInputElement).value).toBe('1234.56');
     expect((screen.getByLabelText('noteLabel') as HTMLInputElement).value).toBe('Groceries');
-    screen.getByRole('combobox', { name: 'Food' });
+    expect(screen.getByRole('button', { name: 'categoryLabel' }).textContent).toContain('Food');
     screen.getByRole('button', { name: 'save' });
   });
 

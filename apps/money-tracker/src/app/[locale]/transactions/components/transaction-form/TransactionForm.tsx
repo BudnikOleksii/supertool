@@ -29,6 +29,7 @@ import {
 import { ROUTES } from '../../../../../constants/routes';
 import { TRANSACTION_TYPE_LIST } from '../../../../../constants/transaction';
 import { CURRENCY_OPTION_LIST } from '../../constants/currency-option-list';
+import { CategoryPicker } from '../category-picker/CategoryPicker';
 import { useTransactionForm } from './hooks/use-transaction-form';
 import styles from './TransactionForm.module.scss';
 
@@ -36,9 +37,15 @@ interface Props {
   categoryList: CategoryResponseDto[];
   defaultCurrency: string | null;
   transaction?: TransactionResponseDto;
+  copyFrom?: TransactionResponseDto | undefined;
 }
 
-export const TransactionForm: FC<Props> = ({ categoryList, defaultCurrency, transaction }) => {
+export const TransactionForm: FC<Props> = ({
+  categoryList,
+  defaultCurrency,
+  transaction,
+  copyFrom,
+}) => {
   const translate = useTranslations(I18N_NAMESPACE.transactionForm);
   const translateError = useTranslations(`${I18N_NAMESPACE.transactionForm}.errors`);
   const {
@@ -49,9 +56,9 @@ export const TransactionForm: FC<Props> = ({ categoryList, defaultCurrency, tran
     isEditing,
     isPending,
     state,
-    categoryOptionList,
+    selectedType,
     handleFormSubmit,
-  } = useTransactionForm({ categoryList, defaultCurrency, transaction });
+  } = useTransactionForm({ categoryList, defaultCurrency, transaction, copyFrom });
 
   const typeOptionList = TRANSACTION_TYPE_LIST.map((type) => ({
     value: type,
@@ -156,15 +163,16 @@ export const TransactionForm: FC<Props> = ({ categoryList, defaultCurrency, tran
                 name="categoryId"
                 control={control}
                 render={({ field }) => (
-                  <Combobox
-                    optionList={categoryOptionList}
+                  <CategoryPicker
+                    categoryList={categoryList}
+                    transactionType={selectedType}
                     value={field.value}
                     onValueChange={(value) => {
                       field.onChange(value);
                     }}
                     placeholder={translate('categoryPlaceholder')}
-                    searchLabel={translate('categorySearchLabel')}
-                    emptyMessage={translate('categoryEmptyMessage')}
+                    ariaLabel={translate('categoryLabel')}
+                    getParentOptionLabel={(parentName) => parentName}
                     error={Boolean(errors.categoryId)}
                   />
                 )}

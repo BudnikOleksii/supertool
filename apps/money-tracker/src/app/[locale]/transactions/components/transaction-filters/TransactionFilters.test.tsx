@@ -50,10 +50,6 @@ vi.mock('@supertool/ui/src/components/atoms/select/Select', () => ({
   Select: renderStubSelect(),
 }));
 
-vi.mock('@supertool/ui/src/components/molecules/combobox/Combobox', () => ({
-  Combobox: renderStubSelect(),
-}));
-
 vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
   useRouter: () => ({ replace }),
   usePathname: () => '/transactions',
@@ -145,11 +141,34 @@ describe('TransactionFilters', () => {
   it('writes the category param and resets the page', () => {
     renderFilters(buildParams());
 
-    fireEvent.change(screen.getByLabelText('categorySearchLabel'), { target: { value: 'food' } });
+    fireEvent.click(screen.getByRole('button', { name: 'categoryAll' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Food' }));
 
     const query = getReplaceQuery();
     expect(query).toMatchObject({ period: '2025-03', categoryId: 'food' });
     expect(query).not.toHaveProperty('page');
+  });
+
+  it('clears a stale categoryId that is not a valid category', () => {
+    renderFilters(buildParams({ categoryId: 'deleted-category' }));
+
+    const query = getReplaceQuery();
+    expect(query).not.toHaveProperty('categoryId');
+    expect(query).toMatchObject({ period: '2025-03' });
+  });
+
+  it('clears a categoryId whose type does not match the active type filter', () => {
+    renderFilters(buildParams({ type: 'expense', categoryId: 'salary' }));
+
+    const query = getReplaceQuery();
+    expect(query).not.toHaveProperty('categoryId');
+    expect(query).toMatchObject({ type: 'expense' });
+  });
+
+  it('keeps a valid categoryId without auto-clearing', () => {
+    renderFilters(buildParams({ type: 'expense', categoryId: 'food' }));
+
+    expect(replace).not.toHaveBeenCalled();
   });
 
   it('writes the sortBy param and resets the page', () => {
