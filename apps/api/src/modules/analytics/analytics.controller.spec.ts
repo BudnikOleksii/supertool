@@ -69,4 +69,55 @@ describe('AnalyticsController', () => {
     );
     expect(getMonthlyTrend).toHaveBeenCalledWith('user-id', inputQuery);
   });
+
+  it('forwards the session user id and query to the top categories service', async () => {
+    const expectedResult = {
+      categories: [
+        {
+          rank: 1,
+          categoryId: 'cat-1',
+          categoryName: 'Food',
+          total: '120.50',
+          share: 100,
+          transactionCount: 3,
+        },
+      ],
+      totalExpense: '120.50',
+      currency: 'UAH',
+    };
+    const getTopCategories = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [AnalyticsController],
+      providers: [{ provide: AnalyticsService, useValue: { getTopCategories } }],
+    }).compile();
+
+    const controller = moduleRef.get(AnalyticsController);
+    const inputQuery = { dateFrom: '2025-02-01', dateTo: '2025-02-28', limit: 5 };
+
+    await expect(
+      controller.getTopCategories(createSession('user-id'), inputQuery),
+    ).resolves.toEqual(expectedResult);
+    expect(getTopCategories).toHaveBeenCalledWith('user-id', inputQuery);
+  });
+
+  it('forwards the session user id and query to the daily spending service', async () => {
+    const expectedResult = {
+      days: [{ date: '2025-02-01', total: '45.99', transactionCount: 2 }],
+      totalExpense: '45.99',
+      currency: 'UAH',
+    };
+    const getDailySpending = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [AnalyticsController],
+      providers: [{ provide: AnalyticsService, useValue: { getDailySpending } }],
+    }).compile();
+
+    const controller = moduleRef.get(AnalyticsController);
+    const inputQuery = { dateFrom: '2025-02-01', dateTo: '2025-02-28' };
+
+    await expect(
+      controller.getDailySpending(createSession('user-id'), inputQuery),
+    ).resolves.toEqual(expectedResult);
+    expect(getDailySpending).toHaveBeenCalledWith('user-id', inputQuery);
+  });
 });

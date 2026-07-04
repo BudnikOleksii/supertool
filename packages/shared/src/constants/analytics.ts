@@ -1,0 +1,5 @@
+export const TOP_CATEGORIES_DEFAULT_LIMIT = 5;
+
+export const TOP_CATEGORIES_MIN_LIMIT = 1;
+
+export const TOP_CATEGORIES_MAX_LIMIT = 20;
