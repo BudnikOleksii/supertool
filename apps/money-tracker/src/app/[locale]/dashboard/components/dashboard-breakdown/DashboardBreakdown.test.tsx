@@ -22,7 +22,9 @@ const fetchCategoryBreakdownMock = vi.mocked(fetchCategoryBreakdown);
 const renderDashboardBreakdown = DashboardBreakdown;
 
 const LOCALE = 'en';
-const PERIOD = '2025-02';
+const DATE_FROM = '2025-02-01';
+const DATE_TO = '2025-02-28';
+const RANGE = { dateFrom: DATE_FROM, dateTo: DATE_TO, locale: LOCALE };
 
 describe('DashboardBreakdown', () => {
   beforeEach(() => {
@@ -42,9 +44,7 @@ describe('DashboardBreakdown', () => {
       },
     });
 
-    const { container } = render(
-      await renderDashboardBreakdown({ period: PERIOD, locale: LOCALE }),
-    );
+    const { container } = render(await renderDashboardBreakdown(RANGE));
 
     expect(screen.getByText('Groceries')).toBeTruthy();
     expect(screen.getByText('Transport')).toBeTruthy();
@@ -68,9 +68,7 @@ describe('DashboardBreakdown', () => {
       },
     });
 
-    const { container } = render(
-      await renderDashboardBreakdown({ period: PERIOD, locale: LOCALE }),
-    );
+    const { container } = render(await renderDashboardBreakdown(RANGE));
 
     const barWidthList = [...container.querySelectorAll<HTMLElement>('.barFill')].map((node) =>
       node.style.getPropertyValue('--bar-width'),
@@ -84,7 +82,7 @@ describe('DashboardBreakdown', () => {
       breakdown: { breakdown: [], totalExpense: '0.00', currency: 'USD' },
     });
 
-    render(await renderDashboardBreakdown({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardBreakdown(RANGE));
 
     expect(screen.getByText('empty.title')).toBeTruthy();
   });
@@ -99,7 +97,7 @@ describe('DashboardBreakdown', () => {
       },
     });
 
-    render(await renderDashboardBreakdown({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardBreakdown(RANGE));
 
     expect(screen.getByText('empty.title')).toBeTruthy();
   });
@@ -107,7 +105,7 @@ describe('DashboardBreakdown', () => {
   it('renders the error state when the breakdown request fails', async () => {
     fetchCategoryBreakdownMock.mockResolvedValue({ status: 'error' });
 
-    render(await renderDashboardBreakdown({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardBreakdown(RANGE));
 
     expect(screen.getByText('error.title')).toBeTruthy();
   });

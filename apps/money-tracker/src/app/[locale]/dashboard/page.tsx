@@ -6,15 +6,19 @@ import { Suspense } from 'react';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
-import { MonthStepper } from '../../../components/month-stepper/MonthStepper';
-import { PERIOD_SEARCH_PARAM } from '../../../constants/search-params';
-import { normalizeSearchParam } from '../../../utils/normalize-search-param';
-import { resolveDefaultPeriod } from '../../../utils/resolve-default-period';
+import { parseDashboardSearchParams } from '../../../utils/parse-dashboard-search-params';
 import { resolveOnboardedProfile } from '../../../utils/resolve-onboarded-profile';
 import { DashboardBreakdownSkeleton } from './components/dashboard-breakdown-skeleton/DashboardBreakdownSkeleton';
 import { DashboardBreakdown } from './components/dashboard-breakdown/DashboardBreakdown';
+import { DashboardDailySpendingSkeleton } from './components/dashboard-daily-spending-skeleton/DashboardDailySpendingSkeleton';
+import { DashboardDailySpending } from './components/dashboard-daily-spending/DashboardDailySpending';
+import { DashboardFilters } from './components/dashboard-filters/DashboardFilters';
+import { DashboardRecentTransactionsSkeleton } from './components/dashboard-recent-transactions-skeleton/DashboardRecentTransactionsSkeleton';
+import { DashboardRecentTransactions } from './components/dashboard-recent-transactions/DashboardRecentTransactions';
 import { DashboardSummarySkeleton } from './components/dashboard-summary-skeleton/DashboardSummarySkeleton';
 import { DashboardSummary } from './components/dashboard-summary/DashboardSummary';
+import { DashboardTopCategoriesSkeleton } from './components/dashboard-top-categories-skeleton/DashboardTopCategoriesSkeleton';
+import { DashboardTopCategories } from './components/dashboard-top-categories/DashboardTopCategories';
 import { DashboardTrendSkeleton } from './components/dashboard-trend-skeleton/DashboardTrendSkeleton';
 import { DashboardTrend } from './components/dashboard-trend/DashboardTrend';
 import styles from './page.module.scss';
@@ -25,8 +29,11 @@ interface Props {
 }
 
 const summaryFallback = <DashboardSummarySkeleton />;
+const topCategoriesFallback = <DashboardTopCategoriesSkeleton />;
 const breakdownFallback = <DashboardBreakdownSkeleton />;
+const dailySpendingFallback = <DashboardDailySpendingSkeleton />;
 const trendFallback = <DashboardTrendSkeleton />;
+const recentTransactionsFallback = <DashboardRecentTransactionsSkeleton />;
 
 const DashboardPage: FC<Props> = async (props) => {
   const [{ locale }, searchParams] = await Promise.all([props.params, props.searchParams]);
@@ -36,24 +43,38 @@ const DashboardPage: FC<Props> = async (props) => {
   await resolveOnboardedProfile(locale);
 
   const translate = await getTranslations(I18N_NAMESPACE.dashboardPage);
-  const period = await resolveDefaultPeriod(
-    normalizeSearchParam(searchParams[PERIOD_SEARCH_PARAM]),
-  );
+  const { dateFrom, dateTo, type } = await parseDashboardSearchParams(searchParams);
+
+  const rangeKey = `${dateFrom}-${dateTo}`;
 
   return (
     <section className={styles.container}>
       <header className={styles.header}>
         <Typography variant="title-l">{translate('title')}</Typography>
-        <MonthStepper period={period} />
       </header>
-      <Suspense key={period} fallback={summaryFallback}>
-        <DashboardSummary period={period} locale={locale} />
+      <DashboardFilters dateFrom={dateFrom} dateTo={dateTo} type={type} />
+      <Suspense key={`summary-${rangeKey}`} fallback={summaryFallback}>
+        <DashboardSummary dateFrom={dateFrom} dateTo={dateTo} locale={locale} />
       </Suspense>
-      <Suspense key={`breakdown-${period}`} fallback={breakdownFallback}>
-        <DashboardBreakdown period={period} locale={locale} />
+      <Suspense key={`top-categories-${rangeKey}`} fallback={topCategoriesFallback}>
+        <DashboardTopCategories dateFrom={dateFrom} dateTo={dateTo} locale={locale} />
       </Suspense>
-      <Suspense key={`trend-${period}`} fallback={trendFallback}>
-        <DashboardTrend period={period} locale={locale} />
+      <Suspense key={`breakdown-${rangeKey}`} fallback={breakdownFallback}>
+        <DashboardBreakdown dateFrom={dateFrom} dateTo={dateTo} locale={locale} />
+      </Suspense>
+      <Suspense key={`daily-spending-${rangeKey}`} fallback={dailySpendingFallback}>
+        <DashboardDailySpending dateFrom={dateFrom} dateTo={dateTo} locale={locale} />
+      </Suspense>
+      <Suspense key={`trend-${rangeKey}`} fallback={trendFallback}>
+        <DashboardTrend dateFrom={dateFrom} dateTo={dateTo} locale={locale} />
+      </Suspense>
+      <Suspense key={`recent-${rangeKey}-${type ?? 'all'}`} fallback={recentTransactionsFallback}>
+        <DashboardRecentTransactions
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          type={type}
+          locale={locale}
+        />
       </Suspense>
     </section>
   );

@@ -10,7 +10,11 @@ import { Typography } from '@supertool/ui/src/components/atoms/typography/Typogr
 import { Card, CardContent } from '@supertool/ui/src/components/molecules/card/Card';
 
 import { fetchMonthlyTrend } from '../../../../../actions/fetch-monthly-trend';
-import { getTrailingMonthsRange, parsePeriod } from '../../../../../utils/period';
+import {
+  getPeriodFromDate,
+  getTrailingMonthsRange,
+  parsePeriod,
+} from '../../../../../utils/period';
 import styles from './DashboardTrend.module.scss';
 
 const DashboardTrendContent = dynamic(
@@ -19,7 +23,8 @@ const DashboardTrendContent = dynamic(
 );
 
 interface Props {
-  period: string;
+  dateFrom: string;
+  dateTo: string;
   locale: string;
 }
 
@@ -42,11 +47,17 @@ const formatMonthLabel = (month: string, locale: string): string => {
 const checkIsEmptyTrend = (trend: TrendMonthDto[]): boolean =>
   trend.every((month) => month.income === ZERO_AMOUNT && month.expense === ZERO_AMOUNT);
 
-export const DashboardTrend: FC<Props> = async ({ period, locale }) => {
+export const DashboardTrend: FC<Props> = async ({ dateTo, locale }) => {
   const translate = await getTranslations(`${I18N_NAMESPACE.dashboardPage}.trend`);
-  const { dateFrom, dateTo } = getTrailingMonthsRange(parsePeriod(period), TRAILING_MONTHS);
+  const trailingRange = getTrailingMonthsRange(
+    parsePeriod(getPeriodFromDate(dateTo)),
+    TRAILING_MONTHS,
+  );
 
-  const result = await fetchMonthlyTrend({ dateFrom, dateTo });
+  const result = await fetchMonthlyTrend({
+    dateFrom: trailingRange.dateFrom,
+    dateTo: trailingRange.dateTo,
+  });
 
   if (result.status === 'error') {
     return (

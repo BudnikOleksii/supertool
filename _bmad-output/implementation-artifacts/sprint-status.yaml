@@ -37,8 +37,8 @@
 
 generated: 2026-06-10
 last_updated: 2026-07-05
-# (5-3 → done 2026-07-05: PR #36 squash-merged after review APPROVE + CI + CodeRabbit;
-#  status edit rides into the 5-4 story branch per repo pattern — never committed to main directly)
+# (5-4 → done 2026-07-05: PR #37 squash-merged after review APPROVE + CI + CodeRabbit;
+#  status edit rides into the 5-5 story branch per repo pattern — never committed to main directly)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -100,8 +100,8 @@ development_status:
   5-1-transaction-import-endpoint: done
   5-2-standalone-import-page: done
   5-3-onboarding-flow: done
-  5-4-dashboard-analytics-endpoints-top-categories-daily-spending: review
-  5-5-dashboard-widgets-top-categories-daily-spending-recent-transactions-filter-bar: backlog
+  5-4-dashboard-analytics-endpoints-top-categories-daily-spending: done
+  5-5-dashboard-widgets-top-categories-daily-spending-recent-transactions-filter-bar: review
   5-6-transactions-by-category-drill-down: backlog
   epic-5-retrospective: optional
 
