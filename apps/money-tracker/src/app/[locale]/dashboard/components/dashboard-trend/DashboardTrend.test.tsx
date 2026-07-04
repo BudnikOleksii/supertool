@@ -34,7 +34,10 @@ const fetchMonthlyTrendMock = vi.mocked(fetchMonthlyTrend);
 const renderDashboardTrend = DashboardTrend;
 
 const LOCALE = 'en';
-const PERIOD = '2025-02';
+const DATE_FROM = '2025-02-01';
+const DATE_TO = '2025-02-28';
+const RANGE = { dateFrom: DATE_FROM, dateTo: DATE_TO, locale: LOCALE };
+const UK_RANGE = { dateFrom: DATE_FROM, dateTo: DATE_TO, locale: 'uk' };
 const MONTH_COUNT = 12;
 const FIRST_INDEX = 0;
 const INDEX_TO_MONTH = 1;
@@ -69,7 +72,7 @@ describe('DashboardTrend', () => {
       trend: { trend: buildTrendList('100.00', '40.00'), currency: 'USD' },
     });
 
-    render(await renderDashboardTrend({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardTrend(RANGE));
 
     const labelList = screen.getAllByTestId('chart-label').map((node) => node.textContent);
     expect(labelList).toHaveLength(MONTH_COUNT);
@@ -82,7 +85,7 @@ describe('DashboardTrend', () => {
       trend: { trend: buildTrendList('100.00', '40.00'), currency: 'UAH' },
     });
 
-    render(await renderDashboardTrend({ period: PERIOD, locale: 'uk' }));
+    render(await renderDashboardTrend(UK_RANGE));
 
     const labelList = screen.getAllByTestId('chart-label').map((node) => node.textContent);
     expect(labelList[FIRST_INDEX]).toBe(getMonthLabel('uk'));
@@ -95,7 +98,7 @@ describe('DashboardTrend', () => {
       trend: { trend: buildTrendList('0.00', '0.00'), currency: 'USD' },
     });
 
-    render(await renderDashboardTrend({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardTrend(RANGE));
 
     expect(screen.getByText('empty.title')).toBeTruthy();
     expect(screen.queryByTestId('chart')).toBeNull();
@@ -107,7 +110,7 @@ describe('DashboardTrend', () => {
       trend: { trend: [], currency: '' },
     });
 
-    render(await renderDashboardTrend({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardTrend(RANGE));
 
     expect(screen.getByText('empty.title')).toBeTruthy();
   });
@@ -115,7 +118,7 @@ describe('DashboardTrend', () => {
   it('renders the error state when the trend request fails', async () => {
     fetchMonthlyTrendMock.mockResolvedValue({ status: 'error' });
 
-    render(await renderDashboardTrend({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardTrend(RANGE));
 
     expect(screen.getByText('error.title')).toBeTruthy();
   });

@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.title {
+  border-radius: var(--radius-sm);
+}
+
+.chart {
+  border-radius: var(--radius-lg);
+}

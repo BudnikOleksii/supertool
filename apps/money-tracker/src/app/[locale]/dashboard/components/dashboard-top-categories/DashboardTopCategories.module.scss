@@ -1,0 +1,105 @@
+.content {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.list {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-3);
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.item {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.header {
+  display: flex;
+
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.label {
+  display: flex;
+
+  align-items: baseline;
+  gap: var(--spacing-2);
+
+  min-width: 0;
+}
+
+.rank {
+  flex-shrink: 0;
+
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface-variant);
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  color: var(--on-surface);
+  white-space: nowrap;
+}
+
+.values {
+  display: flex;
+
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: var(--spacing-2);
+}
+
+.share {
+  color: var(--on-surface-variant);
+}
+
+.total {
+  color: var(--on-surface);
+}
+
+.barTrack {
+  height: 0.375rem;
+
+  overflow: hidden;
+
+  background-color: var(--surface-container-high);
+  border-radius: var(--radius-full);
+}
+
+.barFill {
+  width: var(--bar-width);
+  height: 100%;
+
+  background-color: var(--primary);
+  border-radius: var(--radius-full);
+
+  transition: width 0.3s ease;
+}
+
+.message {
+  display: flex;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+
+  padding-block: var(--spacing-12);
+
+  text-align: center;
+}

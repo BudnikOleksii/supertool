@@ -22,7 +22,9 @@ const fetchMonthlySummaryMock = vi.mocked(fetchMonthlySummary);
 const renderDashboardSummary = DashboardSummary;
 
 const LOCALE = 'en';
-const PERIOD = '2025-02';
+const DATE_FROM = '2025-02-01';
+const DATE_TO = '2025-02-28';
+const RANGE = { dateFrom: DATE_FROM, dateTo: DATE_TO, locale: LOCALE };
 
 describe('DashboardSummary', () => {
   beforeEach(() => {
@@ -35,7 +37,7 @@ describe('DashboardSummary', () => {
       summary: { income: '300.00', expense: '120.50', net: '179.50', currency: 'USD' },
     });
 
-    render(await renderDashboardSummary({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardSummary(RANGE));
 
     expect(screen.getByText(formatAmount('300.00', 'USD', LOCALE))).toBeTruthy();
     expect(screen.getByText(formatAmount('120.50', 'USD', LOCALE))).toBeTruthy();
@@ -48,7 +50,7 @@ describe('DashboardSummary', () => {
       summary: { income: '100.00', expense: '142.50', net: '-42.50', currency: 'USD' },
     });
 
-    render(await renderDashboardSummary({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardSummary(RANGE));
 
     const netElement = screen.getByText(formatAmount('-42.50', 'USD', LOCALE));
 
@@ -61,7 +63,7 @@ describe('DashboardSummary', () => {
       summary: { income: '300.00', expense: '120.50', net: '179.50', currency: 'USD' },
     });
 
-    render(await renderDashboardSummary({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardSummary(RANGE));
 
     const netElement = screen.getByText(formatAmount('179.50', 'USD', LOCALE));
 
@@ -74,7 +76,7 @@ describe('DashboardSummary', () => {
       summary: { income: '0.00', expense: '0.00', net: '0.00', currency: '' },
     });
 
-    render(await renderDashboardSummary({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardSummary(RANGE));
 
     expect(screen.getByText('empty.title')).toBeTruthy();
   });
@@ -85,7 +87,7 @@ describe('DashboardSummary', () => {
       summary: { income: '0.00', expense: '0.00', net: '0.00', currency: 'USD' },
     });
 
-    render(await renderDashboardSummary({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardSummary(RANGE));
 
     expect(screen.getByText('empty.title')).toBeTruthy();
   });
@@ -93,7 +95,7 @@ describe('DashboardSummary', () => {
   it('renders the error state when the summary request fails', async () => {
     fetchMonthlySummaryMock.mockResolvedValue({ status: 'error' });
 
-    render(await renderDashboardSummary({ period: PERIOD, locale: LOCALE }));
+    render(await renderDashboardSummary(RANGE));
 
     expect(screen.getByText('error.title')).toBeTruthy();
   });

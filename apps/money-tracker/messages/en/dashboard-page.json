@@ -13,6 +13,51 @@
     "title": "Couldn’t load summary",
     "description": "Something went wrong while loading this month. Please try again."
   },
+  "filters": {
+    "dateFrom": "From",
+    "dateTo": "To",
+    "type": "Type",
+    "typeAll": "All",
+    "typeIncome": "Income",
+    "typeExpense": "Expense"
+  },
+  "topCategories": {
+    "title": "Top categories",
+    "empty": {
+      "title": "No expenses in this period",
+      "description": "Add expense transactions for this range to see your top spending categories."
+    },
+    "error": {
+      "title": "Couldn’t load top categories",
+      "description": "Something went wrong while loading your top categories. Please try again."
+    }
+  },
+  "dailySpending": {
+    "title": "Daily spending",
+    "expense": "Expense",
+    "empty": {
+      "title": "No spending in this period",
+      "description": "Add expense transactions for this range to see your daily spending."
+    },
+    "error": {
+      "title": "Couldn’t load daily spending",
+      "description": "Something went wrong while loading your daily spending. Please try again."
+    }
+  },
+  "recentTransactions": {
+    "title": "Recent transactions",
+    "viewAll": "View all",
+    "typeIncome": "Income",
+    "typeExpense": "Expense",
+    "empty": {
+      "title": "No transactions in this period",
+      "description": "Add transactions for this range to see your latest activity."
+    },
+    "error": {
+      "title": "Couldn’t load transactions",
+      "description": "Something went wrong while loading your recent transactions. Please try again."
+    }
+  },
   "breakdown": {
     "title": "Expenses by category",
     "empty": {

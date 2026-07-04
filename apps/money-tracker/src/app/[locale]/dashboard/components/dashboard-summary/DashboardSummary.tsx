@@ -10,11 +10,11 @@ import { cn } from '@supertool/ui/src/lib/utils';
 
 import { fetchMonthlySummary } from '../../../../../actions/fetch-monthly-summary';
 import { formatAmount } from '../../../../../utils/format-amount';
-import { getMonthDateRange, parsePeriod } from '../../../../../utils/period';
 import styles from './DashboardSummary.module.scss';
 
 interface Props {
-  period: string;
+  dateFrom: string;
+  dateTo: string;
   locale: string;
 }
 
@@ -23,9 +23,8 @@ const ZERO_VALUE = 0;
 const checkIsEmptySummary = (income: string, expense: string, net: string): boolean =>
   Number(income) === ZERO_VALUE && Number(expense) === ZERO_VALUE && Number(net) === ZERO_VALUE;
 
-export const DashboardSummary: FC<Props> = async ({ period, locale }) => {
+export const DashboardSummary: FC<Props> = async ({ dateFrom, dateTo, locale }) => {
   const translate = await getTranslations(I18N_NAMESPACE.dashboardPage);
-  const { dateFrom, dateTo } = getMonthDateRange(parsePeriod(period));
 
   const result = await fetchMonthlySummary({ dateFrom, dateTo });
 
