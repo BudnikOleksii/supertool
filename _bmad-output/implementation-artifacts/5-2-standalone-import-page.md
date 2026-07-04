@@ -231,6 +231,10 @@ No API, schema, generated-client, or `packages/ui` changes. No new dependencies 
 
 ## Dev Agent Record
 
+### Pull Request
+
+https://github.com/BudnikOleksii/supertool/pull/35 (opened 2026-07-04 after on-branch re-review APPROVE)
+
 ### Agent Model Used
 
 Claude Fable 5 (claude-fable-5), autonomous dev-story run 2026-07-04 on branch `TOOLS-5-2/standalone-import-page`.
