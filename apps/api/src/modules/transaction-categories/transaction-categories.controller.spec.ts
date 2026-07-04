@@ -29,6 +29,17 @@ describe('TransactionCategoriesController', () => {
     expect(findAll).toHaveBeenCalledWith('user-id');
   });
 
+  it('creates the default category set for the session user', async () => {
+    const expectedCounts = { topLevelCreated: 18, childrenCreated: 39 };
+    const createDefaults = vi.fn().mockResolvedValue(expectedCounts);
+    const controller = await buildController({ createDefaults });
+
+    await expect(controller.createDefaults(createSession('user-id'))).resolves.toEqual(
+      expectedCounts,
+    );
+    expect(createDefaults).toHaveBeenCalledWith('user-id');
+  });
+
   it('creates a category with the session user id and body', async () => {
     const inputDto = { name: 'Food', type: 'expense' as const };
     const expectedCategory = { id: 'c1', name: 'Food', type: 'expense' };

@@ -5,7 +5,7 @@ import type {
   TransactionImportResponseDto,
 } from '@supertool/shared/generated/types.gen';
 
-import type { ImportFileCheckErrorKey } from './utils/check-import-file';
+import type { ImportFileCheckErrorKey } from '../utils/transaction-import/check-import-file';
 
 export type ImportErrorKey = ErrorCode | typeof UNKNOWN_ERROR_CODE | ImportFileCheckErrorKey;
 

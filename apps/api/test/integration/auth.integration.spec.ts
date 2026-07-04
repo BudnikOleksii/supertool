@@ -104,6 +104,7 @@ describe('auth boundary (Testcontainers Postgres)', () => {
       role: 'user',
       locale: 'en',
       defaultCurrency: null,
+      onboardingCompleted: false,
     });
   });
 

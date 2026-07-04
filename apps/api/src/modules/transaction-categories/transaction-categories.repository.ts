@@ -4,11 +4,13 @@ import { and, eq, isNull, ne, sql } from 'drizzle-orm';
 import type { Database, DatabaseExecutor } from '../../database/database.types';
 import type { TransactionType } from '../../database/schemas/enums';
 import type { CategoryResponseDto } from './dtos/category-response.dto';
+import type { DefaultCategoriesResponseDto } from './dtos/default-categories-response.dto';
 
 import { DRIZZLE } from '../../database/database.constants';
 import { generateId } from '../../database/generate-id';
 import { transactionCategories } from '../../database/schemas/transaction-categories';
 import { transactions } from '../../database/schemas/transactions';
+import { DEFAULT_CATEGORY_CATALOG } from './transaction-categories.constants';
 
 const CATEGORY_RESPONSE_COLUMNS = {
   id: transactionCategories.id,
@@ -21,6 +23,15 @@ const CATEGORY_RESPONSE_COLUMNS = {
 
 const EXISTS_LIMIT = 1;
 const ANCESTRY_MAX_DEPTH = 100;
+
+const CATEGORY_CONFLICT_TARGET = [
+  transactionCategories.userId,
+  transactionCategories.name,
+  transactionCategories.type,
+  transactionCategories.parentId,
+];
+
+const getCategoryKey = (name: string, type: TransactionType): string => `${name}::${type}`;
 
 interface CategoryRow {
   id: string;
@@ -85,6 +96,65 @@ export class TransactionCategoriesRepository {
 
   async runInTransaction<T>(callback: (tx: DatabaseExecutor) => Promise<T>): Promise<T> {
     return this.db.transaction(callback);
+  }
+
+  async createDefaults(userId: string): Promise<DefaultCategoriesResponseDto> {
+    return this.db.transaction(async (tx) => {
+      const parentRowList = DEFAULT_CATEGORY_CATALOG.map((category) => ({
+        id: generateId(),
+        userId,
+        name: category.name,
+        type: category.type,
+        parentId: null,
+      }));
+
+      const insertedParentList = await tx
+        .insert(transactionCategories)
+        .values(parentRowList)
+        .onConflictDoNothing({ target: CATEGORY_CONFLICT_TARGET })
+        .returning({ id: transactionCategories.id });
+
+      const parentIdByKey = await this.selectTopLevelIdByKey(userId, tx);
+
+      const childRowList = DEFAULT_CATEGORY_CATALOG.flatMap((category) =>
+        category.childList.map((childName) => ({
+          id: generateId(),
+          userId,
+          name: childName,
+          type: category.type,
+          parentId: parentIdByKey.get(getCategoryKey(category.name, category.type)) ?? null,
+        })),
+      ).filter((row) => row.parentId !== null);
+
+      const insertedChildList = childRowList.length
+        ? await tx
+            .insert(transactionCategories)
+            .values(childRowList)
+            .onConflictDoNothing({ target: CATEGORY_CONFLICT_TARGET })
+            .returning({ id: transactionCategories.id })
+        : [];
+
+      return {
+        topLevelCreated: insertedParentList.length,
+        childrenCreated: insertedChildList.length,
+      };
+    });
+  }
+
+  private async selectTopLevelIdByKey(
+    userId: string,
+    executor: DatabaseExecutor,
+  ): Promise<Map<string, string>> {
+    const rowList = await executor
+      .select({
+        id: transactionCategories.id,
+        name: transactionCategories.name,
+        type: transactionCategories.type,
+      })
+      .from(transactionCategories)
+      .where(and(eq(transactionCategories.userId, userId), isNull(transactionCategories.parentId)));
+
+    return new Map(rowList.map((row) => [getCategoryKey(row.name, row.type), row.id]));
   }
 
   async findAllByUserId(userId: string): Promise<CategoryResponseDto[]> {

@@ -1,0 +1,47 @@
+.container {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-6);
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.step {
+  display: flex;
+
+  align-items: center;
+  gap: var(--spacing-2);
+
+  color: var(--on-surface-variant);
+}
+
+.dot {
+  width: var(--spacing-3);
+  height: var(--spacing-3);
+
+  background-color: var(--outline-variant);
+  border-radius: var(--radius-full);
+}
+
+.active {
+  color: var(--on-surface);
+
+  .dot {
+    background-color: var(--primary);
+  }
+
+  .label {
+    font-weight: 600;
+  }
+}
+
+.completed {
+  .dot {
+    background-color: var(--primary);
+  }
+}

@@ -32,6 +32,25 @@ describe('UsersRepository', () => {
     expect(set).toHaveBeenCalledWith({ locale: 'uk', updatedAt: expect.any(Date) });
   });
 
+  it('updateScoped maps the onboardingCompleted field when provided', async () => {
+    const expectedUser = {
+      id: 'user-id',
+      email: 'a@b.com',
+      name: 'Ann',
+      role: 'user',
+      locale: 'en',
+      defaultCurrency: null,
+      onboardingCompleted: true,
+    };
+    const { db, set } = createDbDouble([expectedUser]);
+    const repository = new UsersRepository(db);
+
+    const actual = await repository.updateScoped('user-id', { onboardingCompleted: true });
+
+    expect(actual).toEqual(expectedUser);
+    expect(set).toHaveBeenCalledWith({ onboardingCompleted: true, updatedAt: expect.any(Date) });
+  });
+
   it('updateScoped returns undefined when no row matches the scoped user', async () => {
     const { db } = createDbDouble([]);
     const repository = new UsersRepository(db);

@@ -35,6 +35,7 @@ let databaseUrl = '';
 let recordList: SeedSourceRecord[] = [];
 let operatorId = '';
 let operatorRole = '';
+let operatorOnboardingCompleted = false;
 
 const getPool = (): Pool => {
   if (!pool) {
@@ -43,11 +44,16 @@ const getPool = (): Pool => {
   return pool;
 };
 
-const loadOperator = async (email: string): Promise<{ id: string; role: string }> => {
-  const result = await getPool().query<{ id: string; role: string }>(
-    `SELECT id, role FROM users WHERE email = $1`,
-    [email],
-  );
+const loadOperator = async (
+  email: string,
+): Promise<{ id: string; role: string; onboardingCompleted: boolean }> => {
+  const result = await getPool().query<{
+    id: string;
+    role: string;
+    onboardingCompleted: boolean;
+  }>(`SELECT id, role, onboarding_completed AS "onboardingCompleted" FROM users WHERE email = $1`, [
+    email,
+  ]);
   const [operator] = result.rows;
   if (!operator) {
     throw new Error('Operator account was not created by the seed');
@@ -80,7 +86,11 @@ beforeAll(async () => {
 
   await prepareDatabase({ databaseUrl, migrationsFolder: MIGRATIONS_FOLDER });
 
-  ({ id: operatorId, role: operatorRole } = await loadOperator(parseEnv().SEED_OPERATOR_EMAIL));
+  ({
+    id: operatorId,
+    role: operatorRole,
+    onboardingCompleted: operatorOnboardingCompleted,
+  } = await loadOperator(parseEnv().SEED_OPERATOR_EMAIL));
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
@@ -145,6 +155,10 @@ describe('seed (Testcontainers Postgres)', () => {
     await assertDecimalSafeSums({ pool: getPool(), userId: operatorId, recordList });
   });
 
+  it('marks the operator as onboarding-completed', () => {
+    expect(operatorOnboardingCompleted).toBe(true);
+  });
+
   it('re-running the seed introduces zero duplicate rows (AC5, AC9a)', async () => {
     const transactionsBefore = await countScopedRows('transactions');
     const categoriesBefore = await countScopedRows('transaction_categories');
@@ -154,5 +168,12 @@ describe('seed (Testcontainers Postgres)', () => {
     expect(await countScopedRows('transactions')).toBe(transactionsBefore);
     expect(await countScopedRows('transaction_categories')).toBe(categoriesBefore);
     expect(await countScopedRows('transactions')).toBe(EXPECTED_RECORD_COUNT);
+  });
+
+  it('keeps the operator onboarding-completed after a seed re-run', async () => {
+    await runSeed({ databaseUrl });
+    const operator = await loadOperator(parseEnv().SEED_OPERATOR_EMAIL);
+
+    expect(operator.onboardingCompleted).toBe(true);
   });
 });

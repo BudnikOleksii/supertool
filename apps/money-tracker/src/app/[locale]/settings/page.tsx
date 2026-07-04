@@ -2,7 +2,6 @@ import type { FC } from 'react';
 
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import {
   Card,
@@ -12,8 +11,7 @@ import {
   CardTitle,
 } from '@supertool/ui/src/components/molecules/card/Card';
 
-import { fetchProfile } from '../../../actions/fetch-profile';
-import { ROUTES } from '../../../constants/routes';
+import { resolveOnboardedProfile } from '../../../utils/resolve-onboarded-profile';
 import { ProfileForm } from './components/profile-form/ProfileForm';
 import styles from './page.module.scss';
 
@@ -26,11 +24,7 @@ const SettingsPage: FC<Props> = async (props) => {
 
   setRequestLocale(locale);
 
-  const profile = await fetchProfile();
-
-  if (!profile) {
-    return redirect({ href: ROUTES.signIn, locale });
-  }
+  const profile = await resolveOnboardedProfile(locale);
 
   const translate = await getTranslations(I18N_NAMESPACE.settingsPage);
 

@@ -2,13 +2,13 @@ import type { FC } from 'react';
 
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { Link, redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
+import { Link } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
 import { fetchCategoryList } from '../../../../actions/fetch-category-list';
-import { fetchProfile } from '../../../../actions/fetch-profile';
 import { ROUTES } from '../../../../constants/routes';
+import { resolveOnboardedProfile } from '../../../../utils/resolve-onboarded-profile';
 import { CategoryForm } from '../components/category-form/CategoryForm';
 import styles from './page.module.scss';
 
@@ -21,11 +21,7 @@ const NewCategoryPage: FC<Props> = async (props) => {
 
   setRequestLocale(locale);
 
-  const profile = await fetchProfile();
-
-  if (!profile) {
-    return redirect({ href: ROUTES.signIn, locale });
-  }
+  await resolveOnboardedProfile(locale);
 
   const [translate, categoryList] = await Promise.all([
     getTranslations(I18N_NAMESPACE.categoriesPage),

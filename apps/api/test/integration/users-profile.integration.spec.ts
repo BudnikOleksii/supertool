@@ -25,6 +25,7 @@ interface UserBody {
   role: string;
   locale: string;
   defaultCurrency: string | null;
+  onboardingCompleted: boolean;
 }
 
 interface ErrorBody {
@@ -86,6 +87,27 @@ describe('users profile update (Testcontainers Postgres)', () => {
     expect(bodyA).toMatchObject({ email: userA.email, name: 'A Updated', locale: 'uk' });
     expect(bodyB).toMatchObject({ email: userB.email, name: 'B Updated', locale: 'en' });
     expect(bodyA.id).not.toBe(bodyB.id);
+  });
+
+  it('starts a fresh user with onboardingCompleted false', async () => {
+    const cookie = await registerAndSignIn(buildTestUser('onboarding-fresh'));
+
+    expect(await readProfile(cookie)).toMatchObject({ onboardingCompleted: false });
+  });
+
+  it('persists onboardingCompleted true via update and round-trips it on read', async () => {
+    const cookie = await registerAndSignIn(buildTestUser('onboarding-complete'));
+
+    const patchResponse = await patchJson(
+      '/api/v1/users/me',
+      { onboardingCompleted: true },
+      cookie,
+    );
+    const patchBody = await readJson<UserBody>(patchResponse);
+
+    expect(patchResponse.status).toBe(HTTP_STATUS_CODE.Ok);
+    expect(patchBody.onboardingCompleted).toBe(true);
+    expect(await readProfile(cookie)).toMatchObject({ onboardingCompleted: true });
   });
 
   it('rejects an out-of-list currency with a 400 VALIDATION_ERROR envelope', async () => {

@@ -17,9 +17,9 @@ import {
 } from '@supertool/ui/src/components/molecules/field/Field';
 import { cn } from '@supertool/ui/src/lib/utils';
 
-import type { ImportFileCheckErrorKey } from '../../utils/check-import-file';
+import type { ImportFileCheckErrorKey } from '../../../utils/transaction-import/check-import-file';
 
-import { formatFileSize } from '../../utils/format-file-size';
+import { formatFileSize } from '../../../utils/transaction-import/format-file-size';
 import { useImportDropzone } from './hooks/use-import-dropzone';
 import styles from './ImportDropzone.module.scss';
 

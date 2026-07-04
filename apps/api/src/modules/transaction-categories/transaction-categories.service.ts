@@ -13,6 +13,7 @@ import type { DatabaseExecutor } from '../../database/database.types';
 import type { TransactionType } from '../../database/schemas/enums';
 import type { CategoryResponseDto } from './dtos/category-response.dto';
 import type { CreateCategoryDto } from './dtos/create-category.dto';
+import type { DefaultCategoriesResponseDto } from './dtos/default-categories-response.dto';
 import type { DeleteCategoryDto } from './dtos/delete-category.dto';
 import type { UpdateCategoryDto } from './dtos/update-category.dto';
 
@@ -56,6 +57,10 @@ export class TransactionCategoriesService {
 
   async findAll(userId: string): Promise<CategoryResponseDto[]> {
     return this.repository.findAllByUserId(userId);
+  }
+
+  async createDefaults(userId: string): Promise<DefaultCategoriesResponseDto> {
+    return this.repository.createDefaults(userId);
   }
 
   async create(userId: string, dto: CreateCategoryDto): Promise<CategoryResponseDto> {

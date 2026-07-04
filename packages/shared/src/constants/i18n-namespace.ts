@@ -6,6 +6,7 @@ export const I18N_NAMESPACE = {
   dashboardPage: 'dashboardPage',
   homePage: 'homePage',
   navigation: 'navigation',
+  onboardingPage: 'onboardingPage',
   settingsPage: 'settingsPage',
   signInPage: 'signInPage',
   signUpPage: 'signUpPage',

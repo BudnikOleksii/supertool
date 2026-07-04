@@ -15,6 +15,7 @@ const USER_RESPONSE_COLUMNS = {
   role: users.role,
   locale: users.locale,
   defaultCurrency: users.defaultCurrency,
+  onboardingCompleted: users.onboardingCompleted,
 };
 
 @Injectable()
@@ -32,26 +33,34 @@ export class UsersRepository {
   }
 
   async updateScoped(userId: string, patch: UpdateUserDto): Promise<UserResponseDto | undefined> {
-    const updateValues: Partial<typeof users.$inferInsert> = { updatedAt: new Date() };
-
-    if (patch.name !== undefined) {
-      updateValues.name = patch.name;
-    }
-
-    if (patch.locale !== undefined) {
-      updateValues.locale = patch.locale;
-    }
-
-    if (patch.defaultCurrency !== undefined) {
-      updateValues.defaultCurrency = patch.defaultCurrency;
-    }
-
     const [user] = await this.db
       .update(users)
-      .set(updateValues)
+      .set(buildUserUpdateValues(patch))
       .where(eq(users.id, userId))
       .returning(USER_RESPONSE_COLUMNS);
 
     return user;
   }
 }
+
+const buildUserUpdateValues = (patch: UpdateUserDto): Partial<typeof users.$inferInsert> => {
+  const updateValues: Partial<typeof users.$inferInsert> = { updatedAt: new Date() };
+
+  if (patch.name !== undefined) {
+    updateValues.name = patch.name;
+  }
+
+  if (patch.locale !== undefined) {
+    updateValues.locale = patch.locale;
+  }
+
+  if (patch.defaultCurrency !== undefined) {
+    updateValues.defaultCurrency = patch.defaultCurrency;
+  }
+
+  if (patch.onboardingCompleted !== undefined) {
+    updateValues.onboardingCompleted = patch.onboardingCompleted;
+  }
+
+  return updateValues;
+};

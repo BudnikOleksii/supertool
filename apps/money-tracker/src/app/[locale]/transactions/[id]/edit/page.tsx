@@ -12,9 +12,9 @@ import {
 } from '@supertool/ui/src/components/molecules/card/Card';
 
 import { fetchCategoryList } from '../../../../../actions/fetch-category-list';
-import { fetchProfile } from '../../../../../actions/fetch-profile';
 import { fetchTransaction } from '../../../../../actions/fetch-transaction';
 import { ROUTES } from '../../../../../constants/routes';
+import { resolveOnboardedProfile } from '../../../../../utils/resolve-onboarded-profile';
 import { TransactionForm } from '../../components/transaction-form/TransactionForm';
 import styles from './page.module.scss';
 
@@ -27,11 +27,7 @@ const EditTransactionPage: FC<Props> = async (props) => {
 
   setRequestLocale(locale);
 
-  const profile = await fetchProfile();
-
-  if (!profile) {
-    return redirect({ href: ROUTES.signIn, locale });
-  }
+  const profile = await resolveOnboardedProfile(locale);
 
   const [translate, categoryList, transaction] = await Promise.all([
     getTranslations(I18N_NAMESPACE.transactionForm),

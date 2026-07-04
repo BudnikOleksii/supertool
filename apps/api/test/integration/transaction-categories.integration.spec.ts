@@ -22,8 +22,13 @@ process.env.TESTCONTAINERS_RYUK_DISABLED = 'true';
 const NO_ROWS = 0;
 const EXPECTED_TARGET_TRANSACTIONS = 2;
 const EXPECTED_GRANDCHILD_TRANSACTIONS = 1;
+const EXPECTED_TOP_LEVEL_COUNT = 18;
+const EXPECTED_CHILDREN_COUNT = 39;
+const EXPECTED_TOTAL_COUNT = EXPECTED_TOP_LEVEL_COUNT + EXPECTED_CHILDREN_COUNT;
+const ONE_EXISTING_TOP_LEVEL = 1;
 
 const CATEGORIES_PATH = '/api/v1/transaction-categories';
+const DEFAULTS_PATH = '/api/v1/transaction-categories/defaults';
 
 interface CategoryBody {
   id: string;
@@ -32,6 +37,11 @@ interface CategoryBody {
   parentId: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+interface DefaultCountsBody {
+  topLevelCreated: number;
+  childrenCreated: number;
 }
 
 let container: StartedTestContainer | undefined = undefined;
@@ -58,6 +68,13 @@ const createCategory = async (
 
 const listCategories = async (cookie: string): Promise<CategoryBody[]> =>
   readJson<CategoryBody[]>(await getJson(CATEGORIES_PATH, cookie));
+
+const partitionByLevel = (
+  list: CategoryBody[],
+): { topLevelList: CategoryBody[]; childList: CategoryBody[] } => ({
+  topLevelList: list.filter((category) => category.parentId === null),
+  childList: list.filter((category) => category.parentId !== null),
+});
 
 const resolveUserId = async (email: string): Promise<string> => {
   const result = await requirePool().query<{ id: string }>(
@@ -282,5 +299,66 @@ describe('transaction categories (Testcontainers Postgres)', () => {
     expect(created.status).toBe(HTTP_STATUS_CODE.Created);
     expect(listResponse.status).toBe(HTTP_STATUS_CODE.Ok);
     expect(list.some((category) => category.name === 'Salary')).toBe(true);
+  });
+
+  it('creates the two-level default catalog scoped to the user', async () => {
+    const cookie = await registerAndSignIn(buildTestUser('defaults-create'));
+
+    const response = await postJson(DEFAULTS_PATH, {}, cookie);
+    const body = await readJson<DefaultCountsBody>(response);
+    const { topLevelList, childList } = partitionByLevel(await listCategories(cookie));
+
+    expect(response.status).toBe(HTTP_STATUS_CODE.Created);
+    expect(body).toEqual({
+      topLevelCreated: EXPECTED_TOP_LEVEL_COUNT,
+      childrenCreated: EXPECTED_CHILDREN_COUNT,
+    });
+    expect(topLevelList).toHaveLength(EXPECTED_TOP_LEVEL_COUNT);
+    expect(childList).toHaveLength(EXPECTED_CHILDREN_COUNT);
+    expect(
+      topLevelList.some((category) => category.name === 'Food' && category.type === 'expense'),
+    ).toBe(true);
+  });
+
+  it('creates an independent default set for a second user', async () => {
+    const cookieA = await registerAndSignIn(buildTestUser('defaults-user-a'));
+    const cookieB = await registerAndSignIn(buildTestUser('defaults-user-b'));
+
+    await postJson(DEFAULTS_PATH, {}, cookieA);
+    const responseB = await postJson(DEFAULTS_PATH, {}, cookieB);
+    const bodyB = await readJson<DefaultCountsBody>(responseB);
+
+    expect(bodyB).toEqual({
+      topLevelCreated: EXPECTED_TOP_LEVEL_COUNT,
+      childrenCreated: EXPECTED_CHILDREN_COUNT,
+    });
+    expect(await listCategories(cookieB)).toHaveLength(EXPECTED_TOTAL_COUNT);
+  });
+
+  it('is idempotent: a repeat call creates nothing and reports zero counts', async () => {
+    const cookie = await registerAndSignIn(buildTestUser('defaults-idempotent'));
+
+    await postJson(DEFAULTS_PATH, {}, cookie);
+    const secondResponse = await postJson(DEFAULTS_PATH, {}, cookie);
+    const secondBody = await readJson<DefaultCountsBody>(secondResponse);
+
+    expect(secondBody).toEqual({ topLevelCreated: NO_ROWS, childrenCreated: NO_ROWS });
+    expect(await listCategories(cookie)).toHaveLength(EXPECTED_TOTAL_COUNT);
+  });
+
+  it('coexists with a pre-existing same-named category without duplicating it', async () => {
+    const cookie = await registerAndSignIn(buildTestUser('defaults-coexist'));
+    await createCategory(cookie, { name: 'Food', type: 'expense' });
+
+    const response = await postJson(DEFAULTS_PATH, {}, cookie);
+    const body = await readJson<DefaultCountsBody>(response);
+    const list = await listCategories(cookie);
+    const foodMatches = list.filter(
+      (category) => category.name === 'Food' && category.type === 'expense',
+    );
+
+    expect(body.topLevelCreated).toBe(EXPECTED_TOP_LEVEL_COUNT - ONE_EXISTING_TOP_LEVEL);
+    expect(body.childrenCreated).toBe(EXPECTED_CHILDREN_COUNT);
+    expect(foodMatches).toHaveLength(ONE_EXISTING_TOP_LEVEL);
   });
 });

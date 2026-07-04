@@ -1,0 +1,33 @@
+{
+  "stepCurrency": "Валюта",
+  "stepCategories": "Категорії",
+  "currencyTitle": "Оберіть валюту",
+  "currencyDescription": "Це базова валюта для всіх списків, підсумків і показників на панелі.",
+  "currencyLabel": "Валюта",
+  "currencyPlaceholder": "Оберіть валюту",
+  "currencySearchLabel": "Пошук валют",
+  "currencyEmptyMessage": "Валют не знайдено",
+  "continueButton": "Продовжити",
+  "categoriesTitle": "Налаштуйте категорії",
+  "categoriesDescription": "Почніть із готового набору категорій або імпортуйте власні транзакції.",
+  "useDefaultsButton": "Використати стандартні категорії",
+  "defaultsResultTitle": "Стандартні категорії додано",
+  "defaultsResultTopLevel": "{count, plural, one {# категорія} few {# категорії} many {# категорій} other {# категорії}}",
+  "defaultsResultChildren": "{count, plural, one {# підкатегорія} few {# підкатегорії} many {# підкатегорій} other {# підкатегорії}}",
+  "orDivider": "або",
+  "importSectionLabel": "Імпортувати транзакції з файлу",
+  "importResultTitle": "Імпорт завершено",
+  "importResultInserted": "{count, plural, one {# транзакцію імпортовано} few {# транзакції імпортовано} many {# транзакцій імпортовано} other {# транзакції імпортовано}}",
+  "importResultSkipped": "{count, plural, one {# дублікат пропущено} few {# дублікати пропущено} many {# дублікатів пропущено} other {# дубліката пропущено}}",
+  "importResultCategoriesCreated": "{count, plural, one {# категорію створено} few {# категорії створено} many {# категорій створено} other {# категорії створено}}",
+  "importResultSubcategoriesCreated": "{count, plural, one {# підкатегорію створено} few {# підкатегорії створено} many {# підкатегорій створено} other {# підкатегорії створено}}",
+  "skipButton": "Пропустити поки що",
+  "errors": {
+    "currencyRequired": "Оберіть валюту, щоб продовжити.",
+    "VALIDATION_ERROR": "Перевірте введені дані та спробуйте ще раз.",
+    "NOT_FOUND": "Ваш обліковий запис не знайдено. Будь ласка, увійдіть знову.",
+    "CONFLICT": "Деякі з цих категорій уже існують.",
+    "UNAUTHORIZED": "Ваша сесія завершилася. Будь ласка, увійдіть знову.",
+    "UNKNOWN": "Щось пішло не так. Спробуйте ще раз."
+  }
+}

@@ -14,6 +14,7 @@ const FAKE_TX = { tx: true };
 
 interface MockRepository {
   runInTransaction: ReturnType<typeof vi.fn>;
+  createDefaults: ReturnType<typeof vi.fn>;
   findAllByUserId: ReturnType<typeof vi.fn>;
   findByIdScoped: ReturnType<typeof vi.fn>;
   existsByNameTypeAndParent: ReturnType<typeof vi.fn>;
@@ -29,6 +30,7 @@ interface MockRepository {
 
 const buildRepository = (overrides: Partial<MockRepository> = {}): MockRepository => ({
   runInTransaction: vi.fn((callback: (tx: unknown) => unknown) => callback(FAKE_TX)),
+  createDefaults: vi.fn(),
   findAllByUserId: vi.fn(),
   findByIdScoped: vi.fn(),
   existsByNameTypeAndParent: vi.fn().mockResolvedValue(false),
@@ -54,6 +56,19 @@ const buildCategory = (over: Record<string, unknown> = {}) => ({
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   ...over,
+});
+
+describe('TransactionCategoriesService.createDefaults', () => {
+  it('delegates to the repository and returns the created counts', async () => {
+    const expectedCounts = { topLevelCreated: 18, childrenCreated: 39 };
+    const repository = buildRepository({
+      createDefaults: vi.fn().mockResolvedValue(expectedCounts),
+    });
+    const service = buildService(repository);
+
+    await expect(service.createDefaults('user-id')).resolves.toEqual(expectedCounts);
+    expect(repository.createDefaults).toHaveBeenCalledWith('user-id');
+  });
 });
 
 describe('TransactionCategoriesService.create', () => {

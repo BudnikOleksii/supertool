@@ -7,11 +7,11 @@ import { useTranslations } from 'next-intl';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 
-import { ImportDropzone } from '../import-dropzone/ImportDropzone';
-import { ImportErrorPanel } from '../import-error-panel/ImportErrorPanel';
-import { ImportPreviewPanel } from '../import-preview-panel/ImportPreviewPanel';
+import { ImportDropzone } from '../../../../../../components/transaction-import/import-dropzone/ImportDropzone';
+import { ImportErrorPanel } from '../../../../../../components/transaction-import/import-error-panel/ImportErrorPanel';
+import { ImportPreviewPanel } from '../../../../../../components/transaction-import/import-preview-panel/ImportPreviewPanel';
+import { useImportFlow } from '../../../../../../hooks/use-import-flow';
 import { ImportResultPanel } from '../import-result-panel/ImportResultPanel';
-import { useImportFlow } from './hooks/use-import-flow';
 import styles from './ImportPageContent.module.scss';
 
 export const ImportPageContent: FC = () => {

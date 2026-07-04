@@ -1,0 +1,33 @@
+{
+  "stepCurrency": "Currency",
+  "stepCategories": "Categories",
+  "currencyTitle": "Choose your currency",
+  "currencyDescription": "This is the base currency for every list, total, and dashboard figure.",
+  "currencyLabel": "Currency",
+  "currencyPlaceholder": "Select a currency",
+  "currencySearchLabel": "Search currencies",
+  "currencyEmptyMessage": "No currencies found",
+  "continueButton": "Continue",
+  "categoriesTitle": "Set up your categories",
+  "categoriesDescription": "Start with a ready-made set of categories or import your own transactions.",
+  "useDefaultsButton": "Use default categories",
+  "defaultsResultTitle": "Default categories added",
+  "defaultsResultTopLevel": "{count, plural, one {# category} other {# categories}}",
+  "defaultsResultChildren": "{count, plural, one {# subcategory} other {# subcategories}}",
+  "orDivider": "or",
+  "importSectionLabel": "Import transactions from a file",
+  "importResultTitle": "Import complete",
+  "importResultInserted": "{count, plural, one {# transaction imported} other {# transactions imported}}",
+  "importResultSkipped": "{count, plural, one {# duplicate skipped} other {# duplicates skipped}}",
+  "importResultCategoriesCreated": "{count, plural, one {# category created} other {# categories created}}",
+  "importResultSubcategoriesCreated": "{count, plural, one {# subcategory created} other {# subcategories created}}",
+  "skipButton": "Skip for now",
+  "errors": {
+    "currencyRequired": "Choose a currency to continue.",
+    "VALIDATION_ERROR": "Please check your input and try again.",
+    "NOT_FOUND": "Your account could not be found. Please sign in again.",
+    "CONFLICT": "Some of these categories already exist.",
+    "UNAUTHORIZED": "Your session has expired. Please sign in again.",
+    "UNKNOWN": "Something went wrong. Please try again."
+  }
+}

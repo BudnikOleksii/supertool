@@ -20,6 +20,7 @@ const PROFILE: UserResponseDto = {
   role: 'user',
   locale: 'en',
   defaultCurrency: null,
+  onboardingCompleted: true,
 };
 
 describe('ProfileForm', () => {
