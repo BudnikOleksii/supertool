@@ -1,7 +1,21 @@
 import type { AnyColumn, SQL } from 'drizzle-orm';
 
 import { Inject, Injectable } from '@nestjs/common';
-import { aliasedTable, and, asc, count, desc, eq, gte, inArray, lte, sql } from 'drizzle-orm';
+import {
+  aliasedTable,
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  isNull,
+  lte,
+  sql,
+} from 'drizzle-orm';
+import { PinoLogger } from 'nestjs-pino';
 
 import type {
   TransactionSortBy,
@@ -10,16 +24,28 @@ import type {
 
 import type { Database } from '../../database/database.types';
 import type { TransactionType } from '../../database/schemas/enums';
+import type { SeedReport, SeedSourceRecord } from '../../database/seeds/seed.types';
 import type { TransactionResponseDto } from './dtos/transaction-response.dto';
 
 import { DRIZZLE } from '../../database/database.constants';
 import { generateId } from '../../database/generate-id';
 import { transactionCategories } from '../../database/schemas/transaction-categories';
 import { transactions } from '../../database/schemas/transactions';
+import { seedTransactions } from '../../database/seeds/seed-transactions';
 
 const SINGLE_ROW_LIMIT = 1;
 
 const SUBTREE_MAX_DEPTH = 100;
+
+const IMPORT_KEY_BATCH_SIZE = 100;
+
+const splitIntoChunks = (valueList: string[], chunkSize: number): string[][] => {
+  const chunkList: string[][] = [];
+  for (let start = 0; start < valueList.length; start += chunkSize) {
+    chunkList.push(valueList.slice(start, start + chunkSize));
+  }
+  return chunkList;
+};
 
 interface FindAllByUserIdQuery {
   dateFrom?: string | undefined;
@@ -59,6 +85,16 @@ interface UpdateTransactionInput {
 interface ScopedCategory {
   id: string;
   type: TransactionType;
+}
+
+interface RunImportInput {
+  userId: string;
+  recordList: SeedSourceRecord[];
+}
+
+interface CategoryNameSets {
+  topLevelNameSet: Set<string>;
+  childNameSet: Set<string>;
 }
 
 const NO_ROWS_AFFECTED = 0;
@@ -145,7 +181,60 @@ const mapRowToResponse = (row: {
 
 @Injectable()
 export class TransactionsRepository {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    @Inject(PinoLogger) private readonly pinoLogger: PinoLogger,
+  ) {}
+
+  async runImport(input: RunImportInput): Promise<SeedReport> {
+    return this.db.transaction((tx) =>
+      seedTransactions({
+        db: tx,
+        userId: input.userId,
+        recordList: input.recordList,
+        logger: this.pinoLogger.logger,
+      }),
+    );
+  }
+
+  async findExistingImportKeys(userId: string, importKeyList: string[]): Promise<Set<string>> {
+    const chunkResultList = await Promise.all(
+      splitIntoChunks(importKeyList, IMPORT_KEY_BATCH_SIZE).map((importKeyChunk) =>
+        this.db
+          .select({ importKey: transactions.importKey })
+          .from(transactions)
+          .where(
+            and(eq(transactions.userId, userId), inArray(transactions.importKey, importKeyChunk)),
+          ),
+      ),
+    );
+
+    return new Set(
+      chunkResultList.flat().flatMap((row) => (row.importKey === null ? [] : [row.importKey])),
+    );
+  }
+
+  async findCategoryNameSetsByUserId(userId: string): Promise<CategoryNameSets> {
+    const [topLevelRowList, childRowList] = await Promise.all([
+      this.db
+        .select({ name: transactionCategories.name })
+        .from(transactionCategories)
+        .where(
+          and(eq(transactionCategories.userId, userId), isNull(transactionCategories.parentId)),
+        ),
+      this.db
+        .select({ name: transactionCategories.name })
+        .from(transactionCategories)
+        .where(
+          and(eq(transactionCategories.userId, userId), isNotNull(transactionCategories.parentId)),
+        ),
+    ]);
+
+    return {
+      topLevelNameSet: new Set(topLevelRowList.map((row) => row.name)),
+      childNameSet: new Set(childRowList.map((row) => row.name)),
+    };
+  }
 
   async findAllByUserId(
     userId: string,

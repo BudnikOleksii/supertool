@@ -1,8 +1,8 @@
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { Logger } from 'pino';
 
 import { and, eq, isNotNull, isNull } from 'drizzle-orm';
 
+import type { DatabaseExecutor } from '../database.types';
 import type { CategoryHierarchy, SeedReport, SeedSourceRecord } from './seed.types';
 
 import { generateId } from '../generate-id';
@@ -25,7 +25,7 @@ const CATEGORY_CONFLICT_TARGET = [
 ];
 
 interface SeedTransactionsOptions {
-  db: NodePgDatabase;
+  db: DatabaseExecutor;
   userId: string;
   recordList: SeedSourceRecord[];
   logger: Logger;
@@ -43,7 +43,7 @@ const selectCategoryIdByName = async ({
   userId,
   isChild,
 }: {
-  db: NodePgDatabase;
+  db: DatabaseExecutor;
   userId: string;
   isChild: boolean;
 }): Promise<Map<string, string>> => {
@@ -64,7 +64,7 @@ const seedCategories = async ({
   userId,
   hierarchy,
 }: {
-  db: NodePgDatabase;
+  db: DatabaseExecutor;
   userId: string;
   hierarchy: CategoryHierarchy;
 }): Promise<CategoryIdMaps> => {
@@ -159,7 +159,7 @@ const insertTransactionRows = async ({
   db,
   rowList,
 }: {
-  db: NodePgDatabase;
+  db: DatabaseExecutor;
   rowList: (typeof transactions.$inferInsert)[];
 }): Promise<number> => {
   const insertedCountList = await Promise.all(
@@ -167,7 +167,7 @@ const insertTransactionRows = async ({
       db
         .insert(transactions)
         .values(batch)
-        .onConflictDoNothing({ target: transactions.importKey })
+        .onConflictDoNothing({ target: [transactions.userId, transactions.importKey] })
         .returning({ id: transactions.id })
         .then((insertedBatch) => insertedBatch.length),
     ),

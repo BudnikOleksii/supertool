@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
 import { CURRENCY_CODE_LIST } from '@supertool/shared/constants/currency';
+import {
+  checkIsCalendarDate,
+  POSITIVE_AMOUNT_PATTERN,
+} from '@supertool/shared/constants/transaction-validation';
 
 import { TRANSACTION_TYPE_LIST } from '../../../../constants/transaction';
-import { checkIsCalendarDate } from '../utils/check-is-calendar-date';
 import { normalizeAmount } from '../utils/normalize-amount';
 
-const POSITIVE_AMOUNT_PATTERN = /^(?!0+(?:\.0{1,2})?$)\d{1,12}(?:\.\d{1,2})?$/u;
 const CATEGORY_ID_MIN_LENGTH = 1;
 
 export const transactionFormSchema = z.object({

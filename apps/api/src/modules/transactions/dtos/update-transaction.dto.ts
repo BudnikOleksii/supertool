@@ -2,15 +2,15 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsIn, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 
 import { CURRENCY_CODE_LIST } from '@supertool/shared/constants/currency';
+import {
+  CALENDAR_DATE_PATTERN,
+  POSITIVE_AMOUNT_PATTERN,
+} from '@supertool/shared/constants/transaction-validation';
 
 import type { TransactionType } from '../../../database/schemas/enums';
 
 import { TRANSACTION_TYPE_LIST, transactionTypeEnum } from '../../../database/schemas/enums';
 import { OPENAPI_ENUM_NAME } from '../../../shared/constants/openapi-enum-name';
-import {
-  CALENDAR_DATE_PATTERN,
-  POSITIVE_AMOUNT_PATTERN,
-} from '../../../shared/constants/transaction-validation';
 import { IsCalendarDate } from '../../../shared/validators/is-calendar-date.decorator';
 
 export class UpdateTransactionDto {
