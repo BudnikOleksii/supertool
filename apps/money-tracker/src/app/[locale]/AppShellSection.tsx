@@ -47,7 +47,6 @@ const NAV_ITEM_LIST: NavItem[] = [
         href: ROUTES.transactionsImport,
         labelKey: 'transactionsImport',
         Icon: Import,
-        disabled: true,
       },
     ],
   },

@@ -1,0 +1,13 @@
+.container {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: center;
+
+  padding-block: var(--spacing-12);
+}
+
+.card {
+  width: 100%;
+  max-width: 40rem;
+}

@@ -12,6 +12,11 @@ const MONOREPO_ROOT = join(import.meta.dirname, '../../');
 const nextConfig: NextConfig = {
   output: 'standalone',
   outputFileTracingRoot: MONOREPO_ROOT,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '6mb',
+    },
+  },
   transpilePackages: [
     '@supertool/ui',
     '@supertool/shell',

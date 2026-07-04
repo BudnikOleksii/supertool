@@ -1,0 +1,20 @@
+.panel {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.counts {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.links {
+  display: flex;
+
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
