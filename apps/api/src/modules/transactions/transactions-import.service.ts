@@ -5,7 +5,10 @@ import { extname } from 'node:path';
 import { checkIsCurrencyCode } from '@supertool/shared/constants/currency';
 import { ErrorCode } from '@supertool/shared/constants/error-codes';
 import { TRANSACTION_IMPORT_MAX_ROWS } from '@supertool/shared/constants/transaction-import';
-import { POSITIVE_AMOUNT_PATTERN } from '@supertool/shared/constants/transaction-validation';
+import {
+  checkIsCalendarDate,
+  POSITIVE_AMOUNT_PATTERN,
+} from '@supertool/shared/constants/transaction-validation';
 
 import type { SeedSourceRecord } from '../../database/seeds/seed.types';
 import type { TransactionImportPreviewResponseDto } from './dtos/transaction-import-preview-response.dto';
@@ -24,6 +27,7 @@ const NO_ROWS = 0;
 const JSON_EXTENSION = '.json';
 const CSV_EXTENSION = '.csv';
 const REQUIRED_CSV_HEADER_LIST = ['Date', 'Category', 'Type', 'Amount', 'Currency'];
+const LEADING_BOM_PATTERN = /^\uFEFF/u;
 
 const CANONICAL_TYPE_BY_LOWERCASE: Readonly<Record<string, 'Expense' | 'Income'>> = {
   expense: 'Expense',
@@ -44,7 +48,7 @@ const checkIsRecord = (value: unknown): value is Record<string, unknown> =>
 const parseJsonRowList = (buffer: Buffer): unknown[] => {
   let parsed: unknown = undefined;
   try {
-    parsed = JSON.parse(buffer.toString('utf8'));
+    parsed = JSON.parse(buffer.toString('utf8').replace(LEADING_BOM_PATTERN, ''));
   } catch {
     throwValidationError('File is not valid JSON');
   }
@@ -71,7 +75,7 @@ const assertRequiredCsvHeaders = (firstRow: unknown): void => {
 const parseCsvRowList = (buffer: Buffer): unknown[] => {
   let rowList: unknown[] = [];
   try {
-    rowList = parse(buffer, { columns: true, skip_empty_lines: true, trim: true });
+    rowList = parse(buffer, { bom: true, columns: true, skip_empty_lines: true, trim: true });
   } catch {
     throwValidationError('File is not valid CSV');
   }
@@ -101,8 +105,7 @@ const parseRowDate = (value: unknown): string | undefined => {
   }
 
   try {
-    parseSeedDate(value);
-    return value;
+    return checkIsCalendarDate(parseSeedDate(value)) ? value : undefined;
   } catch {
     return undefined;
   }

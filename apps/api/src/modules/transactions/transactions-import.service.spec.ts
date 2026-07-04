@@ -32,6 +32,7 @@ const EMPTY_SEED_REPORT: SeedReport = {
 };
 
 const CSV_HEADER_LINE = 'Date,Category,Type,Amount,Currency,Subcategory';
+const UTF8_BOM = '\uFEFF';
 
 const buildFile = (originalname: string, content: string): Express.Multer.File =>
   ({ originalname, buffer: Buffer.from(content, 'utf8') }) as unknown as Express.Multer.File;
@@ -160,6 +161,44 @@ describe('TransactionsImportService', () => {
       ]);
     });
 
+    it('imports a BOM-prefixed CSV file', async () => {
+      const repositoryDouble = buildRepositoryDouble();
+      const service = buildService(repositoryDouble);
+
+      await service.importTransactions(
+        'user-id',
+        buildFile(
+          'import.csv',
+          `${UTF8_BOM}${CSV_HEADER_LINE}\n02/03/2025 15:41:17,Їжа,Expense,1588.29,UAH,Кафе`,
+        ),
+      );
+
+      const [input] = repositoryDouble.runImport.mock.calls[0] ?? [];
+      expect(input.recordList).toEqual([
+        {
+          Date: '02/03/2025 15:41:17',
+          Category: 'Їжа',
+          Type: 'Expense',
+          Amount: '1588.29',
+          Currency: 'UAH',
+          Subcategory: 'Кафе',
+        },
+      ]);
+    });
+
+    it('imports a BOM-prefixed JSON file', async () => {
+      const repositoryDouble = buildRepositoryDouble();
+      const service = buildService(repositoryDouble);
+
+      await service.importTransactions(
+        'user-id',
+        buildFile('import.json', `${UTF8_BOM}${JSON.stringify([VALID_JSON_ROW])}`),
+      );
+
+      const [input] = repositoryDouble.runImport.mock.calls[0] ?? [];
+      expect(input.recordList).toEqual([VALID_JSON_ROW]);
+    });
+
     it('maps the seed report onto the execute response', async () => {
       const repositoryDouble = buildRepositoryDouble();
       const expectedCluster = {
@@ -196,6 +235,9 @@ describe('TransactionsImportService', () => {
       ['literal NaN amount', { ...VALID_JSON_ROW, Amount: 'NaN' }, '"Amount"'],
       ['unknown type', { ...VALID_JSON_ROW, Type: 'Transfer' }, '"Type"'],
       ['unparseable date', { ...VALID_JSON_ROW, Date: '13/45/2025' }, '"Date"'],
+      ['impossible February day', { ...VALID_JSON_ROW, Date: '02/30/2025 15:41:17' }, '"Date"'],
+      ['non-leap-year February 29th', { ...VALID_JSON_ROW, Date: '02/29/2025' }, '"Date"'],
+      ['impossible April 31st', { ...VALID_JSON_ROW, Date: '04/31/2025' }, '"Date"'],
       ['unknown currency', { ...VALID_JSON_ROW, Currency: 'ZZZ' }, '"Currency"'],
       ['empty category', { ...VALID_JSON_ROW, Category: '  ' }, '"Category"'],
       ['non-string subcategory', { ...VALID_JSON_ROW, Subcategory: 7 }, '"Subcategory"'],
