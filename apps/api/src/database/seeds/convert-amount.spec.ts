@@ -23,4 +23,24 @@ describe('convertAmountToString', () => {
   it('returns a string, never a float', () => {
     expect(typeof convertAmountToString(ARBITRARY_AMOUNT)).toBe('string');
   });
+
+  it('converts a two-decimal string amount exactly', () => {
+    expect(convertAmountToString('1588.29')).toBe('1588.29');
+  });
+
+  it('resolves a three-decimal string amount via Decimal half-up rounding, never float math', () => {
+    expect(convertAmountToString('10.005')).toBe('10.01');
+  });
+
+  it('pads an integer string amount to two decimal places', () => {
+    expect(convertAmountToString('42')).toBe('42.00');
+  });
+
+  it('throws on a non-numeric string amount', () => {
+    expect(() => convertAmountToString('abc')).toThrow();
+  });
+
+  it('renders a literal NaN string as NaN rather than throwing', () => {
+    expect(convertAmountToString('NaN')).toBe('NaN');
+  });
 });

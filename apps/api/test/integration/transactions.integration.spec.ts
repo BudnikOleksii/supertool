@@ -1,9 +1,11 @@
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import type { PinoLogger } from 'nestjs-pino';
 import type { StartedTestContainer } from 'testcontainers';
 
 import { NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import { pino } from 'pino';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { FIRST_PAGE } from '@supertool/shared/constants/pagination';
@@ -245,7 +247,8 @@ const loadSeedModules = async (): Promise<void> => {
 const connectDatabase = (databaseUrl: string): void => {
   pool = new Pool({ connectionString: databaseUrl });
   database = drizzle(pool);
-  repository = new TransactionsRepository(database);
+  const pinoLoggerDouble = { logger: pino({ level: 'silent' }) } as unknown as PinoLogger;
+  repository = new TransactionsRepository(database, pinoLoggerDouble);
   service = new TransactionsService(repository);
 };
 

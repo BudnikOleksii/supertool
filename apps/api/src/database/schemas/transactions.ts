@@ -33,7 +33,7 @@ export const transactions = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex('transactions_import_key_unique').on(table.importKey),
+    uniqueIndex('transactions_import_key_unique').on(table.userId, table.importKey),
     foreignKey({
       columns: [table.userId, table.categoryId],
       foreignColumns: [transactionCategories.userId, transactionCategories.id],

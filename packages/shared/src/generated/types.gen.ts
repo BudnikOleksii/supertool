@@ -106,6 +106,29 @@ export type CreateTransactionDto = {
     note?: string;
 };
 
+export type NearDuplicateClusterDto = {
+    normalizedKey: string;
+    rawNameList: Array<string>;
+    hasMixedScript: boolean;
+};
+
+export type TransactionImportResponseDto = {
+    inserted: number;
+    skippedDuplicates: number;
+    topLevelCategoriesCreated: number;
+    childCategoriesCreated: number;
+    nearDuplicateClusterList: Array<NearDuplicateClusterDto>;
+};
+
+export type TransactionImportPreviewResponseDto = {
+    totalRows: number;
+    newRows: number;
+    duplicateRows: number;
+    topLevelCategoriesToCreateList: Array<string>;
+    childCategoriesToCreateList: Array<string>;
+    nearDuplicateClusterList: Array<NearDuplicateClusterDto>;
+};
+
 export type UpdateTransactionDto = {
     type: TransactionType;
     amount: string;
@@ -335,6 +358,52 @@ export type TransactionsCreateResponses = {
 };
 
 export type TransactionsCreateResponse = TransactionsCreateResponses[keyof TransactionsCreateResponses];
+
+export type TransactionsImportData = {
+    body: {
+        file: Blob | File;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/transactions/import';
+};
+
+export type TransactionsImportErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+    413: ErrorResponseDto;
+};
+
+export type TransactionsImportError = TransactionsImportErrors[keyof TransactionsImportErrors];
+
+export type TransactionsImportResponses = {
+    201: TransactionImportResponseDto;
+};
+
+export type TransactionsImportResponse = TransactionsImportResponses[keyof TransactionsImportResponses];
+
+export type TransactionsImportPreviewData = {
+    body: {
+        file: Blob | File;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/transactions/import/preview';
+};
+
+export type TransactionsImportPreviewErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+    413: ErrorResponseDto;
+};
+
+export type TransactionsImportPreviewError = TransactionsImportPreviewErrors[keyof TransactionsImportPreviewErrors];
+
+export type TransactionsImportPreviewResponses = {
+    200: TransactionImportPreviewResponseDto;
+};
+
+export type TransactionsImportPreviewResponse = TransactionsImportPreviewResponses[keyof TransactionsImportPreviewResponses];
 
 export type TransactionsRemoveData = {
     body?: never;

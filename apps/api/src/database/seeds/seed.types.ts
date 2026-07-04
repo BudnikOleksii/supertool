@@ -6,7 +6,7 @@ export const seedSourceRecordSchema = z.object({
   Date: z.string(),
   Category: z.string(),
   Type: z.string(),
-  Amount: z.number(),
+  Amount: z.union([z.number(), z.string()]),
   Currency: z.string(),
   Subcategory: z.string().optional(),
 });

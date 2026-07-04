@@ -1,15 +1,63 @@
+import type { ExecutionContext } from '@nestjs/common';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 
+import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { describe, expect, it, vi } from 'vitest';
 
+import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
+import { TRANSACTION_IMPORT_MAX_FILE_SIZE_BYTES } from '@supertool/shared/constants/transaction-import';
+
 import type { auth } from '../../auth/auth';
 
+import { AuthGuard } from '../../shared/guards/auth.guard';
+import { TransactionsImportService } from './transactions-import.service';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 
+const OVERSIZE_EXTRA_BYTES = 1;
+
 const createSession = (userId: string): UserSession<typeof auth> =>
   ({ user: { id: userId } }) as unknown as UserSession<typeof auth>;
+
+const createImportFile = (originalname: string): Express.Multer.File =>
+  ({ originalname, buffer: Buffer.from('[]', 'utf8') }) as unknown as Express.Multer.File;
+
+const authGuardDouble = {
+  canActivate: (context: ExecutionContext): boolean => {
+    const request = context.switchToHttp().getRequest<{ session?: unknown }>();
+    request.session = { user: { id: 'user-id' } };
+    return true;
+  },
+};
+
+const bootControllerApp = async (importTransactions: ReturnType<typeof vi.fn>) => {
+  const moduleRef = await Test.createTestingModule({
+    controllers: [TransactionsController],
+    providers: [
+      { provide: TransactionsService, useValue: {} },
+      { provide: TransactionsImportService, useValue: { importTransactions } },
+    ],
+  })
+    .overrideGuard(AuthGuard)
+    .useValue(authGuardDouble)
+    .compile();
+
+  const app = moduleRef.createNestApplication();
+  await app.listen(0);
+
+  return app;
+};
+
+const postOversizeImport = async (appUrl: string): Promise<Response> => {
+  const oversizeContent = new Uint8Array(
+    TRANSACTION_IMPORT_MAX_FILE_SIZE_BYTES + OVERSIZE_EXTRA_BYTES,
+  );
+  const formData = new FormData();
+  formData.append('file', new Blob([oversizeContent], { type: 'application/json' }), 'big.json');
+
+  return fetch(`${appUrl}/transactions/import`, { method: 'POST', body: formData });
+};
 
 describe('TransactionsController', () => {
   it('forwards the session user id and query to the service', async () => {
@@ -20,7 +68,10 @@ describe('TransactionsController', () => {
     const findAll = vi.fn().mockResolvedValue(expectedResult);
     const moduleRef = await Test.createTestingModule({
       controllers: [TransactionsController],
-      providers: [{ provide: TransactionsService, useValue: { findAll } }],
+      providers: [
+        { provide: TransactionsService, useValue: { findAll } },
+        { provide: TransactionsImportService, useValue: {} },
+      ],
     }).compile();
 
     const controller = moduleRef.get(TransactionsController);
@@ -58,7 +109,10 @@ describe('TransactionsController', () => {
     const create = vi.fn().mockResolvedValue(expectedResult);
     const moduleRef = await Test.createTestingModule({
       controllers: [TransactionsController],
-      providers: [{ provide: TransactionsService, useValue: { create } }],
+      providers: [
+        { provide: TransactionsService, useValue: { create } },
+        { provide: TransactionsImportService, useValue: {} },
+      ],
     }).compile();
 
     const controller = moduleRef.get(TransactionsController);
@@ -81,7 +135,10 @@ describe('TransactionsController', () => {
     const findOne = vi.fn().mockResolvedValue(expectedResult);
     const moduleRef = await Test.createTestingModule({
       controllers: [TransactionsController],
-      providers: [{ provide: TransactionsService, useValue: { findOne } }],
+      providers: [
+        { provide: TransactionsService, useValue: { findOne } },
+        { provide: TransactionsImportService, useValue: {} },
+      ],
     }).compile();
 
     const controller = moduleRef.get(TransactionsController);
@@ -97,7 +154,10 @@ describe('TransactionsController', () => {
     const update = vi.fn().mockResolvedValue(expectedResult);
     const moduleRef = await Test.createTestingModule({
       controllers: [TransactionsController],
-      providers: [{ provide: TransactionsService, useValue: { update } }],
+      providers: [
+        { provide: TransactionsService, useValue: { update } },
+        { provide: TransactionsImportService, useValue: {} },
+      ],
     }).compile();
 
     const controller = moduleRef.get(TransactionsController);
@@ -119,7 +179,10 @@ describe('TransactionsController', () => {
     const remove = vi.fn().mockResolvedValue(undefined);
     const moduleRef = await Test.createTestingModule({
       controllers: [TransactionsController],
-      providers: [{ provide: TransactionsService, useValue: { delete: remove } }],
+      providers: [
+        { provide: TransactionsService, useValue: { delete: remove } },
+        { provide: TransactionsImportService, useValue: {} },
+      ],
     }).compile();
 
     const controller = moduleRef.get(TransactionsController);
@@ -128,5 +191,95 @@ describe('TransactionsController', () => {
       controller.remove(createSession('user-id'), 'transaction-1'),
     ).resolves.toBeUndefined();
     expect(remove).toHaveBeenCalledWith('user-id', 'transaction-1');
+  });
+
+  it('forwards the session user id and file to the import service on import', async () => {
+    const expectedResult = {
+      inserted: 2,
+      skippedDuplicates: 0,
+      topLevelCategoriesCreated: 1,
+      childCategoriesCreated: 1,
+      nearDuplicateClusterList: [],
+    };
+    const importTransactions = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [TransactionsController],
+      providers: [
+        { provide: TransactionsService, useValue: {} },
+        { provide: TransactionsImportService, useValue: { importTransactions } },
+      ],
+    }).compile();
+
+    const controller = moduleRef.get(TransactionsController);
+    const inputFile = createImportFile('import.json');
+
+    await expect(controller.import(createSession('user-id'), inputFile)).resolves.toEqual(
+      expectedResult,
+    );
+    expect(importTransactions).toHaveBeenCalledWith('user-id', inputFile);
+  });
+
+  it('forwards the session user id and file to the import service on preview', async () => {
+    const expectedResult = {
+      totalRows: 2,
+      newRows: 2,
+      duplicateRows: 0,
+      topLevelCategoriesToCreateList: [],
+      childCategoriesToCreateList: [],
+      nearDuplicateClusterList: [],
+    };
+    const previewImport = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [TransactionsController],
+      providers: [
+        { provide: TransactionsService, useValue: {} },
+        { provide: TransactionsImportService, useValue: { previewImport } },
+      ],
+    }).compile();
+
+    const controller = moduleRef.get(TransactionsController);
+    const inputFile = createImportFile('import.csv');
+
+    await expect(controller.importPreview(createSession('user-id'), inputFile)).resolves.toEqual(
+      expectedResult,
+    );
+    expect(previewImport).toHaveBeenCalledWith('user-id', inputFile);
+  });
+
+  it('rejects a missing upload with a 400 before reaching the import service', async () => {
+    const importTransactions = vi.fn();
+    const previewImport = vi.fn();
+    const moduleRef = await Test.createTestingModule({
+      controllers: [TransactionsController],
+      providers: [
+        { provide: TransactionsService, useValue: {} },
+        { provide: TransactionsImportService, useValue: { importTransactions, previewImport } },
+      ],
+    }).compile();
+
+    const controller = moduleRef.get(TransactionsController);
+
+    await expect(controller.import(createSession('user-id'), undefined)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    await expect(
+      controller.importPreview(createSession('user-id'), undefined),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(importTransactions).not.toHaveBeenCalled();
+    expect(previewImport).not.toHaveBeenCalled();
+  });
+
+  it('rejects an upload above the size limit with 413 before reaching the import service', async () => {
+    const importTransactions = vi.fn();
+    const app = await bootControllerApp(importTransactions);
+
+    try {
+      const response = await postOversizeImport(await app.getUrl());
+
+      expect(response.status).toBe(HTTP_STATUS_CODE.PayloadTooLarge);
+      expect(importTransactions).not.toHaveBeenCalled();
+    } finally {
+      await app.close();
+    }
   });
 });
