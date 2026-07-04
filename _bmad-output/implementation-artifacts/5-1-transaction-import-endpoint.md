@@ -246,6 +246,10 @@ Dismissed as spec-compliant/documented (10): sync `csv-parse/sync` + `JSON.parse
 
 ## Dev Agent Record
 
+### Pull Request
+
+https://github.com/BudnikOleksii/supertool/pull/34 (opened 2026-07-04 after on-branch review APPROVE)
+
 ### Agent Model Used
 
 Claude Fable 5 (claude-fable-5), autonomous dev-story run 2026-07-04.
