@@ -4,7 +4,7 @@ baseline_commit: 30d1da9b0e0661c3ba4375c926a73588d9ba2c53
 
 # Story 5.3: Onboarding Flow
 
-Status: in-progress
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -80,48 +80,48 @@ Category names are user data, not UI strings — the catalog is English-only reg
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1 — Study the reference and the current state before writing code** (AC: all)
-  - [ ] Reference (ED1 — carry patterns, never code): `example/track-my-life/apps/money-tracker/src/app/[locale]/(onboarding-layout)/onboarding/page.tsx` + `page.content.tsx` (single route + `?step=` stepper), `…/components/currency-step/CurrencyStep.tsx` (RHF+zod Combobox form), `…/components/categories-step/CategoriesStep.tsx` + `hooks/use-categories-step.ts` (defaults action + inline import + continue gating), `…/components/step-indicator/StepIndicator.tsx`, `…/constants/onboarding-step.ts`, `…/(app-layout)/layout.tsx` + `src/actions/redirect-if-not-onboarded.ts` + `fetch-onboarding-status.ts` (gating mechanism), `…/messages/en/onboarding-page.json` (namespace/key naming); backend `example/tracker-backend-api/src/modules/onboarding/{onboarding.controller.ts,onboarding.service.ts}` + `src/database/schemas/users.ts` (`onboardingCompleted`) + `src/database/seeds/default-transaction-category.seed.ts` (catalog content). Note deliberate supertool divergences D-B…D-H below.
-  - [ ] Read in full the files this story updates: `apps/api/src/database/schemas/users.ts`, `apps/api/src/database/seeds/seed-operator.ts`, `apps/api/src/modules/users/{users.controller.ts,users.service.ts,users.repository.ts,dtos/*.ts}`, `apps/api/src/modules/transaction-categories/{transaction-categories.controller.ts,transaction-categories.service.ts,transaction-categories.repository.ts}` (+ existing unique constraint on `transaction_categories` — NULLS NOT DISTINCT, memory `drizzle-nullsnotdistinct-on-unique-not-uniqueindex`; do not touch it), `apps/money-tracker/src/app/[locale]/layout.tsx`, `AppShellSection.tsx`, `packages/shell/src/components/app-shell/AppShell.tsx` (plain-header branch), `src/app/[locale]/sign-up/SignUpFormSection.tsx`, `src/constants/routes.ts`, `src/actions/{fetch-profile.ts,update-profile.ts,create-transaction.ts}`, the whole `transactions/import/` route dir (lift subjects), `settings/components/profile-form/ProfileForm.tsx` + `settings/constants/{profile-form-schema.ts,currency-option-list.ts}`, `src/utils/resolve-default-period.ts` (4.3 — composes with completion landing).
-- [ ] **Task 2 — API: onboarding flag** (AC: 1, 5, 6)
-  - [ ] `users.ts` schema: add `onboardingCompleted` (`boolean('onboarding_completed').notNull().default(false)`); `pnpm --filter @supertool/api db:generate`; append the one-time `UPDATE users SET onboarding_completed = true;` backfill to the generated migration SQL.
-  - [ ] `seed-operator.ts`: ensure the operator ends up `onboardingCompleted: true` — mirror the existing `ensureDefaultCurrency` pattern with an unconditional `ensureOnboardingCompleted`-style step (self-evidently idempotent; covers fresh DBs where the operator is created after the backfill migration ran). Confirm `seed.integration.spec.ts` stays green.
-  - [ ] `UserResponseDto`: `@ApiProperty()` boolean `onboardingCompleted`. `UpdateUserDto`: `@ApiPropertyOptional()` + `@IsBoolean() @IsOptional()`. ⚠️ The repository is NOT a blind pass-through — `users.repository.ts` reads through the `USER_RESPONSE_COLUMNS` whitelist and `updateScoped` maps fields explicitly: add `onboardingCompleted: users.onboardingCompleted` to `USER_RESPONSE_COLUMNS` AND an `if (patch.onboardingCompleted !== undefined)` branch to `updateScoped` (skipping either fails silently: 200-without-persisting → completion never sticks, or a missing response field → `profile.onboardingCompleted` undefined → every user forced into onboarding). `users.service.ts` already forwards the DTO — no change. Extend `users` unit/controller specs + `users-profile.integration.spec.ts` (fresh user false; update persists true AND round-trips in `usersMe`).
-- [ ] **Task 3 — API: default-categories endpoint** (AC: 3, 6)
-  - [ ] `transaction-categories.constants.ts`: `DEFAULT_CATEGORY_CATALOG` per the Recommended Approach (as-const; income top-levels, expense parents with `childList`).
-  - [ ] Controller: `@Post('defaults')` (201, `@UseGuards(AuthGuard)`, session user id) — method named exactly `createDefaults`; new `dtos/default-categories-response.dto.ts` (`topLevelCreated`, `childrenCreated` — `@ApiProperty()` numbers). No new enums → no `OPENAPI_ENUM_NAME` entries.
-  - [ ] Service `createDefaults(userId)` → repository method that inserts parents then children inside one `db.transaction`, `onConflictDoNothing` targeting `[userId, name, type, parentId]`, resolving child `parentId`s from the just-ensured parents — re-select **top-level** rows by `[userId, name, type]` **AND `parentId IS NULL`** after the upsert (so pre-existing parents also get their children linked, and the duplicate `Other` names in the catalog / a user's own same-named child categories can never win the lookup). Returns created counts.
-  - [ ] Specs: service (catalog → rows, counts), controller (delegation, 201); Testcontainers `apps/api/test/integration/` coverage per AC 6 (two-user independence, idempotent re-run, coexistence with pre-existing same-named categories).
-  - [ ] Regenerate: `pnpm --filter @supertool/api build` → `pnpm --filter @supertool/shared generate:client`; verify operationId `transactionCategoriesCreateDefaults`; commit the generated diff; drift gate green.
-- [ ] **Task 4 — Lift the 5-2 import flow to app-wide homes** (AC: 4)
-  - [ ] `git mv` per the Recommended Approach lift list (components → `src/components/transaction-import/…`, hook → `src/hooks/`, utils → `src/utils/transaction-import/…`, action-state types → app-wide types file); update all import paths (`ImportPageContent`, the two server actions, tests). No logic edits; keep component/file names.
-  - [ ] Run the money-tracker suite — every moved test green; standalone import page renders unchanged (spot-check live during QA).
-- [ ] **Task 5 — Routing: flag-aware shell + gates + signup redirect** (AC: 1, 5)
-  - [ ] `routes.ts`: add `onboarding: '/onboarding'`.
-  - [ ] `layout.tsx`: pass `userName` only when `profile !== null && profile.onboardingCompleted` (plain header otherwise — verify the plain branch renders theme/locale switchers as today).
-  - [ ] New `src/utils/resolve-onboarded-profile.ts` (+ test): three branches per Recommended Approach; replace the inline `fetchProfile()`+redirect gate in every protected page (`git grep -l "fetchProfile" apps/money-tracker/src/app` — dashboard, transactions, transactions/new, transaction edit, transactions/import, categories, categories/new, category edit, settings); pages keep their existing render output otherwise.
-  - [ ] `SignUpFormSection.tsx`: success → `router.replace(ROUTES.onboarding)` (+ keep `router.refresh()`); update its test if one exists.
-- [ ] **Task 6 — i18n namespace plumbing** (AC: 8)
-  - [ ] Add `onboardingPage` to `I18N_NAMESPACE` (`packages/shared/src/constants/i18n-namespace.ts`) and map to `onboarding-page` in `localization-messages-file-name-by-namespace.ts`.
-  - [ ] Create `apps/money-tracker/messages/{en,uk}/onboarding-page.json` in the same commit: step labels (Currency, Categories), currency title/subtitle/field label/placeholder/continue, categories title/subtitle, use-defaults button + assigned result (ICU plural counts), import section label, compact import result (ICU: inserted/skipped/categories created), skip + continue, `errors.*` keyed by raw `ErrorCode` values + `UNKNOWN` (mirror `transaction-form.json`). Real Ukrainian, no transliteration.
-- [ ] **Task 7 — Onboarding page + steps** (AC: 1, 2, 3, 4, 5, 9)
-  - [ ] Lift `CURRENCY_OPTION_LIST` to `src/constants/currency-option-list.ts`; re-point `ProfileForm`.
-  - [ ] New `app/[locale]/onboarding/page.tsx` (RSC): params/searchParams, `setRequestLocale`, guards (unauth → signIn; completed → dashboard; `?step=categories` without saved currency → currency step), render centered `Card` + `StepIndicator` + the active step. `ONBOARDING_STEP_SEARCH_PARAM` + step values in a route-local `constants.ts` (as-const map, no TS enum). No `generateMetadata`/`loading.tsx` (repo pattern, 5-2 D-G precedent).
-  - [ ] `components/step-indicator/StepIndicator.tsx` (+ scss/test): two dots + labels, `aria-current="step"`, tokens only. Reference counterpart: `…/onboarding/components/step-indicator/StepIndicator.tsx`.
-  - [ ] `components/currency-step/CurrencyStep.tsx` (+ scss/test): RHF+zod (`defaultCurrency` required enum), `Combobox` + lifted `CURRENCY_OPTION_LIST`, pre-select from profile, pending disable, error mapping per `ActionState`. Reference counterpart: `…/currency-step/CurrencyStep.tsx`; supertool persists immediately (D-D).
-  - [ ] `components/categories-step/CategoriesStep.tsx` (+ scss/test, `hooks/use-categories-step.ts`): defaults button → action → counts result; import section composing lifted `ImportDropzone`/`ImportPreviewPanel`/`ImportErrorPanel` via `useImportFlow`; compact result + Continue after either success; Skip always available; completion → `complete-onboarding` action → `router.replace(ROUTES.dashboard)`. Reference counterpart: `…/categories-step/CategoriesStep.tsx` + `use-categories-step.ts`, adapted to the server-preview flow (**no client parsing — 5-2 D-A stands**) and the optional-skip contract (D-E).
-  - [ ] Mobile-first SCSS: centered card, `max-width` with fluid gutters, stack at 390px, no fixed widths; long category names wrap.
-- [ ] **Task 8 — Server actions** (AC: 2, 3, 5)
-  - [ ] New `src/actions/update-default-currency.ts` (+ test): `'use server'`, zod-validate the code against `CURRENCY_CODE_LIST`, `usersUpdateMe { defaultCurrency }`, `revalidatePath(ROUTES.home, 'layout')`, `ActionState` return. Pattern: `update-profile.ts`.
-  - [ ] New `src/actions/assign-default-categories.ts` (+ test): `TransactionCategoriesApiService.transactionCategoriesCreateDefaults`, `revalidatePath(ROUTES.categories)`, route-local success union carrying the counts DTO (5-2 D-C precedent — do not widen the shared `ActionState`).
-  - [ ] New `src/actions/complete-onboarding.ts` (+ test): `usersUpdateMe { onboardingCompleted: true }`, `revalidatePath(ROUTES.home, 'layout')`, `ActionState` return; navigation stays client-side in the step (SignUpFormSection precedent).
-  - [ ] All three: `await cookies()` → `createServerApiClient({ cookieHeader })`; generated client only (NFR6); rejection-hardening `.catch` → UNKNOWN state in the calling hook (5-2 must-fix 1 lesson).
-- [ ] **Task 9 — Gates, visual QA, record** (AC: 7, 9, 10)
-  - [ ] `pnpm type-check`, `pnpm lint`, `pnpm stylelint`, `pnpm fmt:check`, `pnpm test`, `pnpm i18n:parity`, `pnpm build` — pnpm scripts only, `TURBO_FORCE=true` where needed (memories `run-tests-via-pnpm-scripts`, `turbo-cache-masks-gate-results`); drift gate green after regen.
-  - [ ] Pre-QA environment checklist (epic-4 retro action #4): `:3000` next-server cwd is THIS checkout (`lsof`); seed baseline clean (1880 rows, latest `2025-02-03`; `TRUNCATE` + re-seed if strays — memory `seed-idempotent-truncate-before-reseed`). Run migrations so the backfill applies.
-  - [ ] Capture the AC-10 matrix as a **fresh signed-up user** (sign-up on `:3000` works — trusted origins pinned there): (a) sign-up → lands on onboarding, plain header visible; (b) currency step idle + combobox open; (c) categories choice; (d) defaults path → counts → Continue → dashboard (current-month empty state, no crash); (e) reset with a second fresh user: import path with the seed JSON (`apps/api/src/database/data/transactions-02.03.25.json` — proves the 5-1 cross-user copy: full insert, not all-duplicates) → preview → result → Continue → dashboard auto-fit on `2025-02` with real figures; (f) skip path; (g) operator signs in → never sees onboarding; `/onboarding` as operator → dashboard redirect. Verify `scrollWidth === innerWidth` at 390px on each step. Both themes via the real switcher (available in the plain header).
-  - [ ] **Restore DB state**: delete the QA users' transactions/categories/user+session rows, `TRUNCATE transactions` + re-seed, verify baseline (1880 rows, latest `2025-02-03`, 110 categories, operator `onboarding_completed = true`).
-  - [ ] Update Dev Agent Record + File List + Change Log; status → review.
+- [x] **Task 1 — Study the reference and the current state before writing code** (AC: all)
+  - [x] Reference (ED1 — carry patterns, never code): `example/track-my-life/apps/money-tracker/src/app/[locale]/(onboarding-layout)/onboarding/page.tsx` + `page.content.tsx` (single route + `?step=` stepper), `…/components/currency-step/CurrencyStep.tsx` (RHF+zod Combobox form), `…/components/categories-step/CategoriesStep.tsx` + `hooks/use-categories-step.ts` (defaults action + inline import + continue gating), `…/components/step-indicator/StepIndicator.tsx`, `…/constants/onboarding-step.ts`, `…/(app-layout)/layout.tsx` + `src/actions/redirect-if-not-onboarded.ts` + `fetch-onboarding-status.ts` (gating mechanism), `…/messages/en/onboarding-page.json` (namespace/key naming); backend `example/tracker-backend-api/src/modules/onboarding/{onboarding.controller.ts,onboarding.service.ts}` + `src/database/schemas/users.ts` (`onboardingCompleted`) + `src/database/seeds/default-transaction-category.seed.ts` (catalog content). Note deliberate supertool divergences D-B…D-H below.
+  - [x] Read in full the files this story updates: `apps/api/src/database/schemas/users.ts`, `apps/api/src/database/seeds/seed-operator.ts`, `apps/api/src/modules/users/{users.controller.ts,users.service.ts,users.repository.ts,dtos/*.ts}`, `apps/api/src/modules/transaction-categories/{transaction-categories.controller.ts,transaction-categories.service.ts,transaction-categories.repository.ts}` (+ existing unique constraint on `transaction_categories` — NULLS NOT DISTINCT, memory `drizzle-nullsnotdistinct-on-unique-not-uniqueindex`; do not touch it), `apps/money-tracker/src/app/[locale]/layout.tsx`, `AppShellSection.tsx`, `packages/shell/src/components/app-shell/AppShell.tsx` (plain-header branch), `src/app/[locale]/sign-up/SignUpFormSection.tsx`, `src/constants/routes.ts`, `src/actions/{fetch-profile.ts,update-profile.ts,create-transaction.ts}`, the whole `transactions/import/` route dir (lift subjects), `settings/components/profile-form/ProfileForm.tsx` + `settings/constants/{profile-form-schema.ts,currency-option-list.ts}`, `src/utils/resolve-default-period.ts` (4.3 — composes with completion landing).
+- [x] **Task 2 — API: onboarding flag** (AC: 1, 5, 6)
+  - [x] `users.ts` schema: add `onboardingCompleted` (`boolean('onboarding_completed').notNull().default(false)`); `pnpm --filter @supertool/api db:generate`; append the one-time `UPDATE users SET onboarding_completed = true;` backfill to the generated migration SQL.
+  - [x] `seed-operator.ts`: ensure the operator ends up `onboardingCompleted: true` — mirror the existing `ensureDefaultCurrency` pattern with an unconditional `ensureOnboardingCompleted`-style step (self-evidently idempotent; covers fresh DBs where the operator is created after the backfill migration ran). Confirm `seed.integration.spec.ts` stays green.
+  - [x] `UserResponseDto`: `@ApiProperty()` boolean `onboardingCompleted`. `UpdateUserDto`: `@ApiPropertyOptional()` + `@IsBoolean() @IsOptional()`. ⚠️ The repository is NOT a blind pass-through — `users.repository.ts` reads through the `USER_RESPONSE_COLUMNS` whitelist and `updateScoped` maps fields explicitly: add `onboardingCompleted: users.onboardingCompleted` to `USER_RESPONSE_COLUMNS` AND an `if (patch.onboardingCompleted !== undefined)` branch to `updateScoped` (skipping either fails silently: 200-without-persisting → completion never sticks, or a missing response field → `profile.onboardingCompleted` undefined → every user forced into onboarding). `users.service.ts` already forwards the DTO — no change. Extend `users` unit/controller specs + `users-profile.integration.spec.ts` (fresh user false; update persists true AND round-trips in `usersMe`).
+- [x] **Task 3 — API: default-categories endpoint** (AC: 3, 6)
+  - [x] `transaction-categories.constants.ts`: `DEFAULT_CATEGORY_CATALOG` per the Recommended Approach (as-const; income top-levels, expense parents with `childList`).
+  - [x] Controller: `@Post('defaults')` (201, `@UseGuards(AuthGuard)`, session user id) — method named exactly `createDefaults`; new `dtos/default-categories-response.dto.ts` (`topLevelCreated`, `childrenCreated` — `@ApiProperty()` numbers). No new enums → no `OPENAPI_ENUM_NAME` entries.
+  - [x] Service `createDefaults(userId)` → repository method that inserts parents then children inside one `db.transaction`, `onConflictDoNothing` targeting `[userId, name, type, parentId]`, resolving child `parentId`s from the just-ensured parents — re-select **top-level** rows by `[userId, name, type]` **AND `parentId IS NULL`** after the upsert (so pre-existing parents also get their children linked, and the duplicate `Other` names in the catalog / a user's own same-named child categories can never win the lookup). Returns created counts.
+  - [x] Specs: service (catalog → rows, counts), controller (delegation, 201); Testcontainers `apps/api/test/integration/` coverage per AC 6 (two-user independence, idempotent re-run, coexistence with pre-existing same-named categories).
+  - [x] Regenerate: `pnpm --filter @supertool/api build` → `pnpm --filter @supertool/shared generate:client`; verify operationId `transactionCategoriesCreateDefaults`; commit the generated diff; drift gate green.
+- [x] **Task 4 — Lift the 5-2 import flow to app-wide homes** (AC: 4)
+  - [x] `git mv` per the Recommended Approach lift list (components → `src/components/transaction-import/…`, hook → `src/hooks/`, utils → `src/utils/transaction-import/…`, action-state types → app-wide types file); update all import paths (`ImportPageContent`, the two server actions, tests). No logic edits; keep component/file names.
+  - [x] Run the money-tracker suite — every moved test green; standalone import page renders unchanged (spot-check live during QA).
+- [x] **Task 5 — Routing: flag-aware shell + gates + signup redirect** (AC: 1, 5)
+  - [x] `routes.ts`: add `onboarding: '/onboarding'`.
+  - [x] `layout.tsx`: pass `userName` only when `profile !== null && profile.onboardingCompleted` (plain header otherwise — verify the plain branch renders theme/locale switchers as today).
+  - [x] New `src/utils/resolve-onboarded-profile.ts` (+ test): three branches per Recommended Approach; replace the inline `fetchProfile()`+redirect gate in every protected page (`git grep -l "fetchProfile" apps/money-tracker/src/app` — dashboard, transactions, transactions/new, transaction edit, transactions/import, categories, categories/new, category edit, settings); pages keep their existing render output otherwise.
+  - [x] `SignUpFormSection.tsx`: success → `router.replace(ROUTES.onboarding)` (+ keep `router.refresh()`); update its test if one exists.
+- [x] **Task 6 — i18n namespace plumbing** (AC: 8)
+  - [x] Add `onboardingPage` to `I18N_NAMESPACE` (`packages/shared/src/constants/i18n-namespace.ts`) and map to `onboarding-page` in `localization-messages-file-name-by-namespace.ts`.
+  - [x] Create `apps/money-tracker/messages/{en,uk}/onboarding-page.json` in the same commit: step labels (Currency, Categories), currency title/subtitle/field label/placeholder/continue, categories title/subtitle, use-defaults button + assigned result (ICU plural counts), import section label, compact import result (ICU: inserted/skipped/categories created), skip + continue, `errors.*` keyed by raw `ErrorCode` values + `UNKNOWN` (mirror `transaction-form.json`). Real Ukrainian, no transliteration.
+- [x] **Task 7 — Onboarding page + steps** (AC: 1, 2, 3, 4, 5, 9)
+  - [x] Lift `CURRENCY_OPTION_LIST` to `src/constants/currency-option-list.ts`; re-point `ProfileForm`.
+  - [x] New `app/[locale]/onboarding/page.tsx` (RSC): params/searchParams, `setRequestLocale`, guards (unauth → signIn; completed → dashboard; `?step=categories` without saved currency → currency step), render centered `Card` + `StepIndicator` + the active step. `ONBOARDING_STEP_SEARCH_PARAM` + step values in a route-local `constants.ts` (as-const map, no TS enum). No `generateMetadata`/`loading.tsx` (repo pattern, 5-2 D-G precedent).
+  - [x] `components/step-indicator/StepIndicator.tsx` (+ scss/test): two dots + labels, `aria-current="step"`, tokens only. Reference counterpart: `…/onboarding/components/step-indicator/StepIndicator.tsx`.
+  - [x] `components/currency-step/CurrencyStep.tsx` (+ scss/test): RHF+zod (`defaultCurrency` required enum), `Combobox` + lifted `CURRENCY_OPTION_LIST`, pre-select from profile, pending disable, error mapping per `ActionState`. Reference counterpart: `…/currency-step/CurrencyStep.tsx`; supertool persists immediately (D-D).
+  - [x] `components/categories-step/CategoriesStep.tsx` (+ scss/test, `hooks/use-categories-step.ts`): defaults button → action → counts result; import section composing lifted `ImportDropzone`/`ImportPreviewPanel`/`ImportErrorPanel` via `useImportFlow`; compact result + Continue after either success; Skip always available; completion → `complete-onboarding` action → `router.replace(ROUTES.dashboard)`. Reference counterpart: `…/categories-step/CategoriesStep.tsx` + `use-categories-step.ts`, adapted to the server-preview flow (**no client parsing — 5-2 D-A stands**) and the optional-skip contract (D-E).
+  - [x] Mobile-first SCSS: centered card, `max-width` with fluid gutters, stack at 390px, no fixed widths; long category names wrap.
+- [x] **Task 8 — Server actions** (AC: 2, 3, 5)
+  - [x] New `src/actions/update-default-currency.ts` (+ test): `'use server'`, zod-validate the code against `CURRENCY_CODE_LIST`, `usersUpdateMe { defaultCurrency }`, `revalidatePath(ROUTES.home, 'layout')`, `ActionState` return. Pattern: `update-profile.ts`.
+  - [x] New `src/actions/assign-default-categories.ts` (+ test): `TransactionCategoriesApiService.transactionCategoriesCreateDefaults`, `revalidatePath(ROUTES.categories)`, route-local success union carrying the counts DTO (5-2 D-C precedent — do not widen the shared `ActionState`).
+  - [x] New `src/actions/complete-onboarding.ts` (+ test): `usersUpdateMe { onboardingCompleted: true }`, `revalidatePath(ROUTES.home, 'layout')`, `ActionState` return; navigation stays client-side in the step (SignUpFormSection precedent).
+  - [x] All three: `await cookies()` → `createServerApiClient({ cookieHeader })`; generated client only (NFR6); rejection-hardening `.catch` → UNKNOWN state in the calling hook (5-2 must-fix 1 lesson).
+- [x] **Task 9 — Gates, visual QA, record** (AC: 7, 9, 10)
+  - [x] `pnpm type-check`, `pnpm lint`, `pnpm stylelint`, `pnpm fmt:check`, `pnpm test`, `pnpm i18n:parity`, `pnpm build` — pnpm scripts only, `TURBO_FORCE=true` where needed (memories `run-tests-via-pnpm-scripts`, `turbo-cache-masks-gate-results`); drift gate green after regen.
+  - [x] Pre-QA environment checklist (epic-4 retro action #4): `:3000` next-server cwd is THIS checkout (`lsof`); seed baseline clean (1880 rows, latest `2025-02-03`; `TRUNCATE` + re-seed if strays — memory `seed-idempotent-truncate-before-reseed`). Run migrations so the backfill applies.
+  - [x] Capture the AC-10 matrix as a **fresh signed-up user** (sign-up on `:3000` works — trusted origins pinned there): (a) sign-up → lands on onboarding, plain header visible; (b) currency step idle + combobox open; (c) categories choice; (d) defaults path → counts → Continue → dashboard (current-month empty state, no crash); (e) reset with a second fresh user: import path with the seed JSON (`apps/api/src/database/data/transactions-02.03.25.json` — proves the 5-1 cross-user copy: full insert, not all-duplicates) → preview → result → Continue → dashboard auto-fit on `2025-02` with real figures; (f) skip path; (g) operator signs in → never sees onboarding; `/onboarding` as operator → dashboard redirect. Verify `scrollWidth === innerWidth` at 390px on each step. Both themes via the real switcher (available in the plain header).
+  - [x] **Restore DB state**: delete the QA users' transactions/categories/user+session rows, `TRUNCATE transactions` + re-seed, verify baseline (1880 rows, latest `2025-02-03`, 110 categories, operator `onboarding_completed = true`).
+  - [x] Update Dev Agent Record + File List + Change Log; status → review.
 
 ## Dev Notes
 
@@ -246,11 +246,77 @@ No new dependencies. No `packages/ui` / `packages/shell` / `packages/widgets` so
 
 ### Agent Model Used
 
+Opus 4.8 (1M context) — `claude-opus-4-8[1m]` (autonomous dev-story run).
+
 ### Debug Log References
+
+- All decisions D-A…D-J implemented as specified; no re-planning.
+- Autonomous decisions taken during implementation (consistent with existing repo patterns):
+  - `resolveOnboardedProfile` uses `return redirect(...)` on both guard branches — next-intl's `redirect` is typed `=> never` but TS control-flow narrowing across a bare call proved insufficient under this tsconfig; `return redirect(...)` is the established page pattern and narrows `profile` correctly. Same fix applied to the onboarding `page.tsx` guards.
+  - `resolveStep` (onboarding page) accepts `string | null | undefined` for `defaultCurrency` because the generated `UserResponseDto.defaultCurrency` is `CurrencyCode | null | undefined` (optional via `@ApiPropertyOptional`).
+  - Onboarding action error-state builders (`buildUnknownState`, `buildUnknownError`) are explicitly typed to avoid object-literal widening of `UNKNOWN_ERROR_CODE` to `string` (would break `setState<ActionState>` / `setErrorCode`).
+  - `CurrencyStep` `defaultValues` uses conditional spread `{ ...(cond && { defaultCurrency }) }` (mirrors reference) because the schema field is required and `exactOptionalPropertyTypes` rejects an explicit `undefined`.
+  - Extracted `buildUserUpdateValues` (users.repository) and `resolveStep` + inline step render (onboarding page) + a `partitionByLevel` test helper to satisfy `max-statements` (≤10).
 
 ### Completion Notes List
 
+- **API (Tasks 2–3):** `onboarding_completed` column (migration `0005` + one-time backfill `UPDATE users SET onboarding_completed = true;`); `seedOperator` ensure-completed step; `UserResponseDto`/`UpdateUserDto` field + `USER_RESPONSE_COLUMNS` + explicit `updateScoped` branch. New `POST /transaction-categories/defaults` → `createDefaults` (operationId `transactionCategoriesCreateDefaults` verified in `openapi.json`) returning `DefaultCategoriesResponseDto { topLevelCreated, childrenCreated }`; repository builds the constant `DEFAULT_CATEGORY_CATALOG` parents-then-children in one `db.transaction`, `onConflictDoNothing` on `[userId, name, type, parentId]`, re-selecting top-level rows by `parentId IS NULL` to link children (idempotent, user-scoped, coexists with same-named user categories). Client regenerated + drift-clean.
+- **Lift (Task 4):** `git mv` of the 5-2 route-agnostic pieces → `src/components/transaction-import/…`, `src/hooks/use-import-flow.ts`, `src/utils/transaction-import/…`, `src/types/transaction-import.ts`; import paths updated in `ImportPageContent`, `ImportResultPanel`, the two import actions. `ImportPageContent`/`ImportResultPanel`/`page.tsx` stay route-local. All moved tests pass unchanged; standalone import page verified working live.
+- **Routing (Task 5):** `ROUTES.onboarding`; `layout.tsx` passes `userName` only when `onboardingCompleted`; `resolveOnboardedProfile` gate replaces the inline `fetchProfile()`+redirect on all nine protected pages; sign-up success → `/onboarding`.
+- **i18n (Task 6):** `onboardingPage` namespace registered + mapped to `onboarding-page`; `en`/`uk` message files with ICU plurals (Ukrainian one/few/many/other) — `pnpm i18n:parity` green.
+- **Onboarding UI (Task 7) + actions (Task 8):** `/onboarding` RSC (URL-param stepper, guards, deep-link guard folded into `resolveStep`), `StepIndicator`, `CurrencyStep` (persists immediately via `update-default-currency`), `CategoriesStep` (defaults / reused server-preview import / skip → `complete-onboarding` → `router.replace(dashboard)`). `CURRENCY_OPTION_LIST` lifted to `src/constants/`, `ProfileForm` re-pointed.
+- **Tests (Task 7 AC):** StepIndicator, CurrencyStep, CategoriesStep, the three actions, and `resolveOnboardedProfile` all covered; API service/controller/DTO + Testcontainers coverage (defaults two-level/independent/idempotent/coexist, `onboardingCompleted` round-trip, operator stays completed after re-seed).
+
+**Gate results (all green):** `type-check` ✓, `lint` ✓, `stylelint` ✓, `fmt:check` ✓, `test` ✓ (api 236, money-tracker 238, ui 77, shell 27, next-shared 10, widgets 9, shared 7), `i18n:parity` ✓, `build` ✓, OpenAPI drift ✓ (regenerated client reproduces identically).
+
+**Visual QA (AC 10) — evidence in `_bmad-output/implementation-artifacts/visual-qa/5-3-onboarding-flow/`:** captured live as fresh signed-up users on `:3000` (server cwd verified as this checkout; DB migrated + baseline verified). 15 screenshots across light/dark × mobile(390)/desktop covering: currency idle, currency combobox open, categories choice, defaults-assigned (18 categories / 39 subcategories), dashboard-after-defaults (full shell, current-month empty state), import preview (New rows: 1880 — cross-user independent copy + caveat copy), import result (compact onboarding-owned: 1,880 imported / 21 categories / 34 subcategories + Continue), transactions-after-import (real UAH data), dashboard auto-fit to February 2025, operator dashboard with real figures (summary + category breakdown + 12-month trend). Verified: sign-up → `/onboarding` (plain header); currency persist → categories; `?step=categories` deep-link guard; onboarded user → `/onboarding` redirects to `/dashboard`; operator sign-in never sees onboarding; skip path → dashboard; `documentElement.scrollWidth === window.innerWidth` true at 390px on currency/categories/import-preview steps (AC 9). Note: the import-path dashboard figures read empty for the QA user because that user's default currency (USD) does not match the seed data currency (UAH) — this is correct RP-D1 single-default-currency dashboard scoping (pre-existing Epic 3 behaviour, flagged in the `currency-simplified-single-default` memory), not a 5-3 defect; the operator (UAH default + UAH data) capture shows the fully populated dashboard on the same auto-fit month. DB baseline restored afterwards (QA users + their rows deleted; verified 1880 tx, latest 2025-02-03, 110 categories, operator `onboarding_completed = true`).
+
 ### File List
+
+**API (created):**
+- `apps/api/src/database/migrations/0005_melted_princess_powerful.sql` (+ meta snapshot/journal)
+- `apps/api/src/modules/transaction-categories/transaction-categories.constants.ts`
+- `apps/api/src/modules/transaction-categories/dtos/default-categories-response.dto.ts`
+
+**API (modified):**
+- `apps/api/src/database/schemas/users.ts`
+- `apps/api/src/database/seeds/seed-operator.ts`
+- `apps/api/src/modules/users/dtos/{user-response.dto.ts,update-user.dto.ts}`
+- `apps/api/src/modules/users/users.repository.ts` (+ `users.repository.spec.ts`)
+- `apps/api/src/modules/transaction-categories/{transaction-categories.controller.ts,transaction-categories.service.ts,transaction-categories.repository.ts}` (+ controller/service specs)
+- `apps/api/test/integration/{transaction-categories,users-profile,seed,auth}.integration.spec.ts`
+
+**Shared / generated (modified):**
+- `packages/shared/src/constants/i18n-namespace.ts`
+- `packages/shared/src/generated/{sdk.gen.ts,types.gen.ts,index.ts}` (regenerated)
+
+**Frontend (created):**
+- `apps/money-tracker/messages/{en,uk}/onboarding-page.json`
+- `apps/money-tracker/src/actions/{update-default-currency,assign-default-categories,complete-onboarding}.ts` (+ tests)
+- `apps/money-tracker/src/utils/resolve-onboarded-profile.ts` (+ test)
+- `apps/money-tracker/src/app/[locale]/onboarding/{page.tsx,page.module.scss,constants.ts}`
+- `apps/money-tracker/src/app/[locale]/onboarding/components/step-indicator/{StepIndicator.tsx,.module.scss,.test.tsx}`
+- `apps/money-tracker/src/app/[locale]/onboarding/components/currency-step/{CurrencyStep.tsx,.module.scss,.test.tsx,currency-step-schema.ts}`
+- `apps/money-tracker/src/app/[locale]/onboarding/components/categories-step/{CategoriesStep.tsx,.module.scss,.test.tsx,hooks/use-categories-step.ts}`
+
+**Frontend (moved — 5-2 lift):**
+- `src/components/transaction-import/{import-dropzone,import-preview-panel,import-error-panel,near-duplicate-alert}/…`
+- `src/hooks/use-import-flow.ts`
+- `src/utils/transaction-import/{check-import-file,format-file-size,get-import-file,get-checked-import-file,prepare-import-error-state,revalidate-import-targets}.ts` (+ tests)
+- `src/types/transaction-import.ts`
+- `src/constants/currency-option-list.ts` (from `settings/constants/`)
+
+**Frontend (modified):**
+- `apps/money-tracker/src/constants/routes.ts`
+- `apps/money-tracker/src/app/[locale]/layout.tsx`
+- `apps/money-tracker/src/app/[locale]/sign-up/SignUpFormSection.tsx`
+- protected pages: `dashboard/page.tsx`, `transactions/{page.tsx,new/page.tsx,[id]/edit/page.tsx,import/page.tsx}`, `categories/{page.tsx,new/page.tsx,[id]/edit/page.tsx}`, `settings/page.tsx`
+- `transactions/import/components/import-page-content/ImportPageContent.tsx`, `import-result-panel/ImportResultPanel.tsx`
+- `src/actions/{preview-transaction-import,execute-transaction-import}.ts`
+- `settings/components/profile-form/ProfileForm.tsx` (+ `ProfileForm.test.tsx`)
+
+**Artifacts (created):**
+- `_bmad-output/implementation-artifacts/visual-qa/5-3-onboarding-flow/*.png` (15 captures)
 
 ## Change Log
 
@@ -258,3 +324,4 @@ No new dependencies. No `packages/ui` / `packages/shell` / `packages/widgets` so
 |---|---|
 | 2026-07-04 | Story created (autonomous run — decisions D-A…D-J recorded in Dev Notes; D-B, D-C, D-F flagged as reference divergences for operator confirmation per epic-4 retro D3) — ready-for-dev. |
 | 2026-07-04 | Fresh-context validation pass applied: default-category catalog corrected to the exact reference list (names/casing verbatim, incl. Chandlery/Conferences/Alumni/Dues and the duplicate `Other` children), users-repository change made explicit (`USER_RESPONSE_COLUMNS` + `updateScoped` field branch — silent-failure trap), parent re-select constrained to `parentId IS NULL`, D-F locale-persistence trade-off recorded, seedOperator ensure-pattern wording, lift inventory exact source paths + test-file reality, reference-capture and gap-backlog citation corrections, home-placeholder non-redirect note. |
+| 2026-07-05 | Implemented all tasks (API flag + defaults endpoint + migration/backfill, 5-2 lift, flag-aware routing/gate, i18n, onboarding page + steps + actions, full test coverage). All gates green; OpenAPI client regenerated (drift-clean). Visual QA (AC 10) captured live on `:3000` across light/dark × mobile/desktop (15 screenshots) with DB baseline restored. Status → review. |
