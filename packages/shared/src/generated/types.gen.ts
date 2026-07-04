@@ -176,6 +176,33 @@ export type TrendResponseDto = {
     currency: string;
 };
 
+export type TopCategoryItemDto = {
+    rank: number;
+    categoryId: string;
+    categoryName: string;
+    total: string;
+    share: number;
+    transactionCount: number;
+};
+
+export type TopCategoriesResponseDto = {
+    categories: Array<TopCategoryItemDto>;
+    totalExpense: string;
+    currency: string;
+};
+
+export type DailySpendingDayDto = {
+    date: string;
+    total: string;
+    transactionCount: number;
+};
+
+export type DailySpendingResponseDto = {
+    days: Array<DailySpendingDayDto>;
+    totalExpense: string;
+    currency: string;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -567,3 +594,50 @@ export type AnalyticsGetMonthlyTrendResponses = {
 };
 
 export type AnalyticsGetMonthlyTrendResponse = AnalyticsGetMonthlyTrendResponses[keyof AnalyticsGetMonthlyTrendResponses];
+
+export type AnalyticsGetTopCategoriesData = {
+    body?: never;
+    path?: never;
+    query: {
+        dateFrom: string;
+        dateTo: string;
+        limit?: number;
+    };
+    url: '/api/v1/analytics/top-categories';
+};
+
+export type AnalyticsGetTopCategoriesErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type AnalyticsGetTopCategoriesError = AnalyticsGetTopCategoriesErrors[keyof AnalyticsGetTopCategoriesErrors];
+
+export type AnalyticsGetTopCategoriesResponses = {
+    200: TopCategoriesResponseDto;
+};
+
+export type AnalyticsGetTopCategoriesResponse = AnalyticsGetTopCategoriesResponses[keyof AnalyticsGetTopCategoriesResponses];
+
+export type AnalyticsGetDailySpendingData = {
+    body?: never;
+    path?: never;
+    query: {
+        dateFrom: string;
+        dateTo: string;
+    };
+    url: '/api/v1/analytics/daily-spending';
+};
+
+export type AnalyticsGetDailySpendingErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type AnalyticsGetDailySpendingError = AnalyticsGetDailySpendingErrors[keyof AnalyticsGetDailySpendingErrors];
+
+export type AnalyticsGetDailySpendingResponses = {
+    200: DailySpendingResponseDto;
+};
+
+export type AnalyticsGetDailySpendingResponse = AnalyticsGetDailySpendingResponses[keyof AnalyticsGetDailySpendingResponses];

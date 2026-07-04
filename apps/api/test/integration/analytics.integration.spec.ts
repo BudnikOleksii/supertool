@@ -782,3 +782,265 @@ describe('AnalyticsService monthly trend (Testcontainers Postgres)', () => {
     expect(trend.trend).toEqual(computeExpectedTrend());
   });
 });
+
+const TOP_CATEGORIES_TRANSPORT_TOTAL = '100.00';
+const TOP_CATEGORIES_FOOD_TOTAL = '60.00';
+const TOP_CATEGORIES_FOOD_COUNT = 3;
+const TOP_CATEGORIES_TRANSPORT_COUNT = 1;
+const TOP_CATEGORIES_LIMIT_ONE = 1;
+const TOP_CATEGORIES_TOTAL_EXPENSE = '160.00';
+const TOP_CATEGORIES_ROW_COUNT = 2;
+const TOP_CATEGORIES_EXPECTED_RANK_LIST = Array.from(
+  { length: TOP_CATEGORIES_ROW_COUNT },
+  (_unused, index) => index + 1,
+);
+const LAST_INDEX_OFFSET = 1;
+
+const sumTotals = (totalList: string[]): string =>
+  totalList
+    .reduce((total, value) => total.plus(new Decimal(value)), new Decimal(0))
+    .toFixed(MONEY_SCALE);
+
+describe('AnalyticsRepository top categories (Testcontainers Postgres)', () => {
+  it('rolls descendant spend up to the top-level ancestor and ranks by amount descending (AC1)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsRepository().getTopCategories({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+      limit: 5,
+    });
+
+    expect(result.categories).toHaveLength(TOP_CATEGORIES_ROW_COUNT);
+    expect(result.categories.map((category) => category.categoryId)).toEqual([
+      fixture.transportRootId,
+      fixture.foodRootId,
+    ]);
+    expect(result.categories.map((category) => category.rank)).toEqual(
+      TOP_CATEGORIES_EXPECTED_RANK_LIST,
+    );
+    expect(result.categories.some((category) => category.categoryName === 'Restaurants')).toBe(
+      false,
+    );
+    expect(result.categories.some((category) => category.categoryName === 'Fast Food')).toBe(false);
+  });
+
+  it('reports the rolled-up total and transaction count per top-level category (AC1, D5)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsRepository().getTopCategories({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+      limit: 5,
+    });
+
+    const foodRow = result.categories.find(
+      (category) => category.categoryId === fixture.foodRootId,
+    );
+    const transportRow = result.categories.find(
+      (category) => category.categoryId === fixture.transportRootId,
+    );
+
+    expect(foodRow?.total).toBe(TOP_CATEGORIES_FOOD_TOTAL);
+    expect(foodRow?.transactionCount).toBe(TOP_CATEGORIES_FOOD_COUNT);
+    expect(transportRow?.total).toBe(TOP_CATEGORIES_TRANSPORT_TOTAL);
+    expect(transportRow?.transactionCount).toBe(TOP_CATEGORIES_TRANSPORT_COUNT);
+    expect(typeof foodRow?.total).toBe('string');
+  });
+
+  it('honours the limit while keeping the grand total across all categories (AC2)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsRepository().getTopCategories({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+      limit: TOP_CATEGORIES_LIMIT_ONE,
+    });
+
+    expect(result.categories).toHaveLength(TOP_CATEGORIES_LIMIT_ONE);
+    expect(result.categories[0]?.categoryId).toBe(fixture.transportRootId);
+    expect(result.categories[0]?.rank).toBe(1);
+    expect(result.totalExpense).toBe(TOP_CATEGORIES_TOTAL_EXPENSE);
+  });
+
+  it('reconciles the grand total exactly with the summary expense and excludes cross-currency, cross-user and income rows (AC2, AC6f, FR18)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsRepository().getTopCategories({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+      limit: 5,
+    });
+    const summary = await getAnalyticsRepository().getMonthlySummary({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+    });
+
+    const summedTotal = sumTotals(result.categories.map((category) => category.total));
+
+    expect(result.totalExpense).toBe(TOP_CATEGORIES_TOTAL_EXPENSE);
+    expect(result.totalExpense).toBe(summary.expense);
+    expect(summedTotal).toBe(summary.expense);
+    expect(new Decimal(summedTotal).lessThanOrEqualTo(new Decimal(result.totalExpense))).toBe(true);
+  });
+});
+
+describe('AnalyticsService top categories (Testcontainers Postgres)', () => {
+  it('applies the default limit and resolves the operator default currency (AC2)', async () => {
+    const fixture = await seedBreakdownFixture();
+
+    const result = await getAnalyticsService().getTopCategories(fixture.userId, {
+      dateFrom: BREAKDOWN_WINDOW.dateFrom,
+      dateTo: BREAKDOWN_WINDOW.dateTo,
+    });
+
+    expect(result.currency).toBe(SEED_CURRENCY);
+    expect(result.categories).toHaveLength(TOP_CATEGORIES_ROW_COUNT);
+    expect(result.totalExpense).toBe(TOP_CATEGORIES_TOTAL_EXPENSE);
+  });
+});
+
+const DAILY_WINDOW = { dateFrom: '2031-01-30', dateTo: '2031-02-03' };
+const DAILY_OUT_OF_WINDOW_DATE = '2031-01-15';
+const DAILY_EXPECTED_DAY_COUNT = 5;
+const DAILY_TOTAL_EXPENSE = '65.00';
+
+interface DailySeedTransaction {
+  date: string;
+  type: string;
+  amount: string;
+  currency: string;
+}
+
+const DAILY_USER_TRANSACTIONS: DailySeedTransaction[] = [
+  { date: '2031-01-30', type: 'expense', amount: '10.00', currency: SEED_CURRENCY },
+  { date: '2031-01-30', type: 'expense', amount: '5.00', currency: SEED_CURRENCY },
+  { date: '2031-02-01', type: 'expense', amount: '20.00', currency: SEED_CURRENCY },
+  { date: '2031-02-03', type: 'expense', amount: '30.00', currency: SEED_CURRENCY },
+  { date: DAILY_OUT_OF_WINDOW_DATE, type: 'expense', amount: '999.99', currency: SEED_CURRENCY },
+  { date: '2031-02-01', type: 'income', amount: '500.00', currency: SEED_CURRENCY },
+  { date: '2031-02-01', type: 'expense', amount: '777.00', currency: FOREIGN_CURRENCY },
+];
+
+const DAILY_CROSS_USER_TRANSACTION: DailySeedTransaction = {
+  date: '2031-02-01',
+  type: 'expense',
+  amount: '888.00',
+  currency: SEED_CURRENCY,
+};
+
+interface DailyExpectedDay {
+  date: string;
+  total: string;
+  transactionCount: number;
+}
+
+const DAILY_EXPECTED_DAYS: DailyExpectedDay[] = [
+  { date: '2031-01-30', total: '15.00', transactionCount: 2 },
+  { date: '2031-01-31', total: '0.00', transactionCount: 0 },
+  { date: '2031-02-01', total: '20.00', transactionCount: 1 },
+  { date: '2031-02-02', total: '0.00', transactionCount: 0 },
+  { date: '2031-02-03', total: '30.00', transactionCount: 1 },
+];
+
+const seedDailySpendingFixture = async (): Promise<{ userId: string }> => {
+  const userId = await insertUser('Daily User');
+  const categoryId = await insertExpenseCategory({ userId, name: 'Daily', parentId: null });
+  await Promise.all(
+    DAILY_USER_TRANSACTIONS.map((record) =>
+      insertDatedTransaction({ userId, categoryId, ...record }),
+    ),
+  );
+
+  const otherUserId = await insertUser('Daily Other User');
+  const otherCategoryId = await insertExpenseCategory({
+    userId: otherUserId,
+    name: 'Daily Other',
+    parentId: null,
+  });
+  await insertDatedTransaction({
+    userId: otherUserId,
+    categoryId: otherCategoryId,
+    ...DAILY_CROSS_USER_TRANSACTION,
+  });
+
+  return { userId };
+};
+
+describe('AnalyticsRepository daily spending (Testcontainers Postgres)', () => {
+  it('returns per-day expense totals for the exact range, zero-filling empty days (AC3, §5 defect fixed)', async () => {
+    const fixture = await seedDailySpendingFixture();
+
+    const result = await getAnalyticsRepository().getDailySpending({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: DAILY_WINDOW.dateFrom,
+      dateTo: DAILY_WINDOW.dateTo,
+    });
+
+    expect(result.days).toHaveLength(DAILY_EXPECTED_DAY_COUNT);
+    expect(result.days).toEqual(DAILY_EXPECTED_DAYS);
+    expect(typeof result.days[0]?.total).toBe('string');
+  });
+
+  it('honours a multi-month window and excludes a same-month transaction outside the range (§5 regression guard)', async () => {
+    const fixture = await seedDailySpendingFixture();
+
+    const result = await getAnalyticsRepository().getDailySpending({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: DAILY_WINDOW.dateFrom,
+      dateTo: DAILY_WINDOW.dateTo,
+    });
+
+    expect(result.days[0]?.date).toBe(DAILY_WINDOW.dateFrom);
+    expect(result.days[result.days.length - LAST_INDEX_OFFSET]?.date).toBe(DAILY_WINDOW.dateTo);
+    expect(result.days.some((day) => day.date === DAILY_OUT_OF_WINDOW_DATE)).toBe(false);
+  });
+
+  it('reconciles the grand total exactly with the summary expense over the same range (AC3, FR18)', async () => {
+    const fixture = await seedDailySpendingFixture();
+
+    const result = await getAnalyticsRepository().getDailySpending({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: DAILY_WINDOW.dateFrom,
+      dateTo: DAILY_WINDOW.dateTo,
+    });
+    const summary = await getAnalyticsRepository().getMonthlySummary({
+      userId: fixture.userId,
+      currency: SEED_CURRENCY,
+      dateFrom: DAILY_WINDOW.dateFrom,
+      dateTo: DAILY_WINDOW.dateTo,
+    });
+
+    const summedTotal = sumTotals(result.days.map((day) => day.total));
+
+    expect(result.totalExpense).toBe(DAILY_TOTAL_EXPENSE);
+    expect(result.totalExpense).toBe(summary.expense);
+    expect(summedTotal).toBe(summary.expense);
+  });
+});
+
+describe('AnalyticsService daily spending (Testcontainers Postgres)', () => {
+  it('resolves the user default currency and returns the range days zero-filled (AC3)', async () => {
+    const fixture = await seedDailySpendingFixture();
+
+    const result = await getAnalyticsService().getDailySpending(fixture.userId, DAILY_WINDOW);
+
+    expect(result.currency).toBe(SEED_CURRENCY);
+    expect(result.days).toHaveLength(DAILY_EXPECTED_DAY_COUNT);
+    expect(result.days).toEqual(DAILY_EXPECTED_DAYS);
+    expect(result.totalExpense).toBe(DAILY_TOTAL_EXPENSE);
+  });
+});

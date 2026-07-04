@@ -138,4 +138,102 @@ describe('AnalyticsService', () => {
     expect(actual).toEqual({ trend: [], currency: '' });
     expect(getMonthlyTrend).not.toHaveBeenCalled();
   });
+
+  describe('top categories and daily spending', () => {
+    it('scopes top categories to the default currency and applies the default limit', async () => {
+      const expectedTopCategories = {
+        categories: [
+          {
+            rank: 1,
+            categoryId: 'cat-1',
+            categoryName: 'Food',
+            total: '120.50',
+            share: 100,
+            transactionCount: 3,
+          },
+        ],
+        totalExpense: '120.50',
+        currency: 'UAH',
+      };
+      const getTopCategories = vi.fn().mockResolvedValue(expectedTopCategories);
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: 'UAH' });
+      const service = buildAnalyticsService({ getTopCategories }, { findByIdScoped });
+
+      const actual = await service.getTopCategories('user-id', buildQuery());
+
+      expect(findByIdScoped).toHaveBeenCalledWith('user-id');
+      expect(getTopCategories).toHaveBeenCalledWith({
+        userId: 'user-id',
+        currency: 'UAH',
+        dateFrom: '2025-02-01',
+        dateTo: '2025-02-28',
+        limit: 5,
+      });
+      expect(actual).toEqual(expectedTopCategories);
+    });
+
+    it('forwards an explicit top categories limit to the repository', async () => {
+      const getTopCategories = vi.fn().mockResolvedValue({
+        categories: [],
+        totalExpense: '0.00',
+        currency: 'UAH',
+      });
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: 'UAH' });
+      const service = buildAnalyticsService({ getTopCategories }, { findByIdScoped });
+
+      await service.getTopCategories('user-id', { ...buildQuery(), limit: 3 });
+
+      expect(getTopCategories).toHaveBeenCalledWith({
+        userId: 'user-id',
+        currency: 'UAH',
+        dateFrom: '2025-02-01',
+        dateTo: '2025-02-28',
+        limit: 3,
+      });
+    });
+
+    it('returns empty top categories without querying when the user has no default currency', async () => {
+      const getTopCategories = vi.fn();
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: null });
+      const service = buildAnalyticsService({ getTopCategories }, { findByIdScoped });
+
+      const actual = await service.getTopCategories('user-id', buildQuery());
+
+      expect(actual).toEqual({ categories: [], totalExpense: '0.00', currency: '' });
+      expect(getTopCategories).not.toHaveBeenCalled();
+    });
+
+    it('scopes daily spending to the default currency and forwards the date window', async () => {
+      const expectedDailySpending = {
+        days: [{ date: '2025-02-01', total: '45.99', transactionCount: 2 }],
+        totalExpense: '45.99',
+        currency: 'UAH',
+      };
+      const getDailySpending = vi.fn().mockResolvedValue(expectedDailySpending);
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: 'UAH' });
+      const service = buildAnalyticsService({ getDailySpending }, { findByIdScoped });
+
+      const actual = await service.getDailySpending('user-id', buildQuery());
+
+      expect(findByIdScoped).toHaveBeenCalledWith('user-id');
+      expect(getDailySpending).toHaveBeenCalledWith({
+        userId: 'user-id',
+        currency: 'UAH',
+        dateFrom: '2025-02-01',
+        dateTo: '2025-02-28',
+      });
+      expect(actual).toEqual(expectedDailySpending);
+    });
+
+    it('returns empty daily spending without querying when the user has no default currency', async () => {
+      const getDailySpending = vi.fn();
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: null });
+      const service = buildAnalyticsService({ getDailySpending }, { findByIdScoped });
+
+      const actual = await service.getDailySpending('user-id', buildQuery());
+
+      expect(actual).toEqual({ days: [], totalExpense: '0.00', currency: '' });
+      expect(getDailySpending).not.toHaveBeenCalled();
+    });
+  });
 });
