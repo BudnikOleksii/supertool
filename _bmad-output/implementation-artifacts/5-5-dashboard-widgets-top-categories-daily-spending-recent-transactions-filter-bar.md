@@ -324,3 +324,27 @@ Observations:
 | Date | Change |
 | --- | --- |
 | 2026-07-05 | Story 5.5 implemented: three new dashboard widgets (top-categories, daily-spending, recent-transactions) + skeletons, two `fetch-*` reads, `DashboardFilters` client bar + hook, `parse-dashboard-search-params` util, migration of summary/breakdown/trend + page to one shared `{dateFrom,dateTo,type}` URL state, i18n (en+uk), component tests, and committed visual-QA evidence. All gates green. Status → review. |
+
+## Review Findings
+
+Adversarial code review (bmad-code-review) 2026-07-05 — 3 layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor). Gates re-run at review time all green (`type-check`, `lint`, `test`, `stylelint`, `i18n:parity` — exit 0). All 7 ACs verified satisfied; all merge-blocking hard rules (D1 money-as-strings, NFR6 generated-client-only, i18n parity, tests-with-feature, FC<Props>/PascalCase/tokens/ROUTES/i18n-nav) hold. **No MUST-FIX findings. Verdict: APPROVE.** The `patch` items below are non-blocking robustness/UX hardening.
+
+### Patch (non-blocking, nice-to-have)
+
+- [ ] [Review][Patch] Calendar-invalid but shape-valid dates accepted and forwarded to the API [apps/money-tracker/src/utils/parse-dashboard-search-params.ts:32] — `parseRange` uses only `CALENDAR_DATE_PATTERN.test()` (shape). `2025-02-31`, `2025-13-01` pass. The same module exports `checkIsCalendarDate` (real-calendar validation) — use it. Reachable only by hand-editing the URL (native `type="date"` inputs can't emit it); API validates server-side and widgets render their error state, so degraded-but-safe. Compounds: `DashboardTrend` falls back to current period on a bad `dateTo` (`getPeriodFromDate`→`parsePeriod`→`getCurrentPeriod`), silently diverging from the other widgets' error state.
+- [ ] [Review][Patch] Clearing one date input resets BOTH bounds to the auto-fit default [apps/money-tracker/src/app/[locale]/dashboard/components/dashboard-filters/hooks/use-dashboard-filters.ts:29 + parse-dashboard-search-params.ts:28] — native date inputs expose a clear (×) control; clearing "From" writes `dateFrom=` (empty), `parseRange` then returns `undefined` and discards the user's still-valid `dateTo`, reverting both to the default month and leaving a stale empty param. UI-reachable; degrades to a valid default range (no crash/data loss). Consider preserving the other bound or ignoring empty writes.
+- [ ] [Review][Patch] No upper bound on the selected span [apps/money-tracker/src/app/[locale]/dashboard/components/dashboard-daily-spending/DashboardDailySpending.tsx] — a wide URL range (e.g. 2000→2026) maps one bar per day, cramming thousands of bars into the chart. Frontend has no clamp; minor perf/legibility.
+- [ ] [Review][Patch] Trend Suspense boundary over-keyed on `dateFrom` [apps/money-tracker/src/app/[locale]/dashboard/page.tsx] — `DashboardTrend` consumes only `dateTo`, but its key is `trend-${dateFrom}-${dateTo}`, so a `dateFrom` change (or a same-month `dateTo` change) busts the boundary and refetches byte-identical trailing-12-month data. Correctness fine; wasted work + skeleton flash.
+- [ ] [Review][Patch] Recent-transactions lacks a `NO_CURRENCY` guard [apps/money-tracker/src/app/[locale]/dashboard/components/dashboard-recent-transactions/DashboardRecentTransactions.tsx:87] — unlike the other widgets it only checks `data.length === 0`; `formatAmount(amount, '')` would throw a `RangeError` (invalid currency) at construction. Precondition (existing transactions with empty currency) cannot occur post-onboarding, so latent-only — but adding the guard restores cross-widget consistency.
+- [ ] [Review][Patch] `overflow: hidden` chart clip may truncate recharts tooltips near the plot edge at 390px [DashboardDailySpending.module.scss / DashboardTrend.module.scss] — the conscious AC5 overflow fix can clip legitimate hover content for edge bars on narrow screens. Rendering was visually verified; watch if a less-aggressive clip (e.g. only clipping the x-overflow) is feasible.
+
+### Deferred (pre-existing, not introduced by this story)
+
+- [x] [Review][Defer] `DashboardSummary.checkIsEmptySummary` uses `Number(income) === 0` float coercion [apps/money-tracker/src/app/[locale]/dashboard/components/dashboard-summary/DashboardSummary.tsx] — inherited from Story 3.1; summary was migrated props-only per Task 7 ("preserve behaviour"). AC3's canonical-string-check requirement is scoped to the three new widgets. Future cleanup.
+
+### Dismissed (noise / false-positive / pre-approved)
+
+- Type filter re-scopes only recent-transactions — pre-approved D-2 (intentional; analytics widgets consume 5.4 as expense-only).
+- `Number(day.total)` bar-height — D1-allowed fenced numeric at the chart-data boundary (tooltip re-formats from the original string).
+- `CALENDAR_DATE_PATTERN` `/g`-flag statefulness (Blind Hunter speculation) — disproven; pattern is `/^\d{4}-\d{2}-\d{2}$/u`, no `g` flag.
+- AC7 per-scenario mobile close-ups partial — AC7 minimum coverage met (full dashboard covers all four viewport×theme combos + one empty-state).
