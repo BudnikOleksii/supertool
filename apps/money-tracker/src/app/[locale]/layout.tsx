@@ -32,13 +32,14 @@ const LocaleLayout: FC<Props> = async (props) => {
   setRequestLocale(params.locale);
 
   const profile = await fetchProfile();
+  const userName = profile !== null && profile.onboardingCompleted ? profile.name : undefined;
 
   return (
     <html lang={params.locale} suppressHydrationWarning>
       <body className={poppins.variable}>
         <NextIntlClientProvider>
           <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
-            <AppShellSection userName={profile?.name}>{children}</AppShellSection>
+            <AppShellSection userName={userName}>{children}</AppShellSection>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

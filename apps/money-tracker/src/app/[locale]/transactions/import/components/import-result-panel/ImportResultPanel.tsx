@@ -10,8 +10,8 @@ import type { TransactionImportResponseDto } from '@supertool/shared/generated/t
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
+import { NearDuplicateAlert } from '../../../../../../components/transaction-import/near-duplicate-alert/NearDuplicateAlert';
 import { ROUTES } from '../../../../../../constants/routes';
-import { NearDuplicateAlert } from '../near-duplicate-alert/NearDuplicateAlert';
 import styles from './ImportResultPanel.module.scss';
 
 interface Props {

@@ -1,6 +1,6 @@
 import { ErrorCode } from '@supertool/shared/constants/error-codes';
 
-import type { ImportActionError } from '../types';
+import type { ImportActionError } from '../../types/transaction-import';
 
 import { checkImportFile } from './check-import-file';
 import { getImportFile } from './get-import-file';

@@ -18,9 +18,17 @@ interface SeedOperatorOptions {
 const findOperatorByEmail = async (
   db: NodePgDatabase,
   email: string,
-): Promise<{ id: string; role: string; defaultCurrency: string | null } | undefined> => {
+): Promise<
+  | { id: string; role: string; defaultCurrency: string | null; onboardingCompleted: boolean }
+  | undefined
+> => {
   const [operator] = await db
-    .select({ id: users.id, role: users.role, defaultCurrency: users.defaultCurrency })
+    .select({
+      id: users.id,
+      role: users.role,
+      defaultCurrency: users.defaultCurrency,
+      onboardingCompleted: users.onboardingCompleted,
+    })
     .from(users)
     .where(eq(users.email, email))
     .limit(1);
@@ -37,6 +45,10 @@ const ensureDefaultCurrency = async (db: NodePgDatabase, userId: string): Promis
     .update(users)
     .set({ defaultCurrency: SEED_DEFAULT_CURRENCY })
     .where(eq(users.id, userId));
+};
+
+const ensureOnboardingCompleted = async (db: NodePgDatabase, userId: string): Promise<void> => {
+  await db.update(users).set({ onboardingCompleted: true }).where(eq(users.id, userId));
 };
 
 const createOperator = async ({ db, env }: SeedOperatorOptions): Promise<string> => {
@@ -56,6 +68,7 @@ const createOperator = async ({ db, env }: SeedOperatorOptions): Promise<string>
 
   await promoteToAdmin(db, created.id);
   await ensureDefaultCurrency(db, created.id);
+  await ensureOnboardingCompleted(db, created.id);
 
   return created.id;
 };
@@ -73,6 +86,10 @@ export const seedOperator = async ({ db, env }: SeedOperatorOptions): Promise<st
 
   if (existing.defaultCurrency === null) {
     await ensureDefaultCurrency(db, existing.id);
+  }
+
+  if (!existing.onboardingCompleted) {
+    await ensureOnboardingCompleted(db, existing.id);
   }
 
   return existing.id;

@@ -6,12 +6,12 @@ import type {
   ExecuteTransactionImportState,
   ImportActionError,
   PreviewTransactionImportState,
-} from '../../../types';
-import type { ImportFileCheckErrorKey } from '../../../utils/check-import-file';
+} from '../types/transaction-import';
+import type { ImportFileCheckErrorKey } from '../utils/transaction-import/check-import-file';
 
-import { executeTransactionImport } from '../../../../../../../actions/execute-transaction-import';
-import { previewTransactionImport } from '../../../../../../../actions/preview-transaction-import';
-import { checkImportFile } from '../../../utils/check-import-file';
+import { executeTransactionImport } from '../actions/execute-transaction-import';
+import { previewTransactionImport } from '../actions/preview-transaction-import';
+import { checkImportFile } from '../utils/transaction-import/check-import-file';
 
 const prepareImportFormData = (file: File): FormData => {
   const formData = new FormData();

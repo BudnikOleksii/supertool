@@ -31,6 +31,7 @@ import { ErrorResponseDto } from '../../shared/dtos/error-response.dto';
 import { AuthGuard } from '../../shared/guards/auth.guard';
 import { CategoryResponseDto } from './dtos/category-response.dto';
 import { CreateCategoryDto } from './dtos/create-category.dto';
+import { DefaultCategoriesResponseDto } from './dtos/default-categories-response.dto';
 import { DeleteCategoryDto } from './dtos/delete-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { TransactionCategoriesService } from './transaction-categories.service';
@@ -51,6 +52,15 @@ export class TransactionCategoriesController {
   @ApiUnauthorizedResponse({ type: ErrorResponseDto })
   async findAll(@Session() session: UserSession<typeof auth>): Promise<CategoryResponseDto[]> {
     return this.service.findAll(session.user.id);
+  }
+
+  @Post('defaults')
+  @ApiCreatedResponse({ type: DefaultCategoriesResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  async createDefaults(
+    @Session() session: UserSession<typeof auth>,
+  ): Promise<DefaultCategoriesResponseDto> {
+    return this.service.createDefaults(session.user.id);
   }
 
   @Post()

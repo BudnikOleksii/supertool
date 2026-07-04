@@ -5,11 +5,11 @@ import { cookies } from 'next/headers';
 import { createServerApiClient } from '@supertool/next-shared/src/client/create-server-api-client';
 import { TransactionsApiService } from '@supertool/shared/generated/sdk.gen';
 
-import type { ExecuteTransactionImportState } from '../app/[locale]/transactions/import/types';
+import type { ExecuteTransactionImportState } from '../types/transaction-import';
 
-import { getCheckedImportFile } from '../app/[locale]/transactions/import/utils/get-checked-import-file';
-import { prepareImportErrorState } from '../app/[locale]/transactions/import/utils/prepare-import-error-state';
-import { revalidateImportTargets } from '../app/[locale]/transactions/import/utils/revalidate-import-targets';
+import { getCheckedImportFile } from '../utils/transaction-import/get-checked-import-file';
+import { prepareImportErrorState } from '../utils/transaction-import/prepare-import-error-state';
+import { revalidateImportTargets } from '../utils/transaction-import/revalidate-import-targets';
 
 export const executeTransactionImport = async (
   formData: FormData,

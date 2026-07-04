@@ -22,6 +22,7 @@ export type UserResponseDto = {
     role: Role;
     locale: LocaleCode;
     defaultCurrency?: CurrencyCode | null;
+    onboardingCompleted: boolean;
 };
 
 export type ErrorCode = 'INTERNAL_ERROR' | 'NOT_FOUND' | 'VALIDATION_ERROR' | 'UNAUTHORIZED' | 'FORBIDDEN' | 'CONFLICT' | 'UNPROCESSABLE_ENTITY' | 'TOO_MANY_REQUESTS';
@@ -39,6 +40,7 @@ export type UpdateUserDto = {
     name?: string;
     locale?: LocaleCode;
     defaultCurrency?: CurrencyCode;
+    onboardingCompleted?: boolean;
 };
 
 export type TransactionType = 'income' | 'expense';
@@ -50,6 +52,11 @@ export type CategoryResponseDto = {
     parentId: string | null;
     createdAt: string;
     updatedAt: string;
+};
+
+export type DefaultCategoriesResponseDto = {
+    topLevelCreated: number;
+    childrenCreated: number;
 };
 
 export type CreateCategoryDto = {
@@ -260,6 +267,25 @@ export type TransactionCategoriesCreateResponses = {
 };
 
 export type TransactionCategoriesCreateResponse = TransactionCategoriesCreateResponses[keyof TransactionCategoriesCreateResponses];
+
+export type TransactionCategoriesCreateDefaultsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/transaction-categories/defaults';
+};
+
+export type TransactionCategoriesCreateDefaultsErrors = {
+    401: ErrorResponseDto;
+};
+
+export type TransactionCategoriesCreateDefaultsError = TransactionCategoriesCreateDefaultsErrors[keyof TransactionCategoriesCreateDefaultsErrors];
+
+export type TransactionCategoriesCreateDefaultsResponses = {
+    201: DefaultCategoriesResponseDto;
+};
+
+export type TransactionCategoriesCreateDefaultsResponse = TransactionCategoriesCreateDefaultsResponses[keyof TransactionCategoriesCreateDefaultsResponses];
 
 export type TransactionCategoriesRemoveData = {
     body: DeleteCategoryDto;

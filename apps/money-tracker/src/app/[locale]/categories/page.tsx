@@ -3,14 +3,14 @@ import type { FC } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
 
-import { Link, redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
+import { Link } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Skeleton } from '@supertool/ui/src/components/atoms/skeleton/Skeleton';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
-import { fetchProfile } from '../../../actions/fetch-profile';
 import { ROUTES } from '../../../constants/routes';
+import { resolveOnboardedProfile } from '../../../utils/resolve-onboarded-profile';
 import { CategoryListServer } from './components/category-list-server/CategoryListServer';
 import styles from './page.module.scss';
 
@@ -35,11 +35,7 @@ const CategoriesPage: FC<Props> = async (props) => {
 
   setRequestLocale(locale);
 
-  const profile = await fetchProfile();
-
-  if (!profile) {
-    return redirect({ href: ROUTES.signIn, locale });
-  }
+  await resolveOnboardedProfile(locale);
 
   const translate = await getTranslations(I18N_NAMESPACE.categoriesPage);
 

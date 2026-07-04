@@ -11,6 +11,7 @@ export const users = pgTable('users', {
   role: roleEnum('role').notNull().default(DEFAULT_ROLE),
   locale: text('locale').notNull().default('en'),
   defaultCurrency: text('default_currency'),
+  onboardingCompleted: boolean('onboarding_completed').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

@@ -15,7 +15,7 @@ export const SignUpFormSection: FC<Props> = ({ submitLabel }) => {
   const router = useRouter();
 
   const handleSuccess = () => {
-    router.replace(ROUTES.home);
+    router.replace(ROUTES.onboarding);
     router.refresh();
   };
 

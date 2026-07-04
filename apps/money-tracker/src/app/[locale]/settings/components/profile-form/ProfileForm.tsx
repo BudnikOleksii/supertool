@@ -25,7 +25,7 @@ import {
   FieldTitle,
 } from '@supertool/ui/src/components/molecules/field/Field';
 
-import { CURRENCY_OPTION_LIST } from '../../constants/currency-option-list';
+import { CURRENCY_OPTION_LIST } from '../../../../../constants/currency-option-list';
 import { useProfileForm } from './hooks/use-profile-form';
 import styles from './ProfileForm.module.scss';
 

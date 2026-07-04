@@ -2,7 +2,7 @@ import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-stat
 import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
 import type { ErrorResponseDto } from '@supertool/shared/generated/types.gen';
 
-import type { ImportActionError } from '../types';
+import type { ImportActionError } from '../../types/transaction-import';
 
 const checkIsStringList = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every((item) => typeof item === 'string');

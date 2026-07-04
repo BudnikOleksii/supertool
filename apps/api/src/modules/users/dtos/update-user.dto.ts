@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 import { CURRENCY_CODE_LIST } from '@supertool/shared/constants/currency';
 import { LOCALE_CODE_LIST } from '@supertool/shared/constants/locales';
@@ -24,4 +24,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsIn(CURRENCY_CODE_LIST)
   defaultCurrency?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  onboardingCompleted?: boolean;
 }

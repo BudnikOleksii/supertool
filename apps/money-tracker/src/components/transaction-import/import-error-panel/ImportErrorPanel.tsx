@@ -10,7 +10,7 @@ import { TRANSACTION_IMPORT_MAX_FILE_SIZE_MEBIBYTES } from '@supertool/shared/co
 import { Alert, AlertDescription } from '@supertool/ui/src/components/atoms/alert/Alert';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
-import type { ImportActionError } from '../../types';
+import type { ImportActionError } from '../../../types/transaction-import';
 
 import styles from './ImportErrorPanel.module.scss';
 

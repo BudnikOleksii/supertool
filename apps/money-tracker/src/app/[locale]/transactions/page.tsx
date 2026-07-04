@@ -3,18 +3,18 @@ import type { FC } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
 
-import { Link, redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
+import { Link } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
 import { fetchCategoryList } from '../../../actions/fetch-category-list';
-import { fetchProfile } from '../../../actions/fetch-profile';
 import { MonthStepper } from '../../../components/month-stepper/MonthStepper';
 import { ROUTES } from '../../../constants/routes';
 import { PERIOD_SEARCH_PARAM } from '../../../constants/search-params';
 import { normalizeSearchParam } from '../../../utils/normalize-search-param';
 import { resolveDefaultPeriod } from '../../../utils/resolve-default-period';
+import { resolveOnboardedProfile } from '../../../utils/resolve-onboarded-profile';
 import { TransactionFilters } from './components/transaction-filters/TransactionFilters';
 import { TransactionListServer } from './components/transaction-list-server/TransactionListServer';
 import { TransactionListSkeleton } from './components/transaction-list-skeleton/TransactionListSkeleton';
@@ -35,11 +35,7 @@ const TransactionsPage: FC<Props> = async (props) => {
 
   setRequestLocale(locale);
 
-  const profile = await fetchProfile();
-
-  if (!profile) {
-    return redirect({ href: ROUTES.signIn, locale });
-  }
+  await resolveOnboardedProfile(locale);
 
   const translate = await getTranslations(I18N_NAMESPACE.transactionsPage);
   const period = await resolveDefaultPeriod(

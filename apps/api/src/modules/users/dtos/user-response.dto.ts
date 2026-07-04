@@ -30,4 +30,7 @@ export class UserResponseDto {
     nullable: true,
   })
   defaultCurrency!: string | null;
+
+  @ApiProperty()
+  onboardingCompleted!: boolean;
 }

@@ -37,12 +37,8 @@
 
 generated: 2026-06-10
 last_updated: 2026-07-04
-# (5-1 → done 2026-07-04: PR #34 squash-merged after review APPROVE + CI + CodeRabbit;
-#  5-2 → review 2026-07-04: the 3 must-fix review findings resolved (action-rejection
-#  UNKNOWN fallback + tests, retry-test wait-for-non-pending-label fix, AC-9 dark/mobile
-#  capture gaps filled + stale row-errors refresh) — re-review of f9bef6e APPROVE:
-#  independent gate re-run green 8/8, AC-9 matrix verified complete (32 PNGs);
-#  11 advisory items remain open in the story's Review Findings — ready for PR)
+# (5-2 → done 2026-07-04: PR #35 squash-merged after review APPROVE + CI + CodeRabbit;
+#  5-3 → ready-for-dev 2026-07-04: story file created)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -102,8 +98,8 @@ development_status:
   # Epic 5: Import Your Data & See Your Money
   epic-5: in-progress
   5-1-transaction-import-endpoint: done
-  5-2-standalone-import-page: review
-  5-3-onboarding-flow: backlog
+  5-2-standalone-import-page: done
+  5-3-onboarding-flow: review
   5-4-dashboard-analytics-endpoints-top-categories-daily-spending: backlog
   5-5-dashboard-widgets-top-categories-daily-spending-recent-transactions-filter-bar: backlog
   5-6-transactions-by-category-drill-down: backlog
