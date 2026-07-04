@@ -1,6 +1,12 @@
 import { useCallback, useState, useTransition } from 'react';
 
-import type { ExecuteTransactionImportState, PreviewTransactionImportState } from '../../../types';
+import { UNKNOWN_ERROR_CODE } from '@supertool/next-shared/src/types/action-state';
+
+import type {
+  ExecuteTransactionImportState,
+  ImportActionError,
+  PreviewTransactionImportState,
+} from '../../../types';
 import type { ImportFileCheckErrorKey } from '../../../utils/check-import-file';
 
 import { executeTransactionImport } from '../../../../../../../actions/execute-transaction-import';
@@ -14,6 +20,11 @@ const prepareImportFormData = (file: File): FormData => {
 
   return formData;
 };
+
+const prepareUnknownImportError = (): ImportActionError => ({
+  status: 'error',
+  code: UNKNOWN_ERROR_CODE,
+});
 
 export const useImportFlow = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -52,7 +63,11 @@ export const useImportFlow = () => {
     }
 
     startTransition(async () => {
-      setPreviewState(await previewTransactionImport(prepareImportFormData(file)));
+      setPreviewState(
+        await previewTransactionImport(prepareImportFormData(file)).catch(
+          prepareUnknownImportError,
+        ),
+      );
     });
   }, [file]);
 
@@ -62,7 +77,11 @@ export const useImportFlow = () => {
     }
 
     startTransition(async () => {
-      setExecuteState(await executeTransactionImport(prepareImportFormData(file)));
+      setExecuteState(
+        await executeTransactionImport(prepareImportFormData(file)).catch(
+          prepareUnknownImportError,
+        ),
+      );
     });
   }, [file]);
 

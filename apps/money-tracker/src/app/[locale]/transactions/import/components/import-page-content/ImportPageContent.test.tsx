@@ -103,7 +103,33 @@ describe('ImportPageContent', () => {
 
     await screen.findByText('rowErrorsTitle');
     screen.getByText('Row 1: amount is invalid');
-    screen.getByRole('button', { name: 'previewButton' });
+    await screen.findByRole('button', { name: 'previewButton' });
+  });
+
+  it('renders the unknown error panel and allows retry when the preview action rejects', async () => {
+    previewTransactionImport.mockRejectedValue(new Error('network failure'));
+    render(<ImportPageContent />);
+
+    selectValidFile();
+    fireEvent.click(screen.getByRole('button', { name: 'previewButton' }));
+
+    await screen.findByText('UNKNOWN');
+    await screen.findByRole('button', { name: 'previewButton' });
+  });
+
+  it('renders the unknown error panel and allows retry when the execute action rejects', async () => {
+    previewTransactionImport.mockResolvedValue({ status: 'success', preview: PREVIEW });
+    executeTransactionImport.mockRejectedValue(new Error('network failure'));
+    render(<ImportPageContent />);
+
+    selectValidFile();
+    fireEvent.click(screen.getByRole('button', { name: 'previewButton' }));
+
+    fireEvent.click(await screen.findByRole('button', { name: 'executeButton' }));
+
+    await screen.findByText('UNKNOWN');
+    screen.getByText('previewTitle');
+    await screen.findByRole('button', { name: 'executeButton' });
   });
 
   it('renders an execute error while keeping the preview visible', async () => {
