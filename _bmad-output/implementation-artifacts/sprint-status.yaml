@@ -38,8 +38,9 @@
 generated: 2026-06-10
 last_updated: 2026-07-04
 # (5-1 → done 2026-07-04: PR #34 squash-merged after review APPROVE + CI + CodeRabbit;
-#  5-2 → review 2026-07-04: implemented on TOOLS-5-2/standalone-import-page — gates
-#  forced-green + visual-QA evidence committed; awaiting code review)
+#  5-2 → in-progress 2026-07-04: adversarial code review found 3 must-fix (unhandled
+#  action rejection, flaky ImportPageContent retry test, AC-9 dark-capture gaps) +
+#  10 advisory — findings recorded in the story file's Review Findings; fix then re-review)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -99,7 +100,7 @@ development_status:
   # Epic 5: Import Your Data & See Your Money
   epic-5: in-progress
   5-1-transaction-import-endpoint: done
-  5-2-standalone-import-page: review
+  5-2-standalone-import-page: in-progress
   5-3-onboarding-flow: backlog
   5-4-dashboard-analytics-endpoints-top-categories-daily-spending: backlog
   5-5-dashboard-widgets-top-categories-daily-spending-recent-transactions-filter-bar: backlog
