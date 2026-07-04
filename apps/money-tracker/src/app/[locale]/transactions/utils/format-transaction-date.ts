@@ -1,5 +1,6 @@
+import { CALENDAR_DATE_PATTERN } from '@supertool/shared/constants/transaction-validation';
+
 const MONTH_OFFSET = 1;
-const CALENDAR_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/u;
 
 const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
 

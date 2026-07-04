@@ -2,7 +2,7 @@ import type { ValidationOptions } from 'class-validator';
 
 import { registerDecorator } from 'class-validator';
 
-import { checkIsCalendarDate } from '../constants/transaction-validation';
+import { checkIsCalendarDate } from '@supertool/shared/constants/transaction-validation';
 
 export const IsCalendarDate =
   (validationOptions?: ValidationOptions) =>

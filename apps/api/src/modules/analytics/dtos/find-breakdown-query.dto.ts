@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Matches } from 'class-validator';
 
-import { CALENDAR_DATE_PATTERN } from '../../../shared/constants/transaction-validation';
+import { CALENDAR_DATE_PATTERN } from '@supertool/shared/constants/transaction-validation';
 
 export class FindBreakdownQueryDto {
   @ApiProperty({ example: '2025-02-01' })

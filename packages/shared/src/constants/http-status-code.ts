@@ -9,6 +9,7 @@ export const HTTP_STATUS_CODE = {
   Forbidden: 403,
   NotFound: 404,
   Conflict: 409,
+  PayloadTooLarge: 413,
   UnprocessableEntity: 422,
   TooManyRequests: 429,
   InternalServerError: 500,
