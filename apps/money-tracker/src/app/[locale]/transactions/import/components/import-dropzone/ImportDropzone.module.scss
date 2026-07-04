@@ -1,0 +1,77 @@
+.hiddenInput {
+  display: none;
+}
+
+.dropzone {
+  display: flex;
+
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+
+  padding: var(--spacing-8) var(--spacing-4);
+
+  text-align: center;
+
+  background: var(--surface-container-low);
+  border: 2px dashed var(--outline-variant);
+  border-radius: var(--radius-lg);
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.dropzoneDragOver.dropzoneDragOver {
+  background: var(--surface-container);
+  border-color: var(--primary);
+}
+
+.icon {
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+
+  color: var(--on-surface-variant);
+}
+
+.hint {
+  color: var(--on-surface-variant);
+}
+
+.fileCard {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+
+  padding: var(--spacing-3) var(--spacing-4);
+
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+}
+
+.fileMeta {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-1);
+
+  min-width: 0;
+}
+
+.fileName {
+  overflow-wrap: anywhere;
+}
+
+.fileSize {
+  color: var(--on-surface-variant);
+}
+
+.fileActions {
+  display: flex;
+
+  flex-shrink: 0;
+  gap: var(--spacing-2);
+}
