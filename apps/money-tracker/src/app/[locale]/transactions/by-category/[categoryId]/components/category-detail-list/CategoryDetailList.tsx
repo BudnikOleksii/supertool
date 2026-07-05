@@ -2,8 +2,9 @@ import type { FC } from 'react';
 
 import { getTranslations } from 'next-intl/server';
 
+import { redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
-import { DEFAULT_PAGE_SIZE } from '@supertool/shared/constants/pagination';
+import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '@supertool/shared/constants/pagination';
 import { Badge } from '@supertool/ui/src/components/atoms/badge/Badge';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 import { Card, CardContent } from '@supertool/ui/src/components/molecules/card/Card';
@@ -11,32 +12,74 @@ import { Card, CardContent } from '@supertool/ui/src/components/molecules/card/C
 import { fetchTransactions } from '../../../../../../../actions/fetch-transactions';
 import { BulkDeleteProvider } from '../../../../../../../components/bulk-delete/BulkDeleteProvider';
 import { TransactionSelectCheckbox } from '../../../../../../../components/bulk-delete/TransactionSelectCheckbox';
+import { getTransactionsByCategoryDetailPath } from '../../../../../../../constants/routes';
+import {
+  PAGE_SEARCH_PARAM,
+  PERIOD_SEARCH_PARAM,
+} from '../../../../../../../constants/search-params';
 import { formatAmount } from '../../../../../../../utils/format-amount';
 import { TransactionPagination } from '../../../../components/transaction-pagination/TransactionPagination';
 import { formatTransactionDate } from '../../../../utils/format-transaction-date';
 import { getCategoryLabel } from '../../../../utils/get-category-label';
 import styles from './CategoryDetailList.module.scss';
 
+interface RedirectWhenPageOutOfRangeParams {
+  page: number;
+  total: number;
+  period: string;
+  categoryId: string;
+  locale: string;
+}
+
+const redirectWhenPageOutOfRange = ({
+  page,
+  total,
+  period,
+  categoryId,
+  locale,
+}: RedirectWhenPageOutOfRangeParams): void => {
+  const lastPage = Math.ceil(total / DEFAULT_PAGE_SIZE);
+
+  if (page <= lastPage) {
+    return;
+  }
+
+  redirect({
+    href: {
+      pathname: getTransactionsByCategoryDetailPath(categoryId),
+      query: {
+        [PERIOD_SEARCH_PARAM]: period,
+        ...(lastPage > FIRST_PAGE ? { [PAGE_SEARCH_PARAM]: String(lastPage) } : {}),
+      },
+    },
+    locale,
+  });
+};
+
 interface Props {
   dateFrom: string;
   dateTo: string;
+  period: string;
   categoryId: string;
   page: number;
   locale: string;
 }
 
-const EMPTY_LIST_LENGTH = 0;
+const EMPTY_COUNT = 0;
 const INCOME_TYPE = 'income';
 
 export const CategoryDetailList: FC<Props> = async ({
   dateFrom,
   dateTo,
+  period,
   categoryId,
   page,
   locale,
 }) => {
-  const translate = await getTranslations(I18N_NAMESPACE.transactionsByCategoryPage);
-  const translateBulk = await getTranslations(`${I18N_NAMESPACE.transactionsPage}.bulkDelete`);
+  const [translate, translateBulk] = await Promise.all([
+    getTranslations(I18N_NAMESPACE.transactionsByCategoryPage),
+    getTranslations(`${I18N_NAMESPACE.transactionsPage}.bulkDelete`),
+  ]);
 
   const result = await fetchTransactions({
     dateFrom,
@@ -61,7 +104,7 @@ export const CategoryDetailList: FC<Props> = async ({
 
   const { data, meta } = result.transactions;
 
-  if (data.length === EMPTY_LIST_LENGTH) {
+  if (meta.total === EMPTY_COUNT) {
     return (
       <Card>
         <CardContent className={styles.message}>
@@ -71,6 +114,8 @@ export const CategoryDetailList: FC<Props> = async ({
       </Card>
     );
   }
+
+  redirectWhenPageOutOfRange({ page, total: meta.total, period, categoryId, locale });
 
   const selectLabel = translateBulk('selectRow');
 
