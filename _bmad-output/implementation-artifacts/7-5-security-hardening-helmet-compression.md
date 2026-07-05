@@ -196,3 +196,4 @@ Scope guards (AC-7, AC-8): no new env var — `turbo.json` and `.github/` unchan
 ## Change Log
 
 - 2026-07-05 — Story 7.5 implemented: helmet + compression middleware registered in shared `configureAppRouting`; deps pinned (helmet 8.2.0, compression 1.8.1, @types/compression 1.8.1); integration spec added; contract drift no-op verified; all gates green; live running-stack proxy/headers/Swagger verification passed. Two story-text corrections recorded (D-8 X-Frame-Options SAMEORIGIN default; D-9 x-no-compression not in compression 1.8.1 default filter). Status → review.
+- 2026-07-05 — Code review APPROVE (3 adversarial layers, 0 must-fix; middleware order + drift no-op + proxy/auth/Swagger safety + exact deps + genuine gzip-observing test independently verified; 5 non-blocking nice-to-haves). PR opened: https://github.com/BudnikOleksii/supertool/pull/51
