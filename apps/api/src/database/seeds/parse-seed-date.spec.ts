@@ -21,6 +21,18 @@ describe('parseSeedDate', () => {
     expect(actual).toBe('2025-01-31');
   });
 
+  it('accepts an already-ISO YYYY-MM-DD date so exports round-trip through import', () => {
+    expect(parseSeedDate('2025-02-03')).toBe('2025-02-03');
+  });
+
+  it('accepts an ISO date at the end of the month', () => {
+    expect(parseSeedDate('2025-01-31')).toBe('2025-01-31');
+  });
+
+  it('throws on an ISO date with an out-of-range month', () => {
+    expect(() => parseSeedDate('2025-13-01')).toThrowError(/Unparseable seed date/u);
+  });
+
   it('throws on an unparseable date instead of guessing', () => {
     expect(() => parseSeedDate('not-a-date')).toThrowError(/Unparseable seed date/u);
   });

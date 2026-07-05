@@ -13,8 +13,10 @@ import { MonthNavigator } from '../../../components/month-navigator/MonthNavigat
 import { ROUTES } from '../../../constants/routes';
 import { PERIOD_SEARCH_PARAM } from '../../../constants/search-params';
 import { normalizeSearchParam } from '../../../utils/normalize-search-param';
+import { getMonthDateRange, parsePeriod } from '../../../utils/period';
 import { resolveDefaultPeriod } from '../../../utils/resolve-default-period';
 import { resolveOnboardedProfile } from '../../../utils/resolve-onboarded-profile';
+import { ExportMenu } from './components/export-menu/ExportMenu';
 import { TransactionFilters } from './components/transaction-filters/TransactionFilters';
 import { TransactionListServer } from './components/transaction-list-server/TransactionListServer';
 import { TransactionListSkeleton } from './components/transaction-list-skeleton/TransactionListSkeleton';
@@ -42,6 +44,7 @@ const TransactionsPage: FC<Props> = async (props) => {
     normalizeSearchParam(searchParams[PERIOD_SEARCH_PARAM]),
   );
   const params = parseTransactionsSearchParams(searchParams, period);
+  const { dateFrom, dateTo } = getMonthDateRange(parsePeriod(params.period));
   const categoryList = await fetchCategoryList();
 
   return (
@@ -50,6 +53,17 @@ const TransactionsPage: FC<Props> = async (props) => {
         <Typography variant="title-l">{translate('title')}</Typography>
         <div className={styles.controls}>
           <MonthNavigator period={params.period} />
+          <ExportMenu
+            namespace={I18N_NAMESPACE.transactionsPage}
+            filters={{
+              dateFrom,
+              dateTo,
+              sortBy: params.sortBy,
+              sortOrder: params.sortOrder,
+              ...(params.type === undefined ? {} : { type: params.type }),
+              ...(params.categoryId === undefined ? {} : { categoryId: params.categoryId }),
+            }}
+          />
           <Button component={Link} href={ROUTES.transactionsNew}>
             {translate('addTransaction')}
           </Button>

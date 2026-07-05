@@ -23,5 +23,16 @@
       "title": "Couldn’t load transactions",
       "description": "Something went wrong while loading this category. Please try again."
     }
+  },
+  "export": {
+    "trigger": "Export",
+    "loading": "Exporting…",
+    "csv": "Export as CSV",
+    "json": "Export as JSON"
+  },
+  "exportErrors": {
+    "UNAUTHORIZED": "Your session has expired. Please sign in again.",
+    "VALIDATION_ERROR": "That export can’t be created. Please adjust the filters and try again.",
+    "UNKNOWN": "The export couldn’t be created. Please try again."
   }
 }

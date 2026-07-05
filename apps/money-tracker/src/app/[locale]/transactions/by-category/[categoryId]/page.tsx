@@ -17,6 +17,7 @@ import { normalizeSearchParam } from '../../../../../utils/normalize-search-para
 import { getMonthDateRange, parsePeriod } from '../../../../../utils/period';
 import { resolveDefaultPeriod } from '../../../../../utils/resolve-default-period';
 import { resolveOnboardedProfile } from '../../../../../utils/resolve-onboarded-profile';
+import { ExportMenu } from '../../components/export-menu/ExportMenu';
 import { CategoryDetailList } from './components/category-detail-list/CategoryDetailList';
 import { CategoryDetailSkeleton } from './components/category-detail-skeleton/CategoryDetailSkeleton';
 import styles from './page.module.scss';
@@ -76,7 +77,13 @@ const TransactionsByCategoryDetailPage: FC<Props> = async (props) => {
           </Link>
           <Typography variant="title-l">{categoryName}</Typography>
         </div>
-        <MonthNavigator period={period} />
+        <div className={styles.controls}>
+          <MonthNavigator period={period} />
+          <ExportMenu
+            namespace={I18N_NAMESPACE.transactionsByCategoryPage}
+            filters={{ categoryId, dateFrom, dateTo }}
+          />
+        </div>
       </header>
       <Suspense key={`${categoryId}-${period}-${page}`} fallback={detailFallback}>
         <CategoryDetailList

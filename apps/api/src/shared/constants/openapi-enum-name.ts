@@ -4,6 +4,7 @@ export const OPENAPI_ENUM_NAME = {
   currencyCode: 'CurrencyCode',
   transactionType: 'TransactionType',
   transactionSortBy: 'TransactionSortBy',
+  transactionExportFormat: 'TransactionExportFormat',
   sortOrder: 'SortOrder',
   errorCode: 'ErrorCode',
 } as const;
