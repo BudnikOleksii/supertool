@@ -89,6 +89,17 @@ Today the API bootstrap configures routing in one shared place — `apps/api/src
   - [x] Confirm no new env var was introduced; `turbo.json` `globalEnv` and CI workflow placeholders unchanged.
   - [x] Confirm no `en.json`/`uk.json` change and no UI change; record Visual QA + i18n as N/A in the Dev Agent Record.
 
+## Review Findings
+
+Adversarial code review (bmad-code-review, 2026-07-05) — 3 parallel layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor). Gates re-run by orchestrator: type-check + lint green. Verdict: **APPROVE** — no must-fix findings; all ACs (1-8) satisfied and regression-encoded; drift gate genuine no-op (openapi.json + generated client absent from diff). All items below are nice-to-have.
+
+- [ ] [Review][Patch] Negative compression tests only assert `content-encoding` absence — would stay green if `app.use(compression())` were removed [apps/api/test/integration/security-middleware.integration.spec.ts:181-194] — strengthen "omits accept-encoding"/below-threshold cases to also assert the raw body is uncompressed valid JSON, so a dropped middleware fails a test (blind+auditor).
+- [ ] [Review][Patch] No HTTP-level test that the 6-3 CSV/JSON export (`Content-Disposition` + `EXPORT_TRUNCATED_HEADER`) survives gzip through the new chain [apps/api/src/modules/transactions/transactions.controller.ts:191-198] — export specs exercise the service layer only; one raw-http export assertion would close the only meaningful coverage gap the middleware introduces (edge).
+- [ ] [Review][Patch] HSTS assertion `toContain('max-age=')` would pass for `max-age=0` (HSTS effectively off) [apps/api/test/integration/security-middleware.integration.spec.ts:150] — tighten to a nonzero max-age (blind).
+- [ ] [Review][Patch] `rawGet` has no request timeout — a stalled socket hangs to the outer runner timeout with no diagnostic [apps/api/test/integration/security-middleware.integration.spec.ts:80-95] — add `req.setTimeout(...)` rejecting the promise (blind).
+- [ ] [Review][Patch] Test uses implicit `any` for `container`/`pool`/`app` and an untyped `rawGet` promise; the declared `RawResponse` interface is never applied to the return type [apps/api/test/integration/security-middleware.integration.spec.ts:64-95] — annotate to make the declared interfaces load-bearing (blind).
+- [x] [Review][Defer] `TESTCONTAINERS_RYUK_DISABLED='true'` risks leaked containers if teardown does not run [apps/api/test/integration/security-middleware.integration.spec.ts:30] — deferred, consistent with the existing Testcontainers spec convention in this repo, not introduced by this story.
+
 ## Dev Notes
 
 ### Architecture & source-tree context
