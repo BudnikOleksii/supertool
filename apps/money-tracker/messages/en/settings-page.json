@@ -18,6 +18,8 @@
   "defaultCurrencyEmptyMessage": "No currencies found",
   "submit": "Save changes",
   "updateSuccess": "Your profile has been updated.",
+  "changePasswordTitle": "Change password",
+  "changePasswordDescription": "Update the password you use to sign in.",
   "errors": {
     "firstNameRequired": "Enter your first name.",
     "localeInvalid": "Choose a supported language.",

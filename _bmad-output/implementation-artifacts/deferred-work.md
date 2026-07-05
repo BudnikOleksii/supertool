@@ -1,5 +1,9 @@
 # Deferred Work
 
+## Deferred from: code review of 7-2-change-password (2026-07-05)
+
+- No `try/catch` around `authClient.changePassword` in `ChangePasswordForm`: a network-layer rejection (offline/DNS/CORS) escapes the `startTransition` async callback without mapping to the `generic` localized error. Inherited from the pre-approved `SignInForm` pattern and applies repo-wide, so fixing it here alone would be inconsistent — resolve across all authClient forms together (defensive `catch → setFormErrorKey('generic')`) when the auth-form pattern is next touched. [packages/widgets/src/components/change-password-form/ChangePasswordForm.tsx, packages/widgets/src/components/sign-in-form/SignInForm.tsx]
+
 ## Deferred from: code review of 5-1-transaction-import-endpoint (2026-07-04)
 
 - Import dedup is positional: `buildImportKey` mixes `rowIndex` into the SHA-256 (architecture D2 mandates record + row index), so inserting/removing/reordering one row in an already-imported export gives every subsequent row a new key — preview under-reports `duplicateRows` and execute re-inserts the whole shifted tail. Byte-identical re-runs are idempotent (integration-tested); edited re-exports are not. Either accept and surface in the 5.2 UI copy, or move to a content-only key (which needs a within-file duplicate-row decision, since identical rows currently coexist via `rowIndex`). [apps/api/src/database/seeds/build-import-key.ts, apps/api/src/modules/transactions/transactions-import.service.ts]
