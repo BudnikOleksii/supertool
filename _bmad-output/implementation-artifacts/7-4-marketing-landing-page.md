@@ -311,3 +311,4 @@ Implemented the real marketing landing page at `/` (`[locale]/page.tsx`), replac
 | Date | Change |
 |------|--------|
 | 2026-07-05 | Story 7-4 implemented: real marketing landing page at `/` (hero, advantages, reviews, FAQ, footer + closing CTA), `/` made public in `proxy.ts`, authenticated→dashboard redirect, per-locale `generateMetadata`, `homePage` i18n namespace restructured (en+uk), component + auth-aware + FAQ-interaction tests, committed visual-QA matrix. All gates green; OpenAPI drift no-op. Status → review. |
+| 2026-07-05 | Code review CHANGES-REQUESTED → 1 must-fix (heading-hierarchy skip h2→h4) fixed via `tag="h3"` on advantage titles (commit `3f8df3b`); round-2 re-review APPROVE; gating/redirect verified no-loop. PR opened: https://github.com/BudnikOleksii/supertool/pull/50 |
