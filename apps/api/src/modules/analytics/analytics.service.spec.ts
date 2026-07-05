@@ -236,4 +236,47 @@ describe('AnalyticsService', () => {
       expect(getDailySpending).not.toHaveBeenCalled();
     });
   });
+
+  describe('by category', () => {
+    it('scopes the by-category totals to the default currency and forwards the date window', async () => {
+      const expectedByCategory = {
+        categories: [
+          {
+            categoryId: 'cat-1',
+            categoryName: 'Food',
+            parentId: null,
+            type: 'expense',
+            total: '120.50',
+            transactionCount: 3,
+          },
+        ],
+        currency: 'UAH',
+      };
+      const getByCategoryTotals = vi.fn().mockResolvedValue(expectedByCategory);
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: 'UAH' });
+      const service = buildAnalyticsService({ getByCategoryTotals }, { findByIdScoped });
+
+      const actual = await service.getByCategory('user-id', buildQuery());
+
+      expect(findByIdScoped).toHaveBeenCalledWith('user-id');
+      expect(getByCategoryTotals).toHaveBeenCalledWith({
+        userId: 'user-id',
+        currency: 'UAH',
+        dateFrom: '2025-02-01',
+        dateTo: '2025-02-28',
+      });
+      expect(actual).toEqual(expectedByCategory);
+    });
+
+    it('returns empty categories without querying when the user has no default currency', async () => {
+      const getByCategoryTotals = vi.fn();
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: null });
+      const service = buildAnalyticsService({ getByCategoryTotals }, { findByIdScoped });
+
+      const actual = await service.getByCategory('user-id', buildQuery());
+
+      expect(actual).toEqual({ categories: [], currency: '' });
+      expect(getByCategoryTotals).not.toHaveBeenCalled();
+    });
+  });
 });

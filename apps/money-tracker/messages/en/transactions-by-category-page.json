@@ -1,0 +1,27 @@
+{
+  "title": "By category",
+  "transactionCount": "{count, plural, =0 {No transactions} one {# transaction} other {# transactions}}",
+  "categoryTotal": "Category total",
+  "viewCategory": "View {category} transactions",
+  "backToCategories": "Back to categories",
+  "typeIncome": "Income",
+  "typeExpense": "Expense",
+  "empty": {
+    "title": "No categories for this month",
+    "description": "Once you add transactions for this period, your categories and their totals will show up here."
+  },
+  "error": {
+    "title": "Couldn’t load categories",
+    "description": "Something went wrong while loading this month. Please try again."
+  },
+  "detail": {
+    "empty": {
+      "title": "No transactions in this category",
+      "description": "This category has no transactions for the selected month."
+    },
+    "error": {
+      "title": "Couldn’t load transactions",
+      "description": "Something went wrong while loading this category. Please try again."
+    }
+  }
+}

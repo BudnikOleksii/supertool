@@ -18,6 +18,9 @@ export const getCategoryEditPath = (id: string): string => `${ROUTES.categories}
 
 export const getTransactionEditPath = (id: string): string => `${ROUTES.transactions}/${id}/edit`;
 
+export const getTransactionsByCategoryDetailPath = (id: string): string =>
+  `${ROUTES.transactionsByCategory}/${id}`;
+
 export const COPY_FROM_SEARCH_PARAM = 'copyFrom';
 
 export const getTransactionCopyPath = (id: string): string =>

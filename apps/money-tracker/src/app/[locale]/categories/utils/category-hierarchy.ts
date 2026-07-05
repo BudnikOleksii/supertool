@@ -1,14 +1,17 @@
 import type { CategoryResponseDto } from '@supertool/shared/generated/types.gen';
 
-export interface CategoryHierarchy {
-  topLevelList: CategoryResponseDto[];
-  childrenByParentId: Map<string, CategoryResponseDto[]>;
+export interface HierarchyNode {
+  id: string;
+  parentId: string | null;
 }
 
-const buildChildrenByParentId = (
-  categoryList: CategoryResponseDto[],
-): Map<string, CategoryResponseDto[]> => {
-  const childrenByParentId = new Map<string, CategoryResponseDto[]>();
+export interface CategoryHierarchy<T extends HierarchyNode = CategoryResponseDto> {
+  topLevelList: T[];
+  childrenByParentId: Map<string, T[]>;
+}
+
+const buildChildrenByParentId = <T extends HierarchyNode>(categoryList: T[]): Map<string, T[]> => {
+  const childrenByParentId = new Map<string, T[]>();
 
   for (const category of categoryList) {
     if (category.parentId !== null) {
@@ -21,13 +24,15 @@ const buildChildrenByParentId = (
   return childrenByParentId;
 };
 
-export const buildCategoryHierarchy = (categoryList: CategoryResponseDto[]): CategoryHierarchy => ({
+export const buildCategoryHierarchy = <T extends HierarchyNode>(
+  categoryList: T[],
+): CategoryHierarchy<T> => ({
   topLevelList: categoryList.filter((category) => category.parentId === null),
   childrenByParentId: buildChildrenByParentId(categoryList),
 });
 
-const collectFreshChildren = (
-  childList: CategoryResponseDto[],
+const collectFreshChildren = <T extends HierarchyNode>(
+  childList: T[],
   descendantIdSet: Set<string>,
   pendingIdList: string[],
 ): void => {
@@ -39,8 +44,8 @@ const collectFreshChildren = (
   }
 };
 
-export const getDescendantIdSet = (
-  categoryList: CategoryResponseDto[],
+export const getDescendantIdSet = <T extends HierarchyNode>(
+  categoryList: T[],
   categoryId: string,
 ): Set<string> => {
   const childrenByParentId = buildChildrenByParentId(categoryList);

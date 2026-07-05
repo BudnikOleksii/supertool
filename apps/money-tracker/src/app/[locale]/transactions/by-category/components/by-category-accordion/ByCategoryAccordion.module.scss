@@ -1,0 +1,159 @@
+.tree {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.item {
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+}
+
+.row {
+  display: flex;
+
+  align-items: center;
+  gap: var(--spacing-2);
+
+  padding-inline: var(--spacing-3);
+}
+
+.trigger.trigger {
+  flex: 1;
+
+  min-width: 0;
+
+  padding-block: var(--spacing-3);
+}
+
+.triggerContent {
+  display: flex;
+
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+
+  min-width: 0;
+
+  text-align: left;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface);
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: var(--spacing-3);
+}
+
+.count {
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+.total {
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface);
+  white-space: nowrap;
+}
+
+.detailLink {
+  display: inline-flex;
+
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--spacing-2);
+
+  color: var(--on-surface-variant);
+
+  border-radius: var(--radius-sm);
+
+  &:hover {
+    color: var(--primary);
+
+    background: var(--surface-container);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.childList {
+  display: flex;
+
+  flex-direction: column;
+  gap: var(--spacing-1);
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.childRow {
+  border-radius: var(--radius-sm);
+}
+
+.childLink {
+  display: flex;
+
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+
+  padding-block: var(--spacing-2);
+  padding-inline: var(--spacing-3);
+
+  text-decoration: none;
+  color: var(--on-surface);
+
+  border-radius: var(--radius-sm);
+
+  &:hover {
+    background: var(--surface-container);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.childName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  color: var(--on-surface);
+  white-space: nowrap;
+}
+
+.message {
+  display: flex;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+
+  padding-block: var(--spacing-12);
+
+  text-align: center;
+}
