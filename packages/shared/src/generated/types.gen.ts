@@ -249,6 +249,25 @@ export type HealthCheckResponses = {
 
 export type HealthCheckResponse = HealthCheckResponses[keyof HealthCheckResponses];
 
+export type UsersDeleteMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/users/me';
+};
+
+export type UsersDeleteMeErrors = {
+    401: ErrorResponseDto;
+};
+
+export type UsersDeleteMeError = UsersDeleteMeErrors[keyof UsersDeleteMeErrors];
+
+export type UsersDeleteMeResponses = {
+    204: void;
+};
+
+export type UsersDeleteMeResponse = UsersDeleteMeResponses[keyof UsersDeleteMeResponses];
+
 export type UsersMeData = {
     body?: never;
     path?: never;

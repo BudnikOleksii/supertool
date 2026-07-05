@@ -6,6 +6,8 @@ import type { UpdateUserDto } from './dtos/update-user.dto';
 import type { UserResponseDto } from './dtos/user-response.dto';
 
 import { DRIZZLE } from '../../database/database.constants';
+import { transactionCategories } from '../../database/schemas/transaction-categories';
+import { transactions } from '../../database/schemas/transactions';
 import { users } from '../../database/schemas/users';
 
 export interface UserUpdatePatch extends UpdateUserDto {
@@ -46,6 +48,21 @@ export class UsersRepository {
       .returning(USER_RESPONSE_COLUMNS);
 
     return user;
+  }
+
+  async deleteAccountScoped(userId: string): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      await tx.delete(transactions).where(eq(transactions.userId, userId));
+
+      await tx
+        .update(transactionCategories)
+        .set({ parentId: null })
+        .where(eq(transactionCategories.userId, userId));
+
+      await tx.delete(transactionCategories).where(eq(transactionCategories.userId, userId));
+
+      await tx.delete(users).where(eq(users.id, userId));
+    });
   }
 }
 

@@ -10,9 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@supertool/ui/src/components/molecules/card/Card';
+import { cn } from '@supertool/ui/src/lib/utils';
 import { ChangePasswordForm } from '@supertool/widgets/src/components/change-password-form/ChangePasswordForm';
 
 import { resolveOnboardedProfile } from '../../../utils/resolve-onboarded-profile';
+import { DeleteAccountSection } from './components/delete-account-section/DeleteAccountSection';
 import { ProfileForm } from './components/profile-form/ProfileForm';
 import styles from './page.module.scss';
 
@@ -47,6 +49,15 @@ const SettingsPage: FC<Props> = async (props) => {
         </CardHeader>
         <CardContent>
           <ChangePasswordForm />
+        </CardContent>
+      </Card>
+      <Card className={cn(styles.card, styles.dangerCard)}>
+        <CardHeader>
+          <CardTitle>{translate('dangerZoneTitle')}</CardTitle>
+          <CardDescription>{translate('dangerZoneDescription')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DeleteAccountSection email={profile.email} />
         </CardContent>
       </Card>
     </div>

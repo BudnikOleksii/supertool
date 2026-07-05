@@ -37,9 +37,8 @@
 
 generated: 2026-06-10
 last_updated: 2026-07-05
-# (7-2 → ready-for-dev 2026-07-05: story created via bmad-create-story; edit rides into the 7-2 story branch per repo pattern)
-# (7-1 → done 2026-07-05: PR #47 squash-merged after review APPROVE + CI + CodeRabbit;
-#  status edit rides into the 7-2 story branch per repo pattern — never committed to main directly)
+# (7-2 → done 2026-07-05: PR #48 squash-merged after review APPROVE + CI + CodeRabbit;
+#  status edit rides into the 7-3 story branch per repo pattern — never committed to main directly)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -118,8 +117,8 @@ development_status:
   # Epic 7: Account & Landing
   epic-7: in-progress
   7-1-first-last-name-capture: done
-  7-2-change-password: review
-  7-3-delete-account: backlog
+  7-2-change-password: done
+  7-3-delete-account: review
   7-4-marketing-landing-page: backlog
   7-5-security-hardening-helmet-compression: backlog
   epic-7-retrospective: optional
