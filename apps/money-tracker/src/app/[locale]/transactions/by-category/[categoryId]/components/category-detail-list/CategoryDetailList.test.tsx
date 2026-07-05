@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -21,6 +23,16 @@ vi.mock('../../../../../../../actions/fetch-transactions', () => ({
 
 vi.mock('../../../../components/transaction-pagination/TransactionPagination', () => ({
   TransactionPagination: () => null,
+}));
+
+vi.mock('../../../../../../../components/bulk-delete/BulkDeleteProvider', () => ({
+  BulkDeleteProvider: ({ children }: { children: ReactNode }) => children,
+}));
+
+vi.mock('../../../../../../../components/bulk-delete/TransactionSelectCheckbox', () => ({
+  TransactionSelectCheckbox: ({ label }: { id: string; label: string }) => (
+    <input type="checkbox" aria-label={label} />
+  ),
 }));
 
 const fetchTransactionsMock = vi.mocked(fetchTransactions);

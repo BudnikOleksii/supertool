@@ -136,6 +136,20 @@ export type TransactionImportPreviewResponseDto = {
     nearDuplicateClusterList: Array<NearDuplicateClusterDto>;
 };
 
+export type BulkDeleteTransactionsDto = {
+    idList: Array<string>;
+};
+
+export type BulkDeleteFailureDto = {
+    id: string;
+    reason: ErrorCode;
+};
+
+export type BulkDeleteResponseDto = {
+    deletedCount: number;
+    failedList: Array<BulkDeleteFailureDto>;
+};
+
 export type UpdateTransactionDto = {
     type: TransactionType;
     amount: string;
@@ -471,6 +485,26 @@ export type TransactionsImportPreviewResponses = {
 };
 
 export type TransactionsImportPreviewResponse = TransactionsImportPreviewResponses[keyof TransactionsImportPreviewResponses];
+
+export type TransactionsBulkDeleteData = {
+    body: BulkDeleteTransactionsDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/transactions/bulk-delete';
+};
+
+export type TransactionsBulkDeleteErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type TransactionsBulkDeleteError = TransactionsBulkDeleteErrors[keyof TransactionsBulkDeleteErrors];
+
+export type TransactionsBulkDeleteResponses = {
+    200: BulkDeleteResponseDto;
+};
+
+export type TransactionsBulkDeleteResponse = TransactionsBulkDeleteResponses[keyof TransactionsBulkDeleteResponses];
 
 export type TransactionsRemoveData = {
     body?: never;

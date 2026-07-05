@@ -8,6 +8,7 @@ import { Pool } from 'pg';
 import { pino } from 'pino';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { ErrorCode } from '@supertool/shared/constants/error-codes';
 import { FIRST_PAGE } from '@supertool/shared/constants/pagination';
 import type { TransactionSortOrder } from '@supertool/shared/constants/transaction-sort';
 import { DEFAULT_SORT_BY, DEFAULT_SORT_ORDER } from '@supertool/shared/constants/transaction-sort';
@@ -794,5 +795,66 @@ describe('TransactionsService update/find-one/delete (Testcontainers Postgres)',
       NotFoundException,
     );
     expect(await checkTransactionExists(transactionId)).toBe(true);
+  });
+});
+
+const BULK_TRANSACTION_COUNT = 3;
+const SINGLE_TRANSACTION_COUNT = 1;
+const ZERO_DELETED_COUNT = 0;
+
+const createOperatorTransactionList = (size: number): Promise<TransactionResponseDto[]> =>
+  Promise.all(Array.from({ length: size }, () => createOperatorTransaction()));
+
+const checkNoneExist = async (idList: string[]): Promise<boolean> => {
+  const existsList = await Promise.all(idList.map((id) => checkTransactionExists(id)));
+  return existsList.every((exists) => !exists);
+};
+
+describe('TransactionsService bulkDelete (Testcontainers Postgres)', () => {
+  it('deletes a multi-id set in one batch and returns the count (AC2)', async () => {
+    const createdList = await createOperatorTransactionList(BULK_TRANSACTION_COUNT);
+    const idList = createdList.map((transaction) => transaction.id);
+
+    const result = await getService().bulkDelete(operatorId, idList);
+
+    expect(result.deletedCount).toBe(BULK_TRANSACTION_COUNT);
+    expect(result.failedList).toEqual([]);
+    expect(await checkNoneExist(idList)).toBe(true);
+  });
+
+  it('reports nonexistent ids as failures while deleting the valid ones (AC4)', async () => {
+    const createdList = await createOperatorTransactionList(BULK_TRANSACTION_COUNT);
+    const validIdList = createdList.map((transaction) => transaction.id);
+    const missingId = generateId();
+
+    const result = await getService().bulkDelete(operatorId, [...validIdList, missingId]);
+
+    expect(result.deletedCount).toBe(BULK_TRANSACTION_COUNT);
+    expect(result.failedList).toEqual([{ id: missingId, reason: ErrorCode.NotFound }]);
+    expect(await checkNoneExist(validIdList)).toBe(true);
+  });
+
+  it('never deletes another user rows and reports them as failed (FR21)', async () => {
+    const window = await loadLatestMonthWindow();
+    const { transactionId } = await insertSecondUserTransaction(window);
+    const own = await createOperatorTransaction();
+
+    const result = await getService().bulkDelete(operatorId, [own.id, transactionId]);
+
+    expect(result.deletedCount).toBe(SINGLE_TRANSACTION_COUNT);
+    expect(result.failedList).toEqual([{ id: transactionId, reason: ErrorCode.NotFound }]);
+    expect(await checkTransactionExists(transactionId)).toBe(true);
+    expect(await checkTransactionExists(own.id)).toBe(false);
+  });
+
+  it('is idempotent: re-deleting already-deleted ids reports all failed with zero count (AC4)', async () => {
+    const created = await createOperatorTransaction();
+
+    const firstResult = await getService().bulkDelete(operatorId, [created.id]);
+    const secondResult = await getService().bulkDelete(operatorId, [created.id]);
+
+    expect(firstResult.deletedCount).toBe(SINGLE_TRANSACTION_COUNT);
+    expect(secondResult.deletedCount).toBe(ZERO_DELETED_COUNT);
+    expect(secondResult.failedList).toEqual([{ id: created.id, reason: ErrorCode.NotFound }]);
   });
 });

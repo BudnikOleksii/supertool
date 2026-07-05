@@ -27,6 +27,12 @@ vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
   ),
 }));
 
+vi.mock('../../../../../components/bulk-delete/TransactionSelectCheckbox', () => ({
+  TransactionSelectCheckbox: ({ label }: { id: string; label: string }) => (
+    <input type="checkbox" aria-label={label} />
+  ),
+}));
+
 const LOCALE = 'en-US';
 const PERIOD = '2025-02';
 const PAGE = 1;

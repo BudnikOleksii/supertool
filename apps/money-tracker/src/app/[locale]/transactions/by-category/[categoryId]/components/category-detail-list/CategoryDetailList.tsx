@@ -9,6 +9,8 @@ import { Typography } from '@supertool/ui/src/components/atoms/typography/Typogr
 import { Card, CardContent } from '@supertool/ui/src/components/molecules/card/Card';
 
 import { fetchTransactions } from '../../../../../../../actions/fetch-transactions';
+import { BulkDeleteProvider } from '../../../../../../../components/bulk-delete/BulkDeleteProvider';
+import { TransactionSelectCheckbox } from '../../../../../../../components/bulk-delete/TransactionSelectCheckbox';
 import { formatAmount } from '../../../../../../../utils/format-amount';
 import { TransactionPagination } from '../../../../components/transaction-pagination/TransactionPagination';
 import { formatTransactionDate } from '../../../../utils/format-transaction-date';
@@ -34,6 +36,7 @@ export const CategoryDetailList: FC<Props> = async ({
   locale,
 }) => {
   const translate = await getTranslations(I18N_NAMESPACE.transactionsByCategoryPage);
+  const translateBulk = await getTranslations(`${I18N_NAMESPACE.transactionsPage}.bulkDelete`);
 
   const result = await fetchTransactions({
     dateFrom,
@@ -69,35 +72,45 @@ export const CategoryDetailList: FC<Props> = async ({
     );
   }
 
+  const selectLabel = translateBulk('selectRow');
+
   return (
-    <div className={styles.container}>
-      <Card>
-        <CardContent className={styles.content}>
-          <ul className={styles.list}>
-            {data.map((transaction) => (
-              <li key={transaction.id} className={styles.item}>
-                <div className={styles.primary}>
-                  <Typography variant="body-m" fontWeight="semibold" className={styles.amount}>
-                    {formatAmount(transaction.amount, transaction.currency, locale)}
-                  </Typography>
-                  <Badge variant={transaction.type === INCOME_TYPE ? 'success' : 'secondary'}>
-                    {translate(transaction.type === INCOME_TYPE ? 'typeIncome' : 'typeExpense')}
-                  </Badge>
-                </div>
-                <div className={styles.secondary}>
-                  <Typography variant="body-s" className={styles.category}>
-                    {getCategoryLabel(transaction)}
-                  </Typography>
-                  <Typography variant="body-s" className={styles.date}>
-                    {formatTransactionDate(transaction.date, locale)}
-                  </Typography>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-      <TransactionPagination page={meta.page} limit={meta.limit} total={meta.total} />
-    </div>
+    <BulkDeleteProvider
+      visibleIdList={data.map((transaction) => transaction.id)}
+      view={{ kind: 'byCategory', categoryId }}
+    >
+      <div className={styles.container}>
+        <Card>
+          <CardContent className={styles.content}>
+            <ul className={styles.list}>
+              {data.map((transaction) => (
+                <li key={transaction.id} className={styles.item}>
+                  <TransactionSelectCheckbox id={transaction.id} label={selectLabel} />
+                  <div className={styles.itemBody}>
+                    <div className={styles.primary}>
+                      <Typography variant="body-m" fontWeight="semibold" className={styles.amount}>
+                        {formatAmount(transaction.amount, transaction.currency, locale)}
+                      </Typography>
+                      <Badge variant={transaction.type === INCOME_TYPE ? 'success' : 'secondary'}>
+                        {translate(transaction.type === INCOME_TYPE ? 'typeIncome' : 'typeExpense')}
+                      </Badge>
+                    </div>
+                    <div className={styles.secondary}>
+                      <Typography variant="body-s" className={styles.category}>
+                        {getCategoryLabel(transaction)}
+                      </Typography>
+                      <Typography variant="body-s" className={styles.date}>
+                        {formatTransactionDate(transaction.date, locale)}
+                      </Typography>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+        <TransactionPagination page={meta.page} limit={meta.limit} total={meta.total} />
+      </div>
+    </BulkDeleteProvider>
   );
 };

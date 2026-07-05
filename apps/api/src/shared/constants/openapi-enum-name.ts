@@ -5,4 +5,5 @@ export const OPENAPI_ENUM_NAME = {
   transactionType: 'TransactionType',
   transactionSortBy: 'TransactionSortBy',
   sortOrder: 'SortOrder',
+  errorCode: 'ErrorCode',
 } as const;

@@ -19,6 +19,12 @@ vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
   ),
 }));
 
+vi.mock('../../../../../components/bulk-delete/TransactionSelectCheckbox', () => ({
+  TransactionSelectCheckbox: ({ label }: { id: string; label: string }) => (
+    <input type="checkbox" aria-label={label} />
+  ),
+}));
+
 const LOCALE = 'en-US';
 const PERIOD = '2025-02';
 const PAGE = 1;
@@ -47,6 +53,7 @@ const renderCard = (transaction: TransactionResponseDto): void => {
         transaction={transaction}
         locale={LOCALE}
         typeLabel={TYPE_LABEL}
+        selectLabel="Select transaction"
         period={PERIOD}
         page={PAGE}
         sortBy="date"

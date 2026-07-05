@@ -11,6 +11,7 @@ import type {
 import type { TransactionViewParams } from '../../utils/build-transactions-redirect-query';
 
 import { fetchTransactions } from '../../../../../actions/fetch-transactions';
+import { BulkDeleteProvider } from '../../../../../components/bulk-delete/BulkDeleteProvider';
 import { ROUTES } from '../../../../../constants/routes';
 import { getMonthDateRange, parsePeriod } from '../../../../../utils/period';
 import { EMPTY_COUNT } from '../../constants';
@@ -109,7 +110,10 @@ export const TransactionListServer: FC<Props> = async ({
   });
 
   return (
-    <>
+    <BulkDeleteProvider
+      visibleIdList={transactionList.map((transaction) => transaction.id)}
+      view={{ kind: 'byDate' }}
+    >
       <TransactionList
         transactionList={transactionList}
         locale={locale}
@@ -121,6 +125,6 @@ export const TransactionListServer: FC<Props> = async ({
         sortOrder={sortOrder}
       />
       <TransactionPagination page={meta.page} limit={meta.limit} total={meta.total} />
-    </>
+    </BulkDeleteProvider>
   );
 };

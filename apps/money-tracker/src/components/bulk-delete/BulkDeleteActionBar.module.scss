@@ -1,0 +1,31 @@
+.bar {
+  position: sticky;
+  bottom: var(--spacing-4);
+  z-index: 20;
+
+  display: flex;
+
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-4);
+
+  background: var(--surface-container-high);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadows-3);
+}
+
+.label {
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}

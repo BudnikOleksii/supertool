@@ -10,6 +10,7 @@ import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '@supertool/shared/constants/pagin
 import { DEFAULT_SORT_BY, DEFAULT_SORT_ORDER } from '@supertool/shared/constants/transaction-sort';
 
 import type { TransactionType } from '../../database/schemas/enums';
+import type { BulkDeleteResponseDto } from './dtos/bulk-delete-response.dto';
 import type { CreateTransactionDto } from './dtos/create-transaction.dto';
 import type { FindTransactionsQueryDto } from './dtos/find-transactions-query.dto';
 import type { TransactionListResponseDto } from './dtos/transaction-list-response.dto';
@@ -98,6 +99,17 @@ export class TransactionsService {
     if (!deleted) {
       throw new NotFoundException({ code: ErrorCode.NotFound, message: 'Transaction not found' });
     }
+  }
+
+  async bulkDelete(userId: string, idList: string[]): Promise<BulkDeleteResponseDto> {
+    const deletedIdList = await this.transactionsRepository.deleteManyScoped(userId, idList);
+    const deletedIdSet = new Set(deletedIdList);
+
+    const failedList = idList
+      .filter((id) => !deletedIdSet.has(id))
+      .map((id) => ({ id, reason: ErrorCode.NotFound }));
+
+    return { deletedCount: deletedIdList.length, failedList };
   }
 
   private async assertCategoryMatchesType(
