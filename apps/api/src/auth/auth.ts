@@ -50,6 +50,16 @@ export const auth = betterAuth({
         defaultValue: DEFAULT_ROLE,
         input: false,
       },
+      firstName: {
+        type: 'string',
+        required: true,
+        input: true,
+      },
+      lastName: {
+        type: 'string',
+        required: false,
+        input: true,
+      },
     },
   },
   session: { modelName: 'sessions' },

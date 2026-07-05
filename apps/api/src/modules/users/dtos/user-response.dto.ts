@@ -18,6 +18,12 @@ export class UserResponseDto {
   @ApiProperty()
   name!: string;
 
+  @ApiPropertyOptional({ nullable: true })
+  firstName!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  lastName!: string | null;
+
   @ApiProperty({ enum: roleEnum.enumValues, enumName: OPENAPI_ENUM_NAME.role })
   role!: Role;
 

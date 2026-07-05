@@ -25,6 +25,7 @@ import { users } from '../../src/database/schemas/users.js';
 import { AnalyticsCacheService } from '../../src/modules/analytics/analytics-cache.service.js';
 import { TransactionsRepository } from '../../src/modules/transactions/transactions.repository.js';
 import { TransactionsService } from '../../src/modules/transactions/transactions.service.js';
+import { stopIntegrationApp } from '../helpers/integration-app.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -269,9 +270,7 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
-  await pool?.end();
-  await authDatabasePool?.end();
-  await container?.stop();
+  await stopIntegrationApp({ container, poolList: [pool, authDatabasePool] });
 });
 
 describe('TransactionsRepository (Testcontainers Postgres)', () => {

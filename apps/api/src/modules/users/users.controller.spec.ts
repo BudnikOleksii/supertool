@@ -34,11 +34,18 @@ describe('UsersController', () => {
   });
 
   it('updates the current user via the service using the session user id and body', async () => {
-    const inputDto = { name: 'Ann Updated', locale: 'uk', defaultCurrency: 'UAH' };
+    const inputDto = {
+      firstName: 'Ann',
+      lastName: 'Updated',
+      locale: 'uk',
+      defaultCurrency: 'UAH',
+    };
     const expectedUser = {
       id: 'user-id',
       email: 'a@b.com',
       name: 'Ann Updated',
+      firstName: 'Ann',
+      lastName: 'Updated',
       role: 'user' as const,
       locale: 'uk',
       defaultCurrency: 'UAH',

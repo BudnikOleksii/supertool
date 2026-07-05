@@ -16,7 +16,9 @@ vi.mock('next-intl', () => ({
 const PROFILE: UserResponseDto = {
   id: 'user-id',
   email: 'ann@example.com',
-  name: 'Ann',
+  name: 'Ann Smith',
+  firstName: 'Ann',
+  lastName: 'Smith',
   role: 'user',
   locale: 'en',
   defaultCurrency: null,
@@ -31,31 +33,32 @@ describe('ProfileForm', () => {
   it('renders the fields populated from the profile', () => {
     render(<ProfileForm profile={PROFILE} />);
 
-    expect(screen.getByLabelText('nameLabel')).toHaveProperty('value', 'Ann');
+    expect(screen.getByLabelText('firstNameLabel')).toHaveProperty('value', 'Ann');
+    expect(screen.getByLabelText('lastNameLabel')).toHaveProperty('value', 'Smith');
     screen.getByRole('button', { name: 'submit' });
   });
 
-  it('shows a validation error and does not submit when the name is empty', async () => {
+  it('shows a validation error and does not submit when the first name is empty', async () => {
     updateProfile.mockResolvedValue({ status: 'success' });
     render(<ProfileForm profile={PROFILE} />);
 
-    fireEvent.change(screen.getByLabelText('nameLabel'), { target: { value: '' } });
+    fireEvent.change(screen.getByLabelText('firstNameLabel'), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: 'submit' }));
 
-    await screen.findByText('nameRequired');
+    await screen.findByText('firstNameRequired');
     expect(updateProfile).not.toHaveBeenCalled();
   });
 
-  it('invokes the update action with the form values on a valid submit', async () => {
+  it('invokes the update action with the first and last name on a valid submit', async () => {
     updateProfile.mockResolvedValue({ status: 'success' });
     render(<ProfileForm profile={PROFILE} />);
 
-    fireEvent.change(screen.getByLabelText('nameLabel'), { target: { value: 'Ann Updated' } });
+    fireEvent.change(screen.getByLabelText('lastNameLabel'), { target: { value: 'Jones' } });
     fireEvent.click(screen.getByRole('button', { name: 'submit' }));
 
     await waitFor(() => {
       expect(updateProfile).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'Ann Updated', locale: 'en' }),
+        expect.objectContaining({ firstName: 'Ann', lastName: 'Jones', locale: 'en' }),
       );
     });
   });

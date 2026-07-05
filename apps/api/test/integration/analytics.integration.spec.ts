@@ -12,6 +12,7 @@ import { AnalyticsCacheService } from '../../src/modules/analytics/analytics-cac
 import { AnalyticsRepository } from '../../src/modules/analytics/analytics.repository.js';
 import { AnalyticsService } from '../../src/modules/analytics/analytics.service.js';
 import { UsersRepository } from '../../src/modules/users/users.repository.js';
+import { stopIntegrationApp } from '../helpers/integration-app.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -362,9 +363,7 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
-  await pool?.end();
-  await authDatabasePool?.end();
-  await container?.stop();
+  await stopIntegrationApp({ container, poolList: [pool, authDatabasePool] });
 });
 
 describe('AnalyticsRepository monthly summary (Testcontainers Postgres)', () => {

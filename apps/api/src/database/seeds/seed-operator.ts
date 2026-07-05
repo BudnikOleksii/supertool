@@ -2,6 +2,8 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 import { eq } from 'drizzle-orm';
 
+import { splitFullName } from '@supertool/shared/utils/full-name';
+
 import type { Env } from '../../app/env.schema';
 
 import { auth } from '../../auth/auth';
@@ -52,11 +54,15 @@ const ensureOnboardingCompleted = async (db: NodePgDatabase, userId: string): Pr
 };
 
 const createOperator = async ({ db, env }: SeedOperatorOptions): Promise<string> => {
+  const { firstName, lastName } = splitFullName(env.SEED_OPERATOR_NAME);
+
   await auth.api.signUpEmail({
     body: {
       email: env.SEED_OPERATOR_EMAIL,
       password: env.SEED_OPERATOR_PASSWORD,
       name: env.SEED_OPERATOR_NAME,
+      firstName,
+      ...(lastName !== null && { lastName }),
     },
   });
 

@@ -51,20 +51,40 @@ export const ProfileForm: FC<Props> = ({ profile }) => {
       <FieldSet>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="profile-name">
-              <FieldTitle>{translate('nameLabel')}</FieldTitle>
+            <FieldLabel htmlFor="profile-first-name">
+              <FieldTitle>{translate('firstNameLabel')}</FieldTitle>
             </FieldLabel>
             <FieldContent>
               <Input
-                id="profile-name"
-                placeholder={translate('namePlaceholder')}
-                error={Boolean(errors.name)}
-                aria-invalid={Boolean(errors.name)}
-                {...register('name')}
+                id="profile-first-name"
+                autoComplete="given-name"
+                placeholder={translate('firstNamePlaceholder')}
+                error={Boolean(errors.firstName)}
+                aria-invalid={Boolean(errors.firstName)}
+                {...register('firstName')}
               />
             </FieldContent>
-            {errors.name?.message && (
-              <FieldError errors={[{ message: translateError(errors.name.message) }]} />
+            {errors.firstName?.message && (
+              <FieldError errors={[{ message: translateError(errors.firstName.message) }]} />
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="profile-last-name">
+              <FieldTitle>{translate('lastNameLabel')}</FieldTitle>
+            </FieldLabel>
+            <FieldContent>
+              <Input
+                id="profile-last-name"
+                autoComplete="family-name"
+                placeholder={translate('lastNamePlaceholder')}
+                error={Boolean(errors.lastName)}
+                aria-invalid={Boolean(errors.lastName)}
+                {...register('lastName')}
+              />
+            </FieldContent>
+            {errors.lastName?.message && (
+              <FieldError errors={[{ message: translateError(errors.lastName.message) }]} />
             )}
           </Field>
 

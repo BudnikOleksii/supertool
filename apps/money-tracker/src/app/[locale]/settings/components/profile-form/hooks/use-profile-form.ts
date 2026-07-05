@@ -18,7 +18,8 @@ interface UseProfileFormParams {
 }
 
 const getDefaultValues = (profile: UserResponseDto): ProfileFormValues => ({
-  name: profile.name,
+  firstName: profile.firstName ?? '',
+  lastName: profile.lastName ?? '',
   locale: checkIsLocaleCode(profile.locale) ? profile.locale : DEFAULT_LOCALE,
   defaultCurrency:
     profile.defaultCurrency && checkIsCurrencyCode(profile.defaultCurrency)

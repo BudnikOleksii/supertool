@@ -8,7 +8,11 @@ import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
 
 import { buildTestUser, createAuthClient } from '../helpers/auth-client.js';
 import { createHttpClient } from '../helpers/http-client.js';
-import { bootIntegrationApp, configureTestEnvironment } from '../helpers/integration-app.js';
+import {
+  bootIntegrationApp,
+  configureTestEnvironment,
+  stopIntegrationApp,
+} from '../helpers/integration-app.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -162,9 +166,7 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
-  await app?.close();
-  await pool?.end();
-  await container?.stop();
+  await stopIntegrationApp({ app, container, poolList: [pool] });
 });
 
 describe('analytics response cache (Testcontainers Postgres, HTTP)', () => {

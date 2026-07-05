@@ -13,7 +13,11 @@ import type { TestUser } from '../helpers/auth-client.js';
 import { buildTestUser, createAuthClient } from '../helpers/auth-client.js';
 import { getActualSumByCurrency, getExpectedSumByCurrency } from '../helpers/decimal-safe-sums.js';
 import { createHttpClient } from '../helpers/http-client.js';
-import { bootIntegrationApp, configureTestEnvironment } from '../helpers/integration-app.js';
+import {
+  bootIntegrationApp,
+  configureTestEnvironment,
+  stopIntegrationApp,
+} from '../helpers/integration-app.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -214,9 +218,7 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
-  await pool?.end();
-  await app?.close();
-  await container?.stop();
+  await stopIntegrationApp({ app, container, poolList: [pool] });
 });
 
 describe('transaction import (Testcontainers Postgres)', () => {
