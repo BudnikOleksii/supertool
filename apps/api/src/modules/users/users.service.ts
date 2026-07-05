@@ -6,11 +6,15 @@ import type { UpdateUserDto } from './dtos/update-user.dto';
 import type { UserResponseDto } from './dtos/user-response.dto';
 import type { UserUpdatePatch } from './users.repository';
 
+import { AnalyticsCacheService } from '../analytics/analytics-cache.service';
 import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject(UsersRepository) private readonly usersRepository: UsersRepository) {}
+  constructor(
+    @Inject(UsersRepository) private readonly usersRepository: UsersRepository,
+    @Inject(AnalyticsCacheService) private readonly analyticsCache: AnalyticsCacheService,
+  ) {}
 
   async getById(userId: string): Promise<UserResponseDto> {
     const user = await this.usersRepository.findByIdScoped(userId);
@@ -31,6 +35,11 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async deleteAccount(userId: string): Promise<void> {
+    await this.usersRepository.deleteAccountScoped(userId);
+    this.analyticsCache.invalidateUser(userId);
   }
 
   private async buildUpdatePatch(userId: string, dto: UpdateUserDto): Promise<UserUpdatePatch> {

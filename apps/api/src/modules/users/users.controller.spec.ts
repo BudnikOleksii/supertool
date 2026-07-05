@@ -63,4 +63,17 @@ describe('UsersController', () => {
     );
     expect(update).toHaveBeenCalledWith('user-id', inputDto);
   });
+
+  it('deletes the current account via the service using the session user id', async () => {
+    const deleteAccount = vi.fn().mockResolvedValue(undefined);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [{ provide: UsersService, useValue: { deleteAccount } }],
+    }).compile();
+
+    const controller = moduleRef.get(UsersController);
+
+    await expect(controller.deleteMe(createSession('user-id'))).resolves.toBeUndefined();
+    expect(deleteAccount).toHaveBeenCalledWith('user-id');
+  });
 });
