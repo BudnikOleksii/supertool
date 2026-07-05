@@ -25,3 +25,26 @@ export const checkIsCalendarDate = (value: string): boolean => {
 
 export const checkIsOrderedDateRange = (dateFrom: string, dateTo: string): boolean =>
   dateFrom <= dateTo;
+
+const MILLISECONDS_PER_DAY = 86_400_000;
+const INCLUSIVE_DAY_OFFSET = 1;
+
+const parseCalendarDateToUtcMs = (value: string): number => {
+  const [yearPart = '', monthPart = '', dayPart = ''] = value.split('-');
+
+  return Date.UTC(
+    Number.parseInt(yearPart, DATE_PART_RADIX),
+    Number.parseInt(monthPart, DATE_PART_RADIX) - MONTH_INDEX_OFFSET,
+    Number.parseInt(dayPart, DATE_PART_RADIX),
+  );
+};
+
+export const getInclusiveDaySpan = (dateFrom: string, dateTo: string): number =>
+  (parseCalendarDateToUtcMs(dateTo) - parseCalendarDateToUtcMs(dateFrom)) / MILLISECONDS_PER_DAY +
+  INCLUSIVE_DAY_OFFSET;
+
+export const checkIsBoundedDateRange = (
+  dateFrom: string,
+  dateTo: string,
+  maxDays: number,
+): boolean => getInclusiveDaySpan(dateFrom, dateTo) <= maxDays;

@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from 'vitest';
 import type { UsersRepository } from '../users/users.repository';
 import type { AnalyticsRepository } from './analytics.repository';
 
+import { AnalyticsCacheService } from './analytics-cache.service';
 import { AnalyticsService } from './analytics.service';
+
+const EXPECTED_TWO_CALLS = 2;
 
 const buildQuery = (): { dateFrom: string; dateTo: string } => ({
   dateFrom: '2025-02-01',
@@ -13,10 +16,12 @@ const buildQuery = (): { dateFrom: string; dateTo: string } => ({
 const buildAnalyticsService = (
   analyticsRepository: Partial<AnalyticsRepository>,
   usersRepository: Partial<UsersRepository>,
+  analyticsCache: AnalyticsCacheService = new AnalyticsCacheService(),
 ): AnalyticsService =>
   new AnalyticsService(
     analyticsRepository as unknown as AnalyticsRepository,
     usersRepository as unknown as UsersRepository,
+    analyticsCache,
   );
 
 describe('AnalyticsService', () => {
@@ -277,6 +282,71 @@ describe('AnalyticsService', () => {
 
       expect(actual).toEqual({ categories: [], currency: '' });
       expect(getByCategoryTotals).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('cache-through behaviour', () => {
+    it('serves a repeated summary from cache without recomputing', async () => {
+      const expectedSummary = {
+        income: '300.00',
+        expense: '120.50',
+        net: '179.50',
+        currency: 'UAH',
+      };
+      const getMonthlySummary = vi.fn().mockResolvedValue(expectedSummary);
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: 'UAH' });
+      const service = buildAnalyticsService({ getMonthlySummary }, { findByIdScoped });
+
+      const first = await service.getMonthlySummary('user-id', buildQuery());
+      const second = await service.getMonthlySummary('user-id', buildQuery());
+
+      expect(getMonthlySummary).toHaveBeenCalledTimes(1);
+      expect(first).toEqual(expectedSummary);
+      expect(second).toEqual(expectedSummary);
+    });
+
+    it('recomputes after the acting user cache is invalidated', async () => {
+      const expectedSummary = {
+        income: '300.00',
+        expense: '120.50',
+        net: '179.50',
+        currency: 'UAH',
+      };
+      const getMonthlySummary = vi.fn().mockResolvedValue(expectedSummary);
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: 'UAH' });
+      const analyticsCache = new AnalyticsCacheService();
+      const service = buildAnalyticsService(
+        { getMonthlySummary },
+        { findByIdScoped },
+        analyticsCache,
+      );
+
+      await service.getMonthlySummary('user-id', buildQuery());
+      analyticsCache.invalidateUser('user-id');
+      await service.getMonthlySummary('user-id', buildQuery());
+
+      expect(getMonthlySummary).toHaveBeenCalledTimes(EXPECTED_TWO_CALLS);
+    });
+
+    it('never serves one user cached payload to another user', async () => {
+      const getMonthlySummary = vi
+        .fn()
+        .mockResolvedValueOnce({ income: '10.00', expense: '0.00', net: '10.00', currency: 'UAH' })
+        .mockResolvedValueOnce({
+          income: '20.00',
+          expense: '0.00',
+          net: '20.00',
+          currency: 'UAH',
+        });
+      const findByIdScoped = vi.fn().mockResolvedValue({ defaultCurrency: 'UAH' });
+      const service = buildAnalyticsService({ getMonthlySummary }, { findByIdScoped });
+
+      const forUserA = await service.getMonthlySummary('user-a', buildQuery());
+      const forUserB = await service.getMonthlySummary('user-b', buildQuery());
+
+      expect(getMonthlySummary).toHaveBeenCalledTimes(EXPECTED_TWO_CALLS);
+      expect(forUserA.income).toBe('10.00');
+      expect(forUserB.income).toBe('20.00');
     });
   });
 });

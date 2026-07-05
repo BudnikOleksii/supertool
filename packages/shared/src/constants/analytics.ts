@@ -3,3 +3,7 @@ export const TOP_CATEGORIES_DEFAULT_LIMIT = 5;
 export const TOP_CATEGORIES_MIN_LIMIT = 1;
 
 export const TOP_CATEGORIES_MAX_LIMIT = 20;
+
+export const ANALYTICS_CACHE_TTL_MS = 300_000;
+
+export const ANALYTICS_MAX_RANGE_DAYS = 400;

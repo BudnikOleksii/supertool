@@ -17,6 +17,7 @@ import type { TopCategoriesResponseDto } from './dtos/top-categories-response.dt
 import type { TrendResponseDto } from './dtos/trend-response.dto';
 
 import { UsersRepository } from '../users/users.repository';
+import { AnalyticsCacheService, getAnalyticsCacheKey } from './analytics-cache.service';
 import { AnalyticsRepository } from './analytics.repository';
 
 const ZERO_AMOUNT = '0.00';
@@ -26,6 +27,7 @@ export class AnalyticsService {
   constructor(
     @Inject(AnalyticsRepository) private readonly analyticsRepository: AnalyticsRepository,
     @Inject(UsersRepository) private readonly usersRepository: UsersRepository,
+    @Inject(AnalyticsCacheService) private readonly analyticsCache: AnalyticsCacheService,
   ) {}
 
   async getMonthlySummary(
@@ -39,12 +41,23 @@ export class AnalyticsService {
       return { income: ZERO_AMOUNT, expense: ZERO_AMOUNT, net: ZERO_AMOUNT, currency: NO_CURRENCY };
     }
 
-    return this.analyticsRepository.getMonthlySummary({
+    return this.analyticsCache.getOrCompute(
       userId,
-      currency,
-      dateFrom: query.dateFrom,
-      dateTo: query.dateTo,
-    });
+      getAnalyticsCacheKey({
+        endpoint: 'summary',
+        dateFrom: query.dateFrom,
+        dateTo: query.dateTo,
+        limit: undefined,
+        currency,
+      }),
+      () =>
+        this.analyticsRepository.getMonthlySummary({
+          userId,
+          currency,
+          dateFrom: query.dateFrom,
+          dateTo: query.dateTo,
+        }),
+    );
   }
 
   async getCategoryBreakdown(
@@ -58,12 +71,23 @@ export class AnalyticsService {
       return { breakdown: [], totalExpense: ZERO_AMOUNT, currency: NO_CURRENCY };
     }
 
-    return this.analyticsRepository.getCategoryBreakdown({
+    return this.analyticsCache.getOrCompute(
       userId,
-      currency,
-      dateFrom: query.dateFrom,
-      dateTo: query.dateTo,
-    });
+      getAnalyticsCacheKey({
+        endpoint: 'breakdown',
+        dateFrom: query.dateFrom,
+        dateTo: query.dateTo,
+        limit: undefined,
+        currency,
+      }),
+      () =>
+        this.analyticsRepository.getCategoryBreakdown({
+          userId,
+          currency,
+          dateFrom: query.dateFrom,
+          dateTo: query.dateTo,
+        }),
+    );
   }
 
   async getMonthlyTrend(userId: string, query: FindTrendQueryDto): Promise<TrendResponseDto> {
@@ -74,12 +98,23 @@ export class AnalyticsService {
       return { trend: [], currency: NO_CURRENCY };
     }
 
-    return this.analyticsRepository.getMonthlyTrend({
+    return this.analyticsCache.getOrCompute(
       userId,
-      currency,
-      dateFrom: query.dateFrom,
-      dateTo: query.dateTo,
-    });
+      getAnalyticsCacheKey({
+        endpoint: 'trend',
+        dateFrom: query.dateFrom,
+        dateTo: query.dateTo,
+        limit: undefined,
+        currency,
+      }),
+      () =>
+        this.analyticsRepository.getMonthlyTrend({
+          userId,
+          currency,
+          dateFrom: query.dateFrom,
+          dateTo: query.dateTo,
+        }),
+    );
   }
 
   async getTopCategories(
@@ -93,13 +128,26 @@ export class AnalyticsService {
       return { categories: [], totalExpense: ZERO_AMOUNT, currency: NO_CURRENCY };
     }
 
-    return this.analyticsRepository.getTopCategories({
+    const limit = query.limit ?? TOP_CATEGORIES_DEFAULT_LIMIT;
+
+    return this.analyticsCache.getOrCompute(
       userId,
-      currency,
-      dateFrom: query.dateFrom,
-      dateTo: query.dateTo,
-      limit: query.limit ?? TOP_CATEGORIES_DEFAULT_LIMIT,
-    });
+      getAnalyticsCacheKey({
+        endpoint: 'top-categories',
+        dateFrom: query.dateFrom,
+        dateTo: query.dateTo,
+        limit,
+        currency,
+      }),
+      () =>
+        this.analyticsRepository.getTopCategories({
+          userId,
+          currency,
+          dateFrom: query.dateFrom,
+          dateTo: query.dateTo,
+          limit,
+        }),
+    );
   }
 
   async getDailySpending(
@@ -113,12 +161,23 @@ export class AnalyticsService {
       return { days: [], totalExpense: ZERO_AMOUNT, currency: NO_CURRENCY };
     }
 
-    return this.analyticsRepository.getDailySpending({
+    return this.analyticsCache.getOrCompute(
       userId,
-      currency,
-      dateFrom: query.dateFrom,
-      dateTo: query.dateTo,
-    });
+      getAnalyticsCacheKey({
+        endpoint: 'daily-spending',
+        dateFrom: query.dateFrom,
+        dateTo: query.dateTo,
+        limit: undefined,
+        currency,
+      }),
+      () =>
+        this.analyticsRepository.getDailySpending({
+          userId,
+          currency,
+          dateFrom: query.dateFrom,
+          dateTo: query.dateTo,
+        }),
+    );
   }
 
   async getByCategory(
@@ -132,11 +191,22 @@ export class AnalyticsService {
       return { categories: [], currency: NO_CURRENCY };
     }
 
-    return this.analyticsRepository.getByCategoryTotals({
+    return this.analyticsCache.getOrCompute(
       userId,
-      currency,
-      dateFrom: query.dateFrom,
-      dateTo: query.dateTo,
-    });
+      getAnalyticsCacheKey({
+        endpoint: 'by-category',
+        dateFrom: query.dateFrom,
+        dateTo: query.dateTo,
+        limit: undefined,
+        currency,
+      }),
+      () =>
+        this.analyticsRepository.getByCategoryTotals({
+          userId,
+          currency,
+          dateFrom: query.dateFrom,
+          dateTo: query.dateTo,
+        }),
+    );
   }
 }

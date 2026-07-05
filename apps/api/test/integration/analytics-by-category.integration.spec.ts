@@ -9,6 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { ByCategoryNodeDto } from '../../src/modules/analytics/dtos/by-category-node.dto.js';
 
 import { generateId } from '../../src/database/generate-id.js';
+import { AnalyticsCacheService } from '../../src/modules/analytics/analytics-cache.service.js';
 import { AnalyticsRepository } from '../../src/modules/analytics/analytics.repository.js';
 import { AnalyticsService } from '../../src/modules/analytics/analytics.service.js';
 import { UsersRepository } from '../../src/modules/users/users.repository.js';
@@ -282,7 +283,11 @@ beforeAll(async () => {
   pool = new Pool({ connectionString: databaseUrl });
   database = drizzle(pool);
   analyticsRepository = new AnalyticsRepository(database);
-  analyticsService = new AnalyticsService(analyticsRepository, new UsersRepository(database));
+  analyticsService = new AnalyticsService(
+    analyticsRepository,
+    new UsersRepository(database),
+    new AnalyticsCacheService(),
+  );
 
   await prepareDatabase({ databaseUrl, migrationsFolder: MIGRATIONS_FOLDER });
 }, BOOT_TIMEOUT_MS);

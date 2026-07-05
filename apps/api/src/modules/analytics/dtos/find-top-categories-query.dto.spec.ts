@@ -82,4 +82,14 @@ describe('FindTopCategoriesQueryDto', () => {
 
     expect(actualErrorList).toContain('dateFrom');
   });
+
+  it('rejects a window whose span exceeds the analytics maximum range', async () => {
+    const actualErrorList = await validateQuery({
+      dateFrom: '2020-01-01',
+      dateTo: '2025-01-01',
+      limit: 5,
+    });
+
+    expect(actualErrorList).toContain('dateTo');
+  });
 });

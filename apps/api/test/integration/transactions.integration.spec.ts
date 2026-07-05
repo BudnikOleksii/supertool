@@ -22,6 +22,7 @@ import { generateId } from '../../src/database/generate-id.js';
 import { transactionCategories } from '../../src/database/schemas/transaction-categories.js';
 import { transactions } from '../../src/database/schemas/transactions.js';
 import { users } from '../../src/database/schemas/users.js';
+import { AnalyticsCacheService } from '../../src/modules/analytics/analytics-cache.service.js';
 import { TransactionsRepository } from '../../src/modules/transactions/transactions.repository.js';
 import { TransactionsService } from '../../src/modules/transactions/transactions.service.js';
 import {
@@ -250,7 +251,7 @@ const connectDatabase = (databaseUrl: string): void => {
   database = drizzle(pool);
   const pinoLoggerDouble = { logger: pino({ level: 'silent' }) } as unknown as PinoLogger;
   repository = new TransactionsRepository(database, pinoLoggerDouble);
-  service = new TransactionsService(repository);
+  service = new TransactionsService(repository, new AnalyticsCacheService());
 };
 
 beforeAll(async () => {

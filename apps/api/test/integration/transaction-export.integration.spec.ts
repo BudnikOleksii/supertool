@@ -16,6 +16,7 @@ import { parseEnv } from '../../src/app/env.schema.js';
 import { generateId } from '../../src/database/generate-id.js';
 import { transactionCategories } from '../../src/database/schemas/transaction-categories.js';
 import { users } from '../../src/database/schemas/users.js';
+import { AnalyticsCacheService } from '../../src/modules/analytics/analytics-cache.service.js';
 import { TransactionsImportService } from '../../src/modules/transactions/transactions-import.service.js';
 import { TransactionsRepository } from '../../src/modules/transactions/transactions.repository.js';
 import { TransactionsService } from '../../src/modules/transactions/transactions.service.js';
@@ -170,8 +171,9 @@ const connectDatabase = (databaseUrl: string): void => {
   database = drizzle(pool);
   const pinoLoggerDouble = { logger: pino({ level: 'silent' }) } as unknown as PinoLogger;
   repository = new TransactionsRepository(database, pinoLoggerDouble);
-  service = new TransactionsService(repository);
-  importService = new TransactionsImportService(repository);
+  const analyticsCache = new AnalyticsCacheService();
+  service = new TransactionsService(repository, analyticsCache);
+  importService = new TransactionsImportService(repository, analyticsCache);
 };
 
 beforeAll(async () => {

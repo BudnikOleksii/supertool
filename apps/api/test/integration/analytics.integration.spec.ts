@@ -8,6 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { parseEnv } from '../../src/app/env.schema.js';
 import { generateId } from '../../src/database/generate-id.js';
+import { AnalyticsCacheService } from '../../src/modules/analytics/analytics-cache.service.js';
 import { AnalyticsRepository } from '../../src/modules/analytics/analytics.repository.js';
 import { AnalyticsService } from '../../src/modules/analytics/analytics.service.js';
 import { UsersRepository } from '../../src/modules/users/users.repository.js';
@@ -338,7 +339,11 @@ const connectDatabase = (databaseUrl: string): void => {
   pool = new Pool({ connectionString: databaseUrl });
   database = drizzle(pool);
   analyticsRepository = new AnalyticsRepository(database);
-  analyticsService = new AnalyticsService(analyticsRepository, new UsersRepository(database));
+  analyticsService = new AnalyticsService(
+    analyticsRepository,
+    new UsersRepository(database),
+    new AnalyticsCacheService(),
+  );
 };
 
 beforeAll(async () => {

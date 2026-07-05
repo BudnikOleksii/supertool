@@ -17,6 +17,7 @@ import type { DefaultCategoriesResponseDto } from './dtos/default-categories-res
 import type { DeleteCategoryDto } from './dtos/delete-category.dto';
 import type { UpdateCategoryDto } from './dtos/update-category.dto';
 
+import { AnalyticsCacheService } from '../analytics/analytics-cache.service';
 import { TransactionCategoriesRepository } from './transaction-categories.repository';
 
 interface NewParentParams {
@@ -53,6 +54,7 @@ export class TransactionCategoriesService {
   constructor(
     @Inject(TransactionCategoriesRepository)
     private readonly repository: TransactionCategoriesRepository,
+    @Inject(AnalyticsCacheService) private readonly analyticsCache: AnalyticsCacheService,
   ) {}
 
   async findAll(userId: string): Promise<CategoryResponseDto[]> {
@@ -60,13 +62,17 @@ export class TransactionCategoriesService {
   }
 
   async createDefaults(userId: string): Promise<DefaultCategoriesResponseDto> {
-    return this.repository.createDefaults(userId);
+    const created = await this.repository.createDefaults(userId);
+
+    this.analyticsCache.invalidateUser(userId);
+
+    return created;
   }
 
   async create(userId: string, dto: CreateCategoryDto): Promise<CategoryResponseDto> {
     const parentId = dto.parentId ?? null;
 
-    return this.repository.runInTransaction(async (tx) => {
+    const created = await this.repository.runInTransaction(async (tx) => {
       if (parentId !== null) {
         const parent = await this.loadParentOrThrow(parentId, userId, tx);
         this.assertSameType(parent.type, dto.type);
@@ -76,6 +82,10 @@ export class TransactionCategoriesService {
 
       return this.repository.create({ userId, name: dto.name, type: dto.type, parentId }, tx);
     });
+
+    this.analyticsCache.invalidateUser(userId);
+
+    return created;
   }
 
   async update(userId: string, id: string, dto: UpdateCategoryDto): Promise<CategoryResponseDto> {
@@ -86,7 +96,7 @@ export class TransactionCategoriesService {
       });
     }
 
-    return this.repository.runInTransaction(async (tx) => {
+    const updated = await this.repository.runInTransaction(async (tx) => {
       const existing = await this.loadScopedOrThrow(id, userId, tx);
       const resolvedParentId = dto.parentId !== undefined ? dto.parentId : existing.parentId;
 
@@ -108,14 +118,18 @@ export class TransactionCategoriesService {
         tx,
       );
 
-      const updated = await this.repository.update({ id, userId, data: dto }, tx);
+      const updatedCategory = await this.repository.update({ id, userId, data: dto }, tx);
 
-      if (!updated) {
+      if (!updatedCategory) {
         throw new NotFoundException({ code: ErrorCode.NotFound, message: 'Category not found' });
       }
 
-      return updated;
+      return updatedCategory;
     });
+
+    this.analyticsCache.invalidateUser(userId);
+
+    return updated;
   }
 
   async delete(userId: string, id: string, dto: DeleteCategoryDto): Promise<void> {
@@ -145,6 +159,8 @@ export class TransactionCategoriesService {
 
       await this.repository.deleteScoped(id, userId, tx);
     });
+
+    this.analyticsCache.invalidateUser(userId);
   }
 
   private async loadScopedOrThrow(
