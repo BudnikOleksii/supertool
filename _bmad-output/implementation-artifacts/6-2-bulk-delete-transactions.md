@@ -4,7 +4,7 @@ baseline_commit: 309dcea61aa378a89955af08fd0fbee8dc357964
 
 # Story 6.2: Bulk Delete Transactions
 
-Status: in-progress
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -111,35 +111,35 @@ Add to the **existing** transactions module (no new provider needed — controll
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1 — Study the reference and current state before writing code** (AC: all)
-  - [ ] Reference (ED1 — carry patterns, never code): backend `example/tracker-backend-api/src/modules/transactions/transactions.{controller,service,repository}.ts` (`bulkDelete`) + `src/shared/dtos/bulk-delete.dto.ts` + `bulk-delete-response.dto.ts`; frontend `example/track-my-life/apps/money-tracker/src/hooks/use-bulk-delete-selection.ts`, `src/components/bulk-delete-action-bar/BulkDeleteActionBar.tsx`, `…/transactions/components/bulk-delete-transaction-dialog/BulkDeleteTransactionDialog.tsx`, `…/transactions/actions/bulk-delete-transaction.ts` + `actions/types.ts`, `packages/shared/src/constants/bulk-delete.ts`, and both view wirings (`by-category/[categoryId]/BulkDeleteSelection.tsx` + `TransactionRowCheckbox.tsx` + `page.content.tsx`; `transactions/page.content.tsx` + `TransactionList.tsx`). Note the endpoint divergence (D-2) and the reason-code improvement (D-3).
-  - [ ] Read in full the files this story updates: `apps/api/src/modules/transactions/transactions.{controller,service,repository}.ts` + `transactions.controller.spec.ts` + `dtos/`, `apps/api/test/integration/transactions.integration.spec.ts` (delete describe block + helpers), `apps/api/src/shared/dtos/pagination-query.dto.ts` (the `@Max` precedent), `apps/money-tracker/src/actions/delete-transaction.ts` + `.test.ts`, `…/transactions/components/transaction-row-actions/TransactionRowActions.tsx` + `hooks/use-delete-transaction.ts`, `…/transaction-list/TransactionList.tsx` + `transaction-card/TransactionCard.tsx`, `…/by-category/[categoryId]/components/category-detail-list/CategoryDetailList.tsx`, `packages/ui/src/components/atoms/checkbox/Checkbox.tsx`, `packages/ui/src/components/molecules/alert-dialog/AlertDialog.tsx`, `packages/next-shared/src/types/action-state.ts`.
-- [ ] **Task 2 — Shared cap constants** (AC: 2, 7)
-  - [ ] Add `MAX_BULK_DELETE_IDS = 100` + `MIN_BULK_DELETE_IDS = 1` to `packages/shared/src/constants/` (new `transaction-bulk.ts`). No magic numbers; consumed by API DTO + frontend clamp.
-- [ ] **Task 3 — Backend repository + service + DTOs** (AC: 2, 4, 6)
-  - [ ] `deleteManyScoped(userId, idList)` in `transactions.repository.ts` (`and(eq(userId), inArray(id))` + `.returning({ id })`), explicit `@Inject` unchanged.
-  - [ ] `bulkDelete(userId, idList)` in `transactions.service.ts` (Set-diff → `failedList` with `ErrorCode.NotFound` reason; `{ deletedCount, failedList }`).
-  - [ ] `BulkDeleteTransactionsDto` (`idList` array validators reading the shared cap) + `BulkDeleteResponseDto` + `BulkDeleteFailureDto` (reason typed via `enumName: 'ErrorCode'`).
-- [ ] **Task 4 — Backend controller + regenerate client** (AC: 2, 6)
-  - [ ] `@Post('bulk-delete')` handler (AuthGuard, `@HttpCode(Ok)`, `@Session()` userId, swagger responses).
-  - [ ] `pnpm --filter @supertool/api build` → `pnpm --filter @supertool/shared generate:client`; commit the regenerated client; drift gate green.
-- [ ] **Task 5 — Frontend selection primitives** (AC: 1, 3, 4, 5)
-  - [ ] `use-transaction-selection.ts` (Set state, toggle/clear/select-all-visible clamped to cap, snapshot-on-open, `areAllVisibleSelected`, `selectedCount`).
-  - [ ] Action bar component (`FC<Props>`, "N selected"/select-all/clear/delete, sticky + touch-usable, disabled while submitting), tokens-only SCSS, mobile-first.
-  - [ ] Confirm dialog reusing the `alert-dialog` molecule + a controlling hook (mirror `use-delete-transaction.ts`); row checkbox via the `Checkbox` atom + selection context.
-- [ ] **Task 6 — Server action** (AC: 2, 4, 6)
-  - [ ] `src/actions/bulk-delete-transactions.ts` (`'use server'`): re-validate cap, `createServerApiClient({ cookieHeader })`, `TransactionsApiService.transactionsBulkDelete({ client, body: { idList } })`, `revalidatePath` affected route(s) when `deletedCount > 0`, return discriminated result (deleted/failed counts + error `code` for i18n). Guard page-out-of-range after deletion (reuse the `redirect-after-transaction-delete.ts` last-page pattern where applicable).
-- [ ] **Task 7 — Wire both views** (AC: 1, 5)
-  - [ ] By-date: selection context wraps `TransactionList`; `visibleIdList` = flattened date-group ids; checkbox per `TransactionCard`; action bar on `selectedCount > 0`.
-  - [ ] By-category: selection context wraps `CategoryDetailList`; add a checkbox per inlined row; same action bar + dialog. Do not fork the primitives.
-- [ ] **Task 8 — i18n** (AC: 8)
-  - [ ] Add all new keys to `messages/{en,uk}/transactions-page.json` (+ `transactions-by-category-page.json` where the by-category view needs its own copy) — real Ukrainian, ICU count. `pnpm i18n:parity` green.
-- [ ] **Task 9 — Tests** (AC: 9)
-  - [ ] Testcontainers: extend `transactions.integration.spec.ts` (batch delete, cap 100, partial failure, user-scoping A≠B, idempotency). Controller unit spec for the new handler. Frontend component tests (selection hook, action bar, confirm dialog + partial-failure re-selection, both wirings).
-- [ ] **Task 10 — Gates, visual QA, record** (AC: 5, 9, 10)
-  - [ ] `pnpm type-check`, `pnpm lint`, `pnpm stylelint`, `pnpm fmt:check`, `pnpm test`, `pnpm i18n:parity`, `pnpm build` — pnpm scripts only, `TURBO_FORCE=true` where turbo may replay stale logs.
-  - [ ] Capture + commit the visual-QA matrix per AC 10 under `visual-qa/6-2-bulk-delete-transactions/`; verify `:3000` cwd + seed baseline before capture; `TRUNCATE` + re-seed after (bulk-delete QA mutates data).
-  - [ ] Record in the Dev Agent Record: D-1…D-9 decisions, the endpoint-shape divergence from the reference (D-2) and the "reference wires both views, not by-category-only" finding — as a short operator checklist for PR (Epic 5 retro Action #5).
+- [x] **Task 1 — Study the reference and current state before writing code** (AC: all)
+  - [x] Reference (ED1 — carry patterns, never code): backend `example/tracker-backend-api/src/modules/transactions/transactions.{controller,service,repository}.ts` (`bulkDelete`) + `src/shared/dtos/bulk-delete.dto.ts` + `bulk-delete-response.dto.ts`; frontend `example/track-my-life/apps/money-tracker/src/hooks/use-bulk-delete-selection.ts`, `src/components/bulk-delete-action-bar/BulkDeleteActionBar.tsx`, `…/transactions/components/bulk-delete-transaction-dialog/BulkDeleteTransactionDialog.tsx`, `…/transactions/actions/bulk-delete-transaction.ts` + `actions/types.ts`, `packages/shared/src/constants/bulk-delete.ts`, and both view wirings (`by-category/[categoryId]/BulkDeleteSelection.tsx` + `TransactionRowCheckbox.tsx` + `page.content.tsx`; `transactions/page.content.tsx` + `TransactionList.tsx`). Note the endpoint divergence (D-2) and the reason-code improvement (D-3).
+  - [x] Read in full the files this story updates: `apps/api/src/modules/transactions/transactions.{controller,service,repository}.ts` + `transactions.controller.spec.ts` + `dtos/`, `apps/api/test/integration/transactions.integration.spec.ts` (delete describe block + helpers), `apps/api/src/shared/dtos/pagination-query.dto.ts` (the `@Max` precedent), `apps/money-tracker/src/actions/delete-transaction.ts` + `.test.ts`, `…/transactions/components/transaction-row-actions/TransactionRowActions.tsx` + `hooks/use-delete-transaction.ts`, `…/transaction-list/TransactionList.tsx` + `transaction-card/TransactionCard.tsx`, `…/by-category/[categoryId]/components/category-detail-list/CategoryDetailList.tsx`, `packages/ui/src/components/atoms/checkbox/Checkbox.tsx`, `packages/ui/src/components/molecules/alert-dialog/AlertDialog.tsx`, `packages/next-shared/src/types/action-state.ts`.
+- [x] **Task 2 — Shared cap constants** (AC: 2, 7)
+  - [x] Add `MAX_BULK_DELETE_IDS = 100` + `MIN_BULK_DELETE_IDS = 1` to `packages/shared/src/constants/` (new `transaction-bulk.ts`). No magic numbers; consumed by API DTO + frontend clamp.
+- [x] **Task 3 — Backend repository + service + DTOs** (AC: 2, 4, 6)
+  - [x] `deleteManyScoped(userId, idList)` in `transactions.repository.ts` (`and(eq(userId), inArray(id))` + `.returning({ id })`), explicit `@Inject` unchanged.
+  - [x] `bulkDelete(userId, idList)` in `transactions.service.ts` (Set-diff → `failedList` with `ErrorCode.NotFound` reason; `{ deletedCount, failedList }`).
+  - [x] `BulkDeleteTransactionsDto` (`idList` array validators reading the shared cap) + `BulkDeleteResponseDto` + `BulkDeleteFailureDto` (reason typed via `enumName: 'ErrorCode'`).
+- [x] **Task 4 — Backend controller + regenerate client** (AC: 2, 6)
+  - [x] `@Post('bulk-delete')` handler (AuthGuard, `@HttpCode(Ok)`, `@Session()` userId, swagger responses).
+  - [x] `pnpm --filter @supertool/api build` → `pnpm --filter @supertool/shared generate:client`; commit the regenerated client; drift gate green.
+- [x] **Task 5 — Frontend selection primitives** (AC: 1, 3, 4, 5)
+  - [x] `use-transaction-selection.ts` (Set state, toggle/clear/select-all-visible clamped to cap, snapshot-on-open, `areAllVisibleSelected`, `selectedCount`).
+  - [x] Action bar component (`FC<Props>`, "N selected"/select-all/clear/delete, sticky + touch-usable, disabled while submitting), tokens-only SCSS, mobile-first.
+  - [x] Confirm dialog reusing the `alert-dialog` molecule + a controlling hook (mirror `use-delete-transaction.ts`); row checkbox via the `Checkbox` atom + selection context.
+- [x] **Task 6 — Server action** (AC: 2, 4, 6)
+  - [x] `src/actions/bulk-delete-transactions.ts` (`'use server'`): re-validate cap, `createServerApiClient({ cookieHeader })`, `TransactionsApiService.transactionsBulkDelete({ client, body: { idList } })`, `revalidatePath` affected route(s) when `deletedCount > 0`, return discriminated result (deleted/failed counts + error `code` for i18n). Guard page-out-of-range after deletion (reuse the `redirect-after-transaction-delete.ts` last-page pattern where applicable).
+- [x] **Task 7 — Wire both views** (AC: 1, 5)
+  - [x] By-date: selection context wraps `TransactionList`; `visibleIdList` = flattened date-group ids; checkbox per `TransactionCard`; action bar on `selectedCount > 0`.
+  - [x] By-category: selection context wraps `CategoryDetailList`; add a checkbox per inlined row; same action bar + dialog. Do not fork the primitives.
+- [x] **Task 8 — i18n** (AC: 8)
+  - [x] Add all new keys to `messages/{en,uk}/transactions-page.json` (+ `transactions-by-category-page.json` where the by-category view needs its own copy) — real Ukrainian, ICU count. `pnpm i18n:parity` green.
+- [x] **Task 9 — Tests** (AC: 9)
+  - [x] Testcontainers: extend `transactions.integration.spec.ts` (batch delete, cap 100, partial failure, user-scoping A≠B, idempotency). Controller unit spec for the new handler. Frontend component tests (selection hook, action bar, confirm dialog + partial-failure re-selection, both wirings).
+- [x] **Task 10 — Gates, visual QA, record** (AC: 5, 9, 10)
+  - [x] `pnpm type-check`, `pnpm lint`, `pnpm stylelint`, `pnpm fmt:check`, `pnpm test`, `pnpm i18n:parity`, `pnpm build` — pnpm scripts only, `TURBO_FORCE=true` where turbo may replay stale logs.
+  - [x] Capture + commit the visual-QA matrix per AC 10 under `visual-qa/6-2-bulk-delete-transactions/`; verify `:3000` cwd + seed baseline before capture; `TRUNCATE` + re-seed after (bulk-delete QA mutates data).
+  - [x] Record in the Dev Agent Record: D-1…D-9 decisions, the endpoint-shape divergence from the reference (D-2) and the "reference wires both views, not by-category-only" finding — as a short operator checklist for PR (Epic 5 retro Action #5).
 
 ## Dev Notes
 
@@ -226,8 +226,88 @@ Add to the **existing** transactions module (no new provider needed — controll
 
 ### Agent Model Used
 
+Claude Opus 4.8 (1M context) — `claude-opus-4-8[1m]`.
+
 ### Debug Log References
+
+- Gates (all green, run with `TURBO_FORCE=true` where turbo-backed): `pnpm type-check`, `pnpm lint`, `pnpm stylelint`, `pnpm fmt:check`, `pnpm test` (money-tracker 311 / api 288 incl. new bulk-delete integration, DTO, controller specs), `pnpm i18n:parity`, `pnpm build`.
+- Client-drift gate: `pnpm turbo run generate:client` produced no diff beyond the committed regenerated client (`packages/shared/src/generated/`); `openapi.json` includes `POST /api/v1/transactions/bulk-delete` with `BulkDeleteTransactionsDto` request and `BulkDeleteResponseDto` response (reason typed to the named `ErrorCode` schema).
+- The generated `openapi.json` is gitignored (regenerated in CI); only the generated client under `packages/shared/src/generated/` is committed.
 
 ### Completion Notes List
 
+**Decisions applied (D-1…D-9 per the story, plus implementation choices recorded here):**
+- D-1/D-2/D-3: added one endpoint `POST /api/v1/transactions/bulk-delete` (HTTP 200), request `{ idList }`, response `{ deletedCount, failedList: [{ id, reason }] }`. `reason` is the stable shared `ErrorCode` (`NOT_FOUND`), emitted as a named OpenAPI enum via a new `OPENAPI_ENUM_NAME.errorCode` entry so the client types it — never raw English text.
+- D-4: cap constants `MIN_BULK_DELETE_IDS`/`MAX_BULK_DELETE_IDS` live once in `@supertool/shared/constants/transaction-bulk.ts`; enforced at three layers (client select clamp, server-action re-validate, API DTO `@ArrayMinSize`/`@ArrayMaxSize`).
+- D-5: selection is ephemeral client state (`Set<string>`) in a `'use client'` context wrapping the RSC rows; URL keeps filter/sort/period/page.
+- D-6: both surfaces share the SAME primitives (provider/context/checkbox/action-bar/dialog) — not forked. Confirmed by the reference read that it wires both views.
+- D-7: partial failure re-selects only the failed ids; full success clears selection; deletedCount 0 keeps selection unchanged.
+- D-8: confirm dialog reuses the `alert-dialog` molecule with a `useTransition`-based controller hook mirroring `use-delete-transaction`.
+- D-9: no money math; string amounts and bare dates preserved. Service `bulkDelete` is a single clean entry point for the future 6-5 cache-invalidation hook.
+
+**Implementation choices (recorded for operator confirmation at PR):**
+- **Result feedback is inline `Alert`, not toast.** The money-tracker app does not mount a `Toaster` (sonner is unused in this app), so — consistent with single-delete's in-dialog error — transport/validation errors and total-failure surface as a destructive `Alert` inside the confirm dialog (dialog stays open, selection unchanged), partial success surfaces a default `Alert` beside the action bar with deleted/failed counts, and over-cap surfaces a default `Alert` there too. Full success needs no message — the rows disappearing (via `revalidatePath`) is the confirmation.
+- **Bulk-delete i18n copy lives once under `transactionsPage.bulkDelete`** and is read by the shared component on both surfaces (the by-category view does not need its own duplicate copy). `VALIDATION_ERROR` added to `transactionsPage.errors` for the defensive over-cap path. Real Ukrainian with full plural categories (one/few/many/other).
+- **Revalidation is per-view** (`revalidatePath(ROUTES.transactions)` for by-date, `getTransactionsByCategoryDetailPath(categoryId)` for by-category) via a `view` discriminant passed from the client — no arbitrary user-controlled path. Out-of-range page after deletion is handled by the existing `redirectWhenPageOutOfRange` in `TransactionListServer` on re-render.
+- **Server action does NOT redirect** (unlike single-delete): it must return the `failedList` to the client for partial-failure re-selection, so it revalidates and returns a discriminated result.
+
+**Divergence-flag operator checklist for PR (Epic 5 retro Action #5):**
+1. D-2 endpoint shape `POST /transactions/bulk-delete` (200 + body) vs the reference's `DELETE /transactions/batch` — operator override available (only verb/route/status change) if exact reference parity is preferred.
+2. "Reference wires bulk-delete on BOTH views" finding (not by-category-only as §5/epics claim) — supertool requirement unchanged; by-date wiring is not net-new-beyond-reference.
+3. Inline-Alert (no toaster) feedback choice above.
+
+**Visual QA (captured on :3000, cwd verified = this checkout via `lsof`; both servers restarted onto the freshly-built code; DB baseline 1880 txns / 110 cats / latest 2025-02-03; signed in as seeded operator):**
+- 14 captures in `_bmad-output/implementation-artifacts/visual-qa/6-2-bulk-delete-transactions/` — by-date and by-category, selection + confirm-dialog, light + dark, desktop (1280) + mobile (390).
+- By-date: per-row `Checkbox` (left of each card), sticky action bar "N selected / Select all / Clear / Delete(destructive)"; row copy/edit/delete actions preserved. By-category detail (5-6 list): checkbox added left of each row via a new `.itemBody` wrapper; same action bar + dialog.
+- `documentElement.scrollWidth === innerWidth` verified `true` at 390px on BOTH surfaces (no horizontal overflow, AC5).
+- Confirm dialog: bulk copy "Delete transactions?" / "Delete N transactions? This action cannot be undone." with pending-disabled controls; correct in both themes.
+- **Real bulk delete exercised:** deleted 2 of the 4 Feb-2025 "Донати" rows → DB count 4→2 and the list re-rendered to 2 rows without a full reload (D9). DB baseline restored afterwards (`TRUNCATE transactions` + `db:seed` → verified 1880/110/2025-02-03).
+- Compared against reference `transactions--bulk-delete-bar--desktop` and `transactions--bulk-delete--{desktop,mobile}`: supertool matches the action-bar/selection intent and additionally makes checkboxes always-visible and touch-usable on both surfaces.
+
 ### File List
+
+**Added — backend**
+- `packages/shared/src/constants/transaction-bulk.ts`
+- `apps/api/src/modules/transactions/dtos/bulk-delete-transactions.dto.ts`
+- `apps/api/src/modules/transactions/dtos/bulk-delete-transactions.dto.spec.ts`
+- `apps/api/src/modules/transactions/dtos/bulk-delete-failure.dto.ts`
+- `apps/api/src/modules/transactions/dtos/bulk-delete-response.dto.ts`
+
+**Modified — backend**
+- `apps/api/src/modules/transactions/transactions.repository.ts` (`deleteManyScoped`)
+- `apps/api/src/modules/transactions/transactions.service.ts` (`bulkDelete`)
+- `apps/api/src/modules/transactions/transactions.controller.ts` (`@Post('bulk-delete')`)
+- `apps/api/src/modules/transactions/transactions.controller.spec.ts` (bulkDelete unit spec)
+- `apps/api/src/shared/constants/openapi-enum-name.ts` (`errorCode`)
+- `apps/api/test/integration/transactions.integration.spec.ts` (bulkDelete describe: batch, partial, user-scoping, idempotency)
+
+**Modified — generated client (committed)**
+- `packages/shared/src/generated/sdk.gen.ts`, `types.gen.ts`, `index.ts`
+
+**Added — frontend**
+- `apps/money-tracker/src/actions/bulk-delete-transactions.ts` (+ `.test.ts`)
+- `apps/money-tracker/src/components/bulk-delete/types.ts`
+- `apps/money-tracker/src/components/bulk-delete/BulkDeleteContext.ts`
+- `apps/money-tracker/src/components/bulk-delete/BulkDeleteProvider.tsx` (+ `.test.tsx`)
+- `apps/money-tracker/src/components/bulk-delete/BulkDeleteActionBar.tsx` (+ `.module.scss`, `.test.tsx`)
+- `apps/money-tracker/src/components/bulk-delete/BulkDeleteConfirmDialog.tsx`
+- `apps/money-tracker/src/components/bulk-delete/TransactionSelectCheckbox.tsx`
+- `apps/money-tracker/src/components/bulk-delete/hooks/use-transaction-selection.ts` (+ `.test.ts`)
+- `apps/money-tracker/src/components/bulk-delete/hooks/use-bulk-delete.ts`
+- `apps/money-tracker/src/components/bulk-delete/hooks/use-bar-message.ts`
+
+**Modified — frontend**
+- `apps/money-tracker/src/app/[locale]/transactions/components/transaction-list-server/TransactionListServer.tsx` (wrap by-date list in provider)
+- `apps/money-tracker/src/app/[locale]/transactions/components/transaction-list/TransactionList.tsx` (pass `selectLabel`)
+- `apps/money-tracker/src/app/[locale]/transactions/components/transaction-card/TransactionCard.tsx` (+ `.test.tsx`) (render checkbox)
+- `apps/money-tracker/src/app/[locale]/transactions/by-category/[categoryId]/components/category-detail-list/CategoryDetailList.tsx` (+ `.module.scss`, `.test.tsx`) (provider + checkbox + `.itemBody`)
+- `apps/money-tracker/messages/en/transactions-page.json`, `apps/money-tracker/messages/uk/transactions-page.json` (bulkDelete keys + `VALIDATION_ERROR`)
+
+**Visual QA**
+- `_bmad-output/implementation-artifacts/visual-qa/6-2-bulk-delete-transactions/*.png` (14 captures)
+
+## Change Log
+
+| Date       | Change                                                                 |
+| ---------- | ---------------------------------------------------------------------- |
+| 2026-07-05 | Implemented story 6-2: bulk-delete endpoint + two-surface multi-select UI; all gates green; visual QA captured; status → review. |

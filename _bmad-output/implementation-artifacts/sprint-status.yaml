@@ -108,7 +108,7 @@ development_status:
   # Epic 6: Manage Transactions at Scale
   epic-6: in-progress
   6-1-transactions-list-ux-enrichment: done
-  6-2-bulk-delete-transactions: in-progress
+  6-2-bulk-delete-transactions: review
   6-3-export-transactions-csv-json: backlog
   6-4-search-transactions: backlog
   6-5-analytics-response-caching: backlog
