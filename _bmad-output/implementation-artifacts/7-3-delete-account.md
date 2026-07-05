@@ -293,3 +293,4 @@ Opus 4.8 (1M context) — `claude-opus-4-8[1m]`.
 | Date | Change |
 |---|---|
 | 2026-07-05 | Implemented story 7-3 (delete account): custom session-scoped `DELETE /api/v1/users/me` with ordered transactional cascade purge (transactions → null-parent+delete categories → delete user, sessions/accounts cascade), analytics-cache invalidation after commit, regenerated client (`usersDeleteMe`), app-local `DeleteAccountSection` (AlertDialog + type-to-confirm email match + inline Alert + redirect on success), i18n (en+uk), unit + Testcontainers integration + component tests, visual QA (light/dark × 390/desktop). All gates green. Status → review. |
+| 2026-07-05 | Code review APPROVE (3 adversarial layers, 0 must-fix; cascade order + session-only user-scoping + confirm gate traced against the real schema; 6 non-blocking nice-to-haves). PR opened: https://github.com/BudnikOleksii/supertool/pull/49 |
