@@ -283,6 +283,7 @@ Modified:
 ### Change Log
 
 - 2026-07-05: Implemented Story 7.2 (change password) — better-auth `authClient.changePassword` `ChangePasswordForm` widget on the settings page, single-source `passwordFieldSchema` reused across all three auth forms, confirm-password field, `INVALID_PASSWORD`/`PASSWORD_TOO_SHORT` error mapping, `/change-password` auth rate-limit rule, en+uk i18n, widget + integration tests, 16-shot visual-QA matrix. All gates green; OpenAPI drift gate no-op. Status → review.
+- 2026-07-05: Code review APPROVE (3 adversarial layers, 0 must-fix; password security + schema refactor + rate rule + drift no-op independently verified; 1 MEDIUM nice-to-have: stale-message on re-submit). PR opened: https://github.com/BudnikOleksii/supertool/pull/48
 
 ## Review Findings
 
