@@ -132,6 +132,28 @@ content:
   - [x] Capture the AC-8 matrix (full page; hero; advantages; reviews; FAQ closed; FAQ expanded; footer/CTA) light+dark × 390+desktop → `_bmad-output/implementation-artifacts/visual-qa/7-4-marketing-landing-page/<scenario>--<viewport>--<theme>.png`; assert `scrollWidth === innerWidth` at 390px both themes; compare to the reference `landing--*`, note divergences. Also verify the authenticated case redirects to `/dashboard`.
   - [x] Update Dev Agent Record + File List + Change Log; set status → review.
 
+### Review Findings
+
+Adversarial code review (Blind Hunter + Edge Case Hunter + Acceptance Auditor) of diff `85badae..HEAD`, 2026-07-05. Verdict: **CHANGES-REQUESTED** — 1 must-fix, all else nice-to-have. Gates re-run by orchestrator: type-check / lint / stylelint / fmt / i18n:parity / test / build all PASS; OpenAPI generated tree clean; no package.json change. Gating/redirect logic verified correct (no loop, no over-broad public match — see dismissed items).
+
+Decision-needed (operator judgment):
+
+- [ ] [Review][Decision] `<footer>` nested inside AppShell `<main>` does not expose a `contentinfo` landmark — AC6 requires "a `<footer>` landmark". Per ARIA-in-HTML, a `<footer>` descendant of `<main>` maps to a generic element, not `contentinfo`. This is an inherent consequence of pre-approved D-1 (no route group; shell owns the single `<main>`) + the deliberate double-`<main>` avoidance. Options: accept as PoC limitation; add explicit `role="contentinfo"` (has its own nesting caveat); or revisit chrome later. [FooterSection.tsx:46, AppShell.tsx:46] (edge+auditor)
+- [ ] [Review][Decision] AC8 visual-QA evidence is a subset of the enumerated matrix — committed set is `full-page` (all 4 light/dark × mobile/desktop), `faq-expanded` (all 4), `hero--desktop--light`, `full-page-uk--desktop--light` (10 files). Missing standalone `advantages`/`reviews`/`faq-closed`/`footer` captures; hero & uk only desktop-light. The full-page 4-way matrix does show every section in both themes/viewports and faq-expanded covers the interactive open state, so core evidence exists. Operator's call whether the full-page matrix suffices. [visual-qa/7-4-marketing-landing-page/] (auditor)
+
+Patch (unambiguous fix):
+
+- [x] [Review][Patch] Heading-level skip h2 → h4 in AdvantagesSection (MUST-FIX, AC6 "correct heading hierarchy") — `<CardTitle variant="title-s">` renders `<h4>` (Typography `VARIANT_TAG_MAP: title-s → h4`) directly under the section `<h2>`, skipping `<h3>`. Fix: pass `tag="h3"` to the advantage `CardTitle`s (CardTitle forwards `...props` to Typography). [AdvantagesSection.tsx:57] (edge) — RESOLVED: added `tag="h3"` to the advantage `CardTitle` (visual `variant="title-s"` unchanged); test now asserts four level-3 headings. FAQ (Radix `<h3>` accordion headers) and reviews (no in-card headings) verified free of the same skip.
+- [ ] [Review][Patch] Authenticated page test is weak — `redirect` is mocked as a non-throwing `vi.fn()`, so the test cannot catch a missing early-exit (real next-intl `redirect` throws; production is correct). Make the mock throw and assert `LandingPage` is NOT rendered for an authenticated visitor. [page.test.tsx:43-49] (blind+edge)
+- [ ] [Review][Patch] Ukrainian reviews render with Latin curly quotes “ ” — `&ldquo;{quote}&rdquo;` is hardcoded for all locales; Ukrainian convention is «guillemets». Make locale-aware or fold quote marks into the translated string. [ReviewsSection.tsx:35] (blind)
+
+Deferred (real, pre-existing or out-of-scope now):
+
+- [x] [Review][Defer] Public landing 500s if the API is network-down (`ECONNREFUSED` / `API_URL` unset) — `fetchProfile()` rejects → the RSC throws → the public front door errors. On a 401 it correctly returns `null` and renders (verified). Pre-existing coupling via `layout.tsx` (also calls `fetchProfile`); this story makes `/` the primary public surface so it now matters more. [page.tsx:33, fetch-profile.ts] — deferred, pre-existing (edge)
+- [x] [Review][Defer] LandingPage full-bleed band trick hard-couples to `packages/shell` `<main>` padding tokens — negative margins (`-spacing-6/-spacing-4`, `-spacing-8/-spacing-6`) exactly cancel the shell padding today (overflow math verified sound, `scrollWidth===innerWidth` at 390px), but a future shell-padding change would silently reintroduce overflow with no compile-time signal. [LandingPage.module.scss] — deferred, cross-package coupling note (blind+edge)
+
+Dismissed as noise / verified false positives (6): (1) prefix-match auth bypass — `checkIsPublicPath` uses strict `===`, not prefix; adding `/` cannot expose other routes. (2) locale-root not public — `getPathnameWithoutLocale` returns `'/'` for `/en`,`/uk` via `|| '/'`. (3) authenticated-not-onboarded redirect loop — terminates `/`→`/dashboard`→`/onboarding` (resolveOnboardedProfile). (4) ICU `{year}` digit grouping — intl-messageformat 11.2.8 renders "© 2026" (no separator) in both locales, confirmed empirically. (5) `.quoteWrapper { flex:1 }` no-op — Card IS `display:flex; flex-direction:column`, so it works. (6) `rem` container max-widths — established repo-wide convention, not a token violation.
+
 ## Dev Notes
 
 ### Decisions made at story creation (autonomous run — operator review points)

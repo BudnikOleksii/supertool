@@ -54,7 +54,9 @@ export const AdvantagesSection: FC = () => {
                   <span className={styles.icon}>
                     <Icon size={ICON_SIZE} aria-hidden />
                   </span>
-                  <CardTitle variant="title-s">{translate(`items.${key}.title`)}</CardTitle>
+                  <CardTitle variant="title-s" tag="h3">
+                    {translate(`items.${key}.title`)}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Typography className={styles.description} variant="body-m">

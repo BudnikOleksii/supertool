@@ -26,4 +26,12 @@ describe('AdvantagesSection', () => {
       expect(screen.getByText(`${NAMESPACE}.items.${key}.description`)).toBeTruthy();
     });
   });
+
+  it('renders advantage titles at heading level 3 to preserve hierarchy', () => {
+    render(<AdvantagesSection />);
+
+    const advantageHeadingList = screen.getAllByRole('heading', { level: 3 });
+
+    expect(advantageHeadingList).toHaveLength(ADVANTAGE_KEY_LIST.length);
+  });
 });

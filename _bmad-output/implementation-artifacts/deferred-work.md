@@ -1,5 +1,10 @@
 # Deferred Work
 
+## Deferred from: code review of 7-4-marketing-landing-page (2026-07-05)
+
+- Public landing 500s if the API is network-down (`ECONNREFUSED` / `API_URL` unset): the landing RSC and `layout.tsx` both `await fetchProfile()`, which rejects on a network-level failure → the RSC throws → the public front door renders an error page. On a 401 it correctly returns `null` and the landing renders (verified). Pre-existing coupling via the layout; story 7-4 makes `/` the primary public surface, so tolerating a fetch failure (treat as unauthenticated → render landing) is worth considering when the auth gate is next touched. [apps/money-tracker/src/app/[locale]/page.tsx, apps/money-tracker/src/actions/fetch-profile.ts]
+- LandingPage full-bleed band trick hard-couples to `packages/shell` `<main>` padding: the negative margins (`-spacing-6/-spacing-4`, `-spacing-8/-spacing-6`) exactly cancel the shell `<main>` padding tokens at each breakpoint today (overflow math verified; `scrollWidth===innerWidth` at 390px), but the shell is forbidden to modify from this story and a future shell-padding change would silently reintroduce horizontal overflow with no compile-time signal. Consider a shared full-bleed utility or documenting the coupling. [apps/money-tracker/src/app/[locale]/components/landing/landing-page/LandingPage.module.scss, packages/shell/src/components/app-shell/AppShell.module.scss]
+
 ## Deferred from: code review of 7-2-change-password (2026-07-05)
 
 - No `try/catch` around `authClient.changePassword` in `ChangePasswordForm`: a network-layer rejection (offline/DNS/CORS) escapes the `startTransition` async callback without mapping to the `generic` localized error. Inherited from the pre-approved `SignInForm` pattern and applies repo-wide, so fixing it here alone would be inconsistent — resolve across all authClient forms together (defensive `catch → setFormErrorKey('generic')`) when the auth-form pattern is next touched. [packages/widgets/src/components/change-password-form/ChangePasswordForm.tsx, packages/widgets/src/components/sign-in-form/SignInForm.tsx]
