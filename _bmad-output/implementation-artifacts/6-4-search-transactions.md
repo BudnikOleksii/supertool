@@ -291,3 +291,4 @@ Claude Opus 4.8 (1M context) — claude-opus-4-8[1m]
 ### Change Log
 
 - 2026-07-05 — Story 6.4 implemented: note search on the transactions list (additive `search` param on `transactionsFindAll`, parameterized escaped `ilike`, pg_trgm GIN index via migration 0006, debounced search box + `noSearchMatches` empty state) plus repo-wide date-validation hardening (`@IsCalendarDate()` + shared `IsOrderedDateRange` across the filter DTO and six analytics DTOs; `parse-dashboard-search-params` calendar check). All gates green; client drift additive-only. Status → review.
+- 2026-07-05 — Code review APPROVE (3 adversarial layers, 0 must-fix; search escape/injection + date refactor independently verified; 4 non-blocking nice-to-haves noted as follow-ups). PR opened: https://github.com/BudnikOleksii/supertool/pull/44
