@@ -317,5 +317,6 @@ Dismissed as noise: "single export per file" nit on cohesive helper+const module
 | ---------- | ---------------------------------------------------------------------- |
 | 2026-07-05 | Story 6-3 created (export transactions CSV/JSON) — ready-for-dev. |
 | 2026-07-05 | Implemented export endpoint (controller→service→repository), hand-rolled injection-safe CSV + JSON serializers, shared constants + named `TransactionExportFormat` enum, regenerated client (additive-only drift), `parseSeedDate` ISO widening for round-trip, and the reusable `ExportMenu` on both the by-date list and by-category detail. Tests + visual QA added. Status → review. |
+| 2026-07-05 | Code review APPROVE (3 adversarial layers, 0 must-fix; CSV injection guard traced exploit-by-exploit, no bypass; 1 nice-to-have: defer downloadBlob URL revoke). PR opened: https://github.com/BudnikOleksii/supertool/pull/43 |
 </content>
 </invoke>
