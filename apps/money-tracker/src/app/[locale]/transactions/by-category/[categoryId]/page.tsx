@@ -10,7 +10,7 @@ import { FIRST_PAGE, MAX_PAGE } from '@supertool/shared/constants/pagination';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
 import { fetchCategoryList } from '../../../../../actions/fetch-category-list';
-import { MonthStepper } from '../../../../../components/month-stepper/MonthStepper';
+import { MonthNavigator } from '../../../../../components/month-navigator/MonthNavigator';
 import { ROUTES } from '../../../../../constants/routes';
 import { PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../../../../../constants/search-params';
 import { normalizeSearchParam } from '../../../../../utils/normalize-search-param';
@@ -76,7 +76,7 @@ const TransactionsByCategoryDetailPage: FC<Props> = async (props) => {
           </Link>
           <Typography variant="title-l">{categoryName}</Typography>
         </div>
-        <MonthStepper period={period} />
+        <MonthNavigator period={period} />
       </header>
       <Suspense key={`${categoryId}-${period}-${page}`} fallback={detailFallback}>
         <CategoryDetailList

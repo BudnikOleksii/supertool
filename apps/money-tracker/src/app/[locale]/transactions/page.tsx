@@ -9,7 +9,7 @@ import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
 import { fetchCategoryList } from '../../../actions/fetch-category-list';
-import { MonthStepper } from '../../../components/month-stepper/MonthStepper';
+import { MonthNavigator } from '../../../components/month-navigator/MonthNavigator';
 import { ROUTES } from '../../../constants/routes';
 import { PERIOD_SEARCH_PARAM } from '../../../constants/search-params';
 import { normalizeSearchParam } from '../../../utils/normalize-search-param';
@@ -49,7 +49,7 @@ const TransactionsPage: FC<Props> = async (props) => {
       <header className={styles.header}>
         <Typography variant="title-l">{translate('title')}</Typography>
         <div className={styles.controls}>
-          <MonthStepper period={params.period} />
+          <MonthNavigator period={params.period} />
           <Button component={Link} href={ROUTES.transactionsNew}>
             {translate('addTransaction')}
           </Button>

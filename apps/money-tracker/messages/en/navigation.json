@@ -18,7 +18,9 @@
   },
   "monthNav": {
     "previous": "Previous month",
-    "next": "Next month"
+    "next": "Next month",
+    "previousYear": "Previous year",
+    "nextYear": "Next year"
   },
   "tools": {
     "moneyTracker": "Money Tracker"

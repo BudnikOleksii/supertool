@@ -28,19 +28,29 @@ interface UseTransactionFormParams {
   copyFrom?: TransactionResponseDto | undefined;
 }
 
+const getPrefillValues = (
+  source: TransactionResponseDto,
+  date: string,
+): DefaultValues<TransactionFormValues> => ({
+  type: source.type,
+  amount: source.amount,
+  categoryId: source.categoryId,
+  date,
+  note: source.note,
+  ...(checkIsCurrencyCode(source.currency) ? { currency: source.currency } : {}),
+});
+
 const getDefaultValues = (
   defaultCurrency: string | null,
-  prefill: TransactionResponseDto | undefined,
+  transaction: TransactionResponseDto | undefined,
+  copyFrom: TransactionResponseDto | undefined,
 ): DefaultValues<TransactionFormValues> => {
-  if (prefill) {
-    return {
-      type: prefill.type,
-      amount: prefill.amount,
-      categoryId: prefill.categoryId,
-      date: prefill.date,
-      note: prefill.note,
-      ...(checkIsCurrencyCode(prefill.currency) ? { currency: prefill.currency } : {}),
-    };
+  if (transaction) {
+    return getPrefillValues(transaction, transaction.date);
+  }
+
+  if (copyFrom) {
+    return getPrefillValues(copyFrom, getTodayDate());
   }
 
   return {
@@ -74,7 +84,7 @@ export const useTransactionForm = ({
     formState: { errors },
   } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionFormSchema),
-    defaultValues: getDefaultValues(defaultCurrency, transaction ?? copyFrom),
+    defaultValues: getDefaultValues(defaultCurrency, transaction, copyFrom),
     mode: 'onBlur',
   });
 

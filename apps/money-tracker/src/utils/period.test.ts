@@ -5,8 +5,10 @@ import {
   getCurrentPeriod,
   getMonthDateRange,
   getNextPeriod,
+  getNextYearPeriod,
   getPeriodFromDate,
   getPreviousPeriod,
+  getPreviousYearPeriod,
   getTrailingMonthsRange,
   parsePeriod,
 } from './period';
@@ -134,6 +136,34 @@ describe('getNextPeriod', () => {
 
   it('rolls over to the next January in December', () => {
     expect(getNextPeriod({ year: 2025, month: 12 })).toBe('2026-01');
+  });
+});
+
+describe('getPreviousYearPeriod', () => {
+  it('steps back one year while preserving the month', () => {
+    expect(getPreviousYearPeriod({ year: 2024, month: 5 })).toBe('2023-05');
+  });
+
+  it('preserves December when jumping back a year', () => {
+    expect(getPreviousYearPeriod({ year: 2025, month: 12 })).toBe('2024-12');
+  });
+
+  it('preserves January when jumping back a year', () => {
+    expect(getPreviousYearPeriod({ year: 2025, month: 1 })).toBe('2024-01');
+  });
+});
+
+describe('getNextYearPeriod', () => {
+  it('steps forward one year while preserving the month', () => {
+    expect(getNextYearPeriod({ year: 2024, month: 5 })).toBe('2025-05');
+  });
+
+  it('preserves December when jumping forward a year', () => {
+    expect(getNextYearPeriod({ year: 2025, month: 12 })).toBe('2026-12');
+  });
+
+  it('preserves January when jumping forward a year', () => {
+    expect(getNextYearPeriod({ year: 2025, month: 1 })).toBe('2026-01');
   });
 });
 

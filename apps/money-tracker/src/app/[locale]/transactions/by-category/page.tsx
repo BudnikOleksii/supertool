@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
-import { MonthStepper } from '../../../../components/month-stepper/MonthStepper';
+import { MonthNavigator } from '../../../../components/month-navigator/MonthNavigator';
 import { PERIOD_SEARCH_PARAM } from '../../../../constants/search-params';
 import { normalizeSearchParam } from '../../../../utils/normalize-search-param';
 import { getMonthDateRange, parsePeriod } from '../../../../utils/period';
@@ -40,7 +40,7 @@ const TransactionsByCategoryPage: FC<Props> = async (props) => {
     <section className={styles.container}>
       <header className={styles.header}>
         <Typography variant="title-l">{translate('title')}</Typography>
-        <MonthStepper period={period} />
+        <MonthNavigator period={period} />
       </header>
       <Suspense key={period} fallback={accordionFallback}>
         <ByCategoryAccordion dateFrom={dateFrom} dateTo={dateTo} period={period} locale={locale} />
