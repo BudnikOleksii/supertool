@@ -44,5 +44,6 @@ export const transactions = pgTable(
     index('transactions_category_id_idx').on(table.categoryId),
     index('transactions_type_idx').on(table.type),
     index('transactions_currency_idx').on(table.currency),
+    index('transactions_note_trgm_idx').using('gin', sql`${table.note} gin_trgm_ops`),
   ],
 );

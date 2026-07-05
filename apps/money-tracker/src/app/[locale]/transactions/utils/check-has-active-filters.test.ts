@@ -27,6 +27,10 @@ describe('checkHasActiveFilters', () => {
     expect(checkHasActiveFilters(buildParams({ categoryId: 'category-id' }))).toBe(true);
   });
 
+  it('returns true when a search term is set', () => {
+    expect(checkHasActiveFilters(buildParams({ search: 'coffee' }))).toBe(true);
+  });
+
   it('ignores sort changes when deciding whether filters are active', () => {
     expect(checkHasActiveFilters(buildParams({ sortBy: 'amount', sortOrder: 'asc' }))).toBe(false);
   });

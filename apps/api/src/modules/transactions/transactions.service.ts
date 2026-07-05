@@ -57,6 +57,7 @@ export class TransactionsService {
       dateTo: query.dateTo,
       type: query.type,
       categoryId: query.categoryId,
+      search: query.search,
       sortBy: query.sortBy ?? DEFAULT_SORT_BY,
       sortOrder: query.sortOrder ?? DEFAULT_SORT_ORDER,
       page,

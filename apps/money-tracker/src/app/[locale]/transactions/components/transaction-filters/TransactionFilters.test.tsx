@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { CategoryResponseDto } from '@supertool/shared/generated/types.gen';
@@ -65,6 +65,8 @@ vi.mock('next-intl', () => ({
 
 const TIMESTAMP = '2025-02-03T00:00:00.000Z';
 
+const SEARCH_DEBOUNCE_DELAY_MS = 300;
+
 const CATEGORY_LIST: CategoryResponseDto[] = [
   {
     id: 'food',
@@ -122,9 +124,17 @@ const getReplaceQuery = (): Record<string, string> => {
   return href.query;
 };
 
+const changeSearch = (value: string): void => {
+  act(() => {
+    fireEvent.change(screen.getByLabelText('searchLabel'), { target: { value } });
+    vi.advanceTimersByTime(SEARCH_DEBOUNCE_DELAY_MS);
+  });
+};
+
 describe('TransactionFilters', () => {
   afterEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
     searchParams.value = new URLSearchParams();
   });
 
@@ -201,5 +211,33 @@ describe('TransactionFilters', () => {
     renderFilters(buildParams());
 
     expect(screen.queryByRole('button', { name: 'clear' })).toBeNull();
+  });
+});
+
+describe('TransactionFilters search box', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+    searchParams.value = new URLSearchParams();
+  });
+
+  it('debounces the typed search term into the URL and resets the page', () => {
+    vi.useFakeTimers();
+    renderFilters(buildParams());
+    changeSearch('coffee');
+
+    const query = getReplaceQuery();
+    expect(query).toMatchObject({ period: '2025-03', search: 'coffee' });
+    expect(query).not.toHaveProperty('page');
+  });
+
+  it('removes the search param when the box is cleared', () => {
+    vi.useFakeTimers();
+    renderFilters(buildParams({ search: 'coffee' }));
+    changeSearch('');
+
+    const query = getReplaceQuery();
+    expect(query).not.toHaveProperty('search');
+    expect(query).toMatchObject({ period: '2025-03' });
   });
 });

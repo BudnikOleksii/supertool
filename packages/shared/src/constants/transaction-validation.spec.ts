@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { checkIsCalendarDate } from './transaction-validation';
+import { checkIsCalendarDate, checkIsOrderedDateRange } from './transaction-validation';
 
 describe('checkIsCalendarDate', () => {
   it('accepts a real calendar date', () => {
@@ -33,5 +33,19 @@ describe('checkIsCalendarDate', () => {
     expect(checkIsCalendarDate('2025-2-3')).toBe(false);
     expect(checkIsCalendarDate('03-02-2025')).toBe(false);
     expect(checkIsCalendarDate('not-a-date')).toBe(false);
+  });
+});
+
+describe('checkIsOrderedDateRange', () => {
+  it('accepts a window where dateFrom precedes dateTo', () => {
+    expect(checkIsOrderedDateRange('2025-02-01', '2025-02-28')).toBe(true);
+  });
+
+  it('accepts a window where the bounds are equal', () => {
+    expect(checkIsOrderedDateRange('2025-02-01', '2025-02-01')).toBe(true);
+  });
+
+  it('rejects a reversed window', () => {
+    expect(checkIsOrderedDateRange('2025-02-28', '2025-02-01')).toBe(false);
   });
 });

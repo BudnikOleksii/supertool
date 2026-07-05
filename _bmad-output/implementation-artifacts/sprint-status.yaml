@@ -37,8 +37,8 @@
 
 generated: 2026-06-10
 last_updated: 2026-07-05
-# (6-2 → done 2026-07-05: PR #42 squash-merged after review (1 must-fix fixed) + CI + CodeRabbit;
-#  status edit rides into the 6-3 story branch per repo pattern — never committed to main directly)
+# (6-3 → done 2026-07-05: PR #43 squash-merged after review APPROVE + CI + CodeRabbit;
+#  status edit rides into the 6-4 story branch per repo pattern — never committed to main directly)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -109,8 +109,8 @@ development_status:
   epic-6: in-progress
   6-1-transactions-list-ux-enrichment: done
   6-2-bulk-delete-transactions: done
-  6-3-export-transactions-csv-json: review
-  6-4-search-transactions: backlog
+  6-3-export-transactions-csv-json: done
+  6-4-search-transactions: review
   6-5-analytics-response-caching: backlog
   epic-6-retrospective: optional
 

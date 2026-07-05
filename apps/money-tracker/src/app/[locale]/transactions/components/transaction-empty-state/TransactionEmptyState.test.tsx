@@ -31,4 +31,13 @@ describe('TransactionEmptyState', () => {
     expect(screen.getByText('noMatches.description')).toBeTruthy();
     expect(screen.getByText('noMatches.clear')).toBeTruthy();
   });
+
+  it('renders the no-search-matches copy with a clear-search affordance', async () => {
+    const renderEmptyState = TransactionEmptyState;
+    render(await renderEmptyState({ variant: 'noSearchMatches', period: PERIOD }));
+
+    expect(screen.getByText('noSearchMatches.title')).toBeTruthy();
+    expect(screen.getByText('noSearchMatches.description')).toBeTruthy();
+    expect(screen.getByText('noSearchMatches.clear')).toBeTruthy();
+  });
 });

@@ -26,6 +26,8 @@
     "expense": "Expense"
   },
   "filters": {
+    "searchLabel": "Search transactions by note",
+    "searchPlaceholder": "Search notes…",
     "typeLabel": "Filter by type",
     "typeAll": "All types",
     "typeIncome": "Income",
@@ -56,6 +58,11 @@
     "title": "No transactions match your filters",
     "description": "Try adjusting or clearing the filters to see more transactions.",
     "clear": "Clear filters"
+  },
+  "noSearchMatches": {
+    "title": "No transactions match your search",
+    "description": "No notes in this period match your search. Try a different term or clear the search.",
+    "clear": "Clear search"
   },
   "error": {
     "title": "Couldn’t load transactions",

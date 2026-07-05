@@ -1,4 +1,4 @@
-import { CALENDAR_DATE_PATTERN } from '@supertool/shared/constants/transaction-validation';
+import { checkIsCalendarDate } from '@supertool/shared/constants/transaction-validation';
 import type { TransactionType } from '@supertool/shared/generated/types.gen';
 
 import type { MonthDateRange } from './period';
@@ -29,7 +29,7 @@ const parseRange = (
     return undefined;
   }
 
-  if (!CALENDAR_DATE_PATTERN.test(dateFrom) || !CALENDAR_DATE_PATTERN.test(dateTo)) {
+  if (!checkIsCalendarDate(dateFrom) || !checkIsCalendarDate(dateTo)) {
     return undefined;
   }
 

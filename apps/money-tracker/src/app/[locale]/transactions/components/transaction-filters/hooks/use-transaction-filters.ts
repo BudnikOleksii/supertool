@@ -1,11 +1,12 @@
 import { useSearchParams } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { usePathname, useRouter } from '@supertool/next-shared/src/i18n/navigation/navigation';
 
 import { PAGE_SEARCH_PARAM } from '../../../../../../constants/search-params';
 import {
   CATEGORY_SEARCH_PARAM,
+  SEARCH_SEARCH_PARAM,
   SORT_BY_SEARCH_PARAM,
   SORT_ORDER_SEARCH_PARAM,
   TYPE_SEARCH_PARAM,
@@ -55,19 +56,32 @@ export const useTransactionFilters = () => {
     [writeParams],
   );
 
-  const handleSortByChange = useCallback(
-    (value: string) => {
-      writeParams((next) => {
-        next.set(SORT_BY_SEARCH_PARAM, value);
-      });
-    },
+  const { handleSortByChange, handleSortOrderChange } = useMemo(
+    () => ({
+      handleSortByChange: (value: string) => {
+        writeParams((next) => {
+          next.set(SORT_BY_SEARCH_PARAM, value);
+        });
+      },
+      handleSortOrderChange: (value: string) => {
+        writeParams((next) => {
+          next.set(SORT_ORDER_SEARCH_PARAM, value);
+        });
+      },
+    }),
     [writeParams],
   );
 
-  const handleSortOrderChange = useCallback(
+  const handleSearchChange = useCallback(
     (value: string) => {
       writeParams((next) => {
-        next.set(SORT_ORDER_SEARCH_PARAM, value);
+        const trimmed = value.trim();
+
+        if (trimmed === '') {
+          next.delete(SEARCH_SEARCH_PARAM);
+        } else {
+          next.set(SEARCH_SEARCH_PARAM, trimmed);
+        }
       });
     },
     [writeParams],
@@ -77,12 +91,14 @@ export const useTransactionFilters = () => {
     writeParams((next) => {
       next.delete(TYPE_SEARCH_PARAM);
       next.delete(CATEGORY_SEARCH_PARAM);
+      next.delete(SEARCH_SEARCH_PARAM);
     });
   }, [writeParams]);
 
   return {
     handleTypeChange,
     handleCategoryChange,
+    handleSearchChange,
     handleSortByChange,
     handleSortOrderChange,
     handleClearFilters,

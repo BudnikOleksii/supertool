@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { FIRST_PAGE, MAX_PAGE } from '@supertool/shared/constants/pagination';
+import { TRANSACTION_SEARCH_MAX_LENGTH } from '@supertool/shared/constants/transaction-search';
 
 import { parseTransactionsSearchParams } from './parse-transactions-search-params';
 
 const PERIOD = '2025-03';
+const EXTRA_SEARCH_LENGTH = 10;
 
 describe('parseTransactionsSearchParams', () => {
   it('assigns the resolved period and reads the page from the search params', () => {
@@ -21,6 +23,7 @@ describe('parseTransactionsSearchParams', () => {
       page: FIRST_PAGE,
       type: undefined,
       categoryId: undefined,
+      search: undefined,
       sortBy: 'date',
       sortOrder: 'desc',
     });
@@ -45,6 +48,20 @@ describe('parseTransactionsSearchParams', () => {
       'category-id',
     );
     expect(parseTransactionsSearchParams({ categoryId: '   ' }, PERIOD).categoryId).toBeUndefined();
+  });
+
+  it('trims a non-empty search and drops a whitespace-only one', () => {
+    expect(parseTransactionsSearchParams({ search: '  coffee  ' }, PERIOD).search).toBe('coffee');
+    expect(parseTransactionsSearchParams({ search: '   ' }, PERIOD).search).toBeUndefined();
+    expect(parseTransactionsSearchParams({}, PERIOD).search).toBeUndefined();
+  });
+
+  it('clamps a search longer than the maximum length', () => {
+    const longSearch = 'x'.repeat(TRANSACTION_SEARCH_MAX_LENGTH + EXTRA_SEARCH_LENGTH);
+
+    expect(parseTransactionsSearchParams({ search: longSearch }, PERIOD).search).toHaveLength(
+      TRANSACTION_SEARCH_MAX_LENGTH,
+    );
   });
 
   it('parses valid sort params and falls back to the defaults for invalid ones', () => {

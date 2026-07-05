@@ -20,6 +20,7 @@ export interface FetchTransactionsParams {
   limit: number;
   type?: TransactionType | undefined;
   categoryId?: string | undefined;
+  search?: string | undefined;
   sortBy?: TransactionSortBy | undefined;
   sortOrder?: SortOrder | undefined;
 }
@@ -28,32 +29,17 @@ export type FetchTransactionsResult =
   | { status: 'success'; transactions: TransactionListResponseDto }
   | { status: 'error' };
 
-const buildFindAllQuery = (params: FetchTransactionsParams): FindAllQuery => {
-  const query: FindAllQuery = {
-    dateFrom: params.dateFrom,
-    dateTo: params.dateTo,
-    page: params.page,
-    limit: params.limit,
-  };
-
-  if (params.type !== undefined) {
-    query.type = params.type;
-  }
-
-  if (params.categoryId !== undefined) {
-    query.categoryId = params.categoryId;
-  }
-
-  if (params.sortBy !== undefined) {
-    query.sortBy = params.sortBy;
-  }
-
-  if (params.sortOrder !== undefined) {
-    query.sortOrder = params.sortOrder;
-  }
-
-  return query;
-};
+const buildFindAllQuery = (params: FetchTransactionsParams): FindAllQuery => ({
+  dateFrom: params.dateFrom,
+  dateTo: params.dateTo,
+  page: params.page,
+  limit: params.limit,
+  ...(params.type === undefined ? {} : { type: params.type }),
+  ...(params.categoryId === undefined ? {} : { categoryId: params.categoryId }),
+  ...(params.search === undefined ? {} : { search: params.search }),
+  ...(params.sortBy === undefined ? {} : { sortBy: params.sortBy }),
+  ...(params.sortOrder === undefined ? {} : { sortOrder: params.sortOrder }),
+});
 
 export const fetchTransactions = cache(
   async (params: FetchTransactionsParams): Promise<FetchTransactionsResult> => {

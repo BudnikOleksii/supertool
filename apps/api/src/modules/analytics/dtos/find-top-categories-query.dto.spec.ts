@@ -72,4 +72,14 @@ describe('FindTopCategoriesQueryDto', () => {
 
     expect(actualErrorList).toContain('dateTo');
   });
+
+  it('rejects a shaped-but-invalid calendar date', async () => {
+    const actualErrorList = await validateQuery({
+      dateFrom: '2025-02-31',
+      dateTo: '2025-02-28',
+      limit: 5,
+    });
+
+    expect(actualErrorList).toContain('dateFrom');
+  });
 });
