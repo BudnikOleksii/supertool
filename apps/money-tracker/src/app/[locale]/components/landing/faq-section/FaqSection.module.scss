@@ -1,0 +1,25 @@
+@use "@supertool/ui/src/styles/breakpoints";
+
+.section {
+  padding: var(--spacing-16) var(--spacing-6);
+
+  @include breakpoints.media-m {
+    padding: var(--spacing-24) var(--spacing-8);
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 48rem;
+
+  margin: 0 auto;
+}
+
+.title {
+  text-align: center;
+  color: var(--on-surface);
+}
+
+.accordion {
+  margin-top: var(--spacing-10);
+}

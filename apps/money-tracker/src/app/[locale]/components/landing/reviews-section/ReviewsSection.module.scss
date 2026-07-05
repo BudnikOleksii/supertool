@@ -1,0 +1,53 @@
+@use "@supertool/ui/src/styles/breakpoints";
+
+.section {
+  padding: var(--spacing-16) var(--spacing-6);
+
+  background: var(--surface-container-lowest);
+
+  @include breakpoints.media-m {
+    padding: var(--spacing-24) var(--spacing-8);
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 72rem;
+
+  margin: 0 auto;
+}
+
+.title {
+  text-align: center;
+  color: var(--on-surface);
+}
+
+.grid {
+  display: grid;
+
+  grid-template-columns: 1fr;
+
+  gap: var(--spacing-6);
+
+  margin-top: var(--spacing-10);
+
+  @include breakpoints.media-m {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  height: 100%;
+}
+
+.quoteWrapper {
+  flex: 1;
+}
+
+.quote {
+  color: var(--on-surface);
+}
+
+.role {
+  color: var(--on-surface-variant);
+}

@@ -11,7 +11,7 @@ import { ROUTES } from './constants/routes';
 
 const handleI18nRouting = createMiddleware(routing);
 
-const PUBLIC_PATH_LIST = [ROUTES.signIn, ROUTES.signUp];
+const PUBLIC_PATH_LIST = [ROUTES.home, ROUTES.signIn, ROUTES.signUp];
 
 const LOCALE_PREFIX_PATTERN = new RegExp(`^/(${LOCALE_CODE_LIST.join('|')})(?=/|$)`);
 

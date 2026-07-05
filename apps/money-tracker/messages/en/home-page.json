@@ -1,7 +1,93 @@
 {
-  "title": "Money Tracker",
-  "description": "Track your income and expenses in one place.",
-  "dashboardLink": "Open dashboard",
-  "categoriesLink": "Manage categories",
-  "transactionsLink": "View transactions"
+  "metadata": {
+    "title": "Money Tracker — Personal Finance, Simplified",
+    "description": "Track income and expenses, import your statements, and see where your money goes — all in one private place."
+  },
+  "content": {
+    "hero": {
+      "title": "See where your money goes",
+      "subtitle": "Money Tracker helps you record income and expenses, import your statements, and understand your spending — all in one private place.",
+      "getStarted": "Get started",
+      "signIn": "Sign in",
+      "learnMore": "Learn more"
+    },
+    "advantages": {
+      "title": "Everything you need to stay on top of your money",
+      "items": {
+        "tracking": {
+          "title": "Effortless tracking",
+          "description": "Record income and expenses in seconds and keep a clear history of every transaction."
+        },
+        "import": {
+          "title": "Import your statements",
+          "description": "Bring in your existing data from CSV or JSON files and skip the manual entry."
+        },
+        "insights": {
+          "title": "Insightful dashboard",
+          "description": "See monthly summaries, trends, and category breakdowns to understand your habits."
+        },
+        "categories": {
+          "title": "Organized categories",
+          "description": "Group transactions with a flexible category hierarchy that fits how you think about money."
+        }
+      }
+    },
+    "reviews": {
+      "title": "Loved by people who value their privacy",
+      "items": {
+        "review1": {
+          "name": "Olena K.",
+          "role": "Freelance Designer",
+          "quote": "Finally a tracker I actually keep using. Importing my bank statements took minutes and the dashboard makes my spending obvious."
+        },
+        "review2": {
+          "name": "Marko P.",
+          "role": "Software Engineer",
+          "quote": "It runs entirely on my own machine, so my financial data never leaves home. Fast, clean, and exactly what I needed."
+        },
+        "review3": {
+          "name": "Sofia H.",
+          "role": "Small Business Owner",
+          "quote": "The category breakdowns changed how I plan each month. I can see where every hryvnia goes at a glance."
+        }
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": {
+        "q1": {
+          "question": "Is Money Tracker free to use?",
+          "answer": "Yes. Money Tracker is a personal, self-hosted tool that runs on your own machine at no cost."
+        },
+        "q2": {
+          "question": "Where is my financial data stored?",
+          "answer": "Everything stays in your own local database. Your data never leaves your machine and is never sent to third parties."
+        },
+        "q3": {
+          "question": "Can I import my existing transactions?",
+          "answer": "Yes. You can import transactions from CSV or JSON files, so you can get started without re-entering months of history."
+        },
+        "q4": {
+          "question": "Can I organize transactions into categories?",
+          "answer": "Absolutely. You can build a category hierarchy and assign every transaction, then view detailed breakdowns by category."
+        },
+        "q5": {
+          "question": "Does Money Tracker support more than one language?",
+          "answer": "Yes. The interface is fully available in English and Ukrainian, and you can switch languages at any time."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to take control of your money?",
+      "subtitle": "Create your account and start tracking in minutes.",
+      "getStarted": "Get started",
+      "signIn": "Sign in"
+    },
+    "footer": {
+      "tagline": "Money Tracker — your private personal finance companion.",
+      "copyright": "© {year} Money Tracker. All rights reserved.",
+      "signIn": "Sign in",
+      "signUp": "Sign up"
+    }
+  }
 }
