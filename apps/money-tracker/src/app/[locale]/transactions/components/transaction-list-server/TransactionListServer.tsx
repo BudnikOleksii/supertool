@@ -1,7 +1,7 @@
-import type { FC } from 'react';
+import type { FC, ReactElement } from 'react';
 
 import { redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
-import { DEFAULT_PAGE_SIZE } from '@supertool/shared/constants/pagination';
+import { DEFAULT_PAGE_SIZE, FIRST_PAGE } from '@supertool/shared/constants/pagination';
 import type {
   SortOrder,
   TransactionSortBy,
@@ -51,12 +51,44 @@ const redirectWhenPageOutOfRange = ({
   });
 };
 
+interface EmptyStateParams {
+  period: string;
+  search?: string | undefined;
+  hasActiveFilters: boolean;
+  view: TransactionViewParams;
+}
+
+const renderEmptyTransactionState = ({
+  period,
+  search,
+  hasActiveFilters,
+  view,
+}: EmptyStateParams): ReactElement => {
+  if (search !== undefined) {
+    return (
+      <TransactionEmptyState
+        variant="noSearchMatches"
+        period={period}
+        clearQuery={buildTransactionsRedirectQuery(period, FIRST_PAGE, view)}
+      />
+    );
+  }
+
+  return (
+    <TransactionEmptyState
+      variant={hasActiveFilters ? 'noMatches' : 'emptyMonth'}
+      period={period}
+    />
+  );
+};
+
 interface Props {
   period: string;
   page: number;
   locale: string;
   type?: TransactionType | undefined;
   categoryId?: string | undefined;
+  search?: string | undefined;
   sortBy: TransactionSortBy;
   sortOrder: SortOrder;
   hasActiveFilters: boolean;
@@ -68,6 +100,7 @@ export const TransactionListServer: FC<Props> = async ({
   locale,
   type,
   categoryId,
+  search,
   sortBy,
   sortOrder,
   hasActiveFilters,
@@ -81,6 +114,7 @@ export const TransactionListServer: FC<Props> = async ({
     limit: DEFAULT_PAGE_SIZE,
     type,
     categoryId,
+    search,
     sortBy,
     sortOrder,
   });
@@ -93,19 +127,19 @@ export const TransactionListServer: FC<Props> = async ({
   const { meta } = result.transactions;
 
   if (meta.total === EMPTY_COUNT) {
-    return (
-      <TransactionEmptyState
-        variant={hasActiveFilters ? 'noMatches' : 'emptyMonth'}
-        period={period}
-      />
-    );
+    return renderEmptyTransactionState({
+      period,
+      search,
+      hasActiveFilters,
+      view: { type, categoryId, sortBy, sortOrder },
+    });
   }
 
   redirectWhenPageOutOfRange({
     page,
     total: meta.total,
     period,
-    view: { type, categoryId, sortBy, sortOrder },
+    view: { type, categoryId, search, sortBy, sortOrder },
     locale,
   });
 

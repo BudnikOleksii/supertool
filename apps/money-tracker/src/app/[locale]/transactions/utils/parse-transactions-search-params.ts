@@ -1,4 +1,5 @@
 import { FIRST_PAGE, MAX_PAGE } from '@supertool/shared/constants/pagination';
+import { TRANSACTION_SEARCH_MAX_LENGTH } from '@supertool/shared/constants/transaction-search';
 import {
   DEFAULT_SORT_BY,
   DEFAULT_SORT_ORDER,
@@ -16,6 +17,7 @@ import { TRANSACTION_TYPE_LIST } from '../../../../constants/transaction';
 import { normalizeSearchParam } from '../../../../utils/normalize-search-param';
 import {
   CATEGORY_SEARCH_PARAM,
+  SEARCH_SEARCH_PARAM,
   SORT_BY_SEARCH_PARAM,
   SORT_ORDER_SEARCH_PARAM,
   TYPE_SEARCH_PARAM,
@@ -28,6 +30,7 @@ export interface TransactionsSearchParams {
   page: number;
   type?: TransactionType | undefined;
   categoryId?: string | undefined;
+  search?: string | undefined;
   sortBy: TransactionSortBy;
   sortOrder: TransactionSortOrder;
 }
@@ -48,6 +51,18 @@ const parseType = (value: string | undefined): TransactionType | undefined =>
 const parseCategoryId = (value: string | undefined): string | undefined =>
   value?.trim() || undefined;
 
+const SEARCH_CLAMP_START = 0;
+
+const parseSearch = (value: string | undefined): string | undefined => {
+  const trimmed = value?.trim();
+
+  if (!trimmed) {
+    return undefined;
+  }
+
+  return trimmed.slice(SEARCH_CLAMP_START, TRANSACTION_SEARCH_MAX_LENGTH);
+};
+
 const parseSortBy = (value: string | undefined): TransactionSortBy =>
   TRANSACTION_SORT_BY_LIST.find((sortBy) => sortBy === value) ?? DEFAULT_SORT_BY;
 
@@ -62,6 +77,7 @@ export const parseTransactionsSearchParams = (
   page: parsePage(normalizeSearchParam(searchParams[PAGE_SEARCH_PARAM])),
   type: parseType(normalizeSearchParam(searchParams[TYPE_SEARCH_PARAM])),
   categoryId: parseCategoryId(normalizeSearchParam(searchParams[CATEGORY_SEARCH_PARAM])),
+  search: parseSearch(normalizeSearchParam(searchParams[SEARCH_SEARCH_PARAM])),
   sortBy: parseSortBy(normalizeSearchParam(searchParams[SORT_BY_SEARCH_PARAM])),
   sortOrder: parseSortOrder(normalizeSearchParam(searchParams[SORT_ORDER_SEARCH_PARAM])),
 });

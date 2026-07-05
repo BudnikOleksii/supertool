@@ -35,4 +35,10 @@ describe('FindDailySpendingQueryDto', () => {
 
     expect(actualErrorList).toContain('dateFrom');
   });
+
+  it('rejects a shaped-but-invalid calendar date', async () => {
+    const actualErrorList = await validateQuery({ dateFrom: '2025-02-01', dateTo: '2025-02-31' });
+
+    expect(actualErrorList).toContain('dateTo');
+  });
 });

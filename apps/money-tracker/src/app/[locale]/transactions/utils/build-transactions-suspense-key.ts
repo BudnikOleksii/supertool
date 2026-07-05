@@ -6,6 +6,7 @@ export const buildTransactionsSuspenseKey = (params: TransactionsSearchParams): 
     String(params.page),
     params.type ?? '',
     params.categoryId ?? '',
+    params.search ?? '',
     params.sortBy,
     params.sortOrder,
   ].join('-');

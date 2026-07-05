@@ -22,3 +22,6 @@ export const checkIsCalendarDate = (value: string): boolean => {
     date.getUTCDate() === day
   );
 };
+
+export const checkIsOrderedDateRange = (dateFrom: string, dateTo: string): boolean =>
+  dateFrom <= dateTo;

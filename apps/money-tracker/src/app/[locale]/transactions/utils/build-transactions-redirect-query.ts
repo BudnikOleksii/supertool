@@ -8,6 +8,7 @@ import type {
 import { PAGE_SEARCH_PARAM, PERIOD_SEARCH_PARAM } from '../../../../constants/search-params';
 import {
   CATEGORY_SEARCH_PARAM,
+  SEARCH_SEARCH_PARAM,
   SORT_BY_SEARCH_PARAM,
   SORT_ORDER_SEARCH_PARAM,
   TYPE_SEARCH_PARAM,
@@ -16,6 +17,7 @@ import {
 export interface TransactionViewParams {
   type?: TransactionType | undefined;
   categoryId?: string | undefined;
+  search?: string | undefined;
   sortBy: TransactionSortBy;
   sortOrder: SortOrder;
 }
@@ -32,6 +34,10 @@ const buildViewQuery = (view: TransactionViewParams): Record<string, string> => 
 
   if (view.categoryId !== undefined) {
     query[CATEGORY_SEARCH_PARAM] = view.categoryId;
+  }
+
+  if (view.search !== undefined) {
+    query[SEARCH_SEARCH_PARAM] = view.search;
   }
 
   return query;

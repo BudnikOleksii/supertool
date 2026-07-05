@@ -403,6 +403,7 @@ export type TransactionsFindAllData = {
         categoryId?: string;
         sortBy?: TransactionSortBy;
         sortOrder?: SortOrder;
+        search?: string;
     };
     url: '/api/v1/transactions';
 };

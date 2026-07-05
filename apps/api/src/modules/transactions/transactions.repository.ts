@@ -9,6 +9,7 @@ import {
   desc,
   eq,
   gte,
+  ilike,
   inArray,
   isNotNull,
   isNull,
@@ -53,7 +54,23 @@ interface TransactionFilterQuery {
   dateTo?: string | undefined;
   type?: TransactionType | undefined;
   categoryId?: string | undefined;
+  search?: string | undefined;
 }
+
+const LIKE_METACHARACTER_PATTERN = /[\\%_]/gu;
+
+const escapeLikePattern = (value: string): string =>
+  value.replace(LIKE_METACHARACTER_PATTERN, String.raw`\$&`);
+
+const buildSearchCondition = (search: string | undefined): SQL | undefined => {
+  const normalizedSearch = search?.trim();
+
+  if (normalizedSearch === undefined || normalizedSearch === '') {
+    return undefined;
+  }
+
+  return ilike(transactions.note, `%${escapeLikePattern(normalizedSearch)}%`);
+};
 
 interface TransactionSortQuery {
   sortBy: TransactionSortBy;
@@ -136,25 +153,18 @@ const buildScopedConditions = (
   query: TransactionFilterQuery,
   categoryIdList: string[] | undefined,
 ): SQL[] => {
-  const conditions: SQL[] = [eq(transactions.userId, userId)];
+  const optionalConditionList: (SQL | undefined)[] = [
+    query.dateFrom === undefined ? undefined : gte(transactions.date, query.dateFrom),
+    query.dateTo === undefined ? undefined : lte(transactions.date, query.dateTo),
+    query.type === undefined ? undefined : eq(transactions.type, query.type),
+    categoryIdList === undefined ? undefined : inArray(transactions.categoryId, categoryIdList),
+    buildSearchCondition(query.search),
+  ];
 
-  if (query.dateFrom !== undefined) {
-    conditions.push(gte(transactions.date, query.dateFrom));
-  }
-
-  if (query.dateTo !== undefined) {
-    conditions.push(lte(transactions.date, query.dateTo));
-  }
-
-  if (query.type !== undefined) {
-    conditions.push(eq(transactions.type, query.type));
-  }
-
-  if (categoryIdList !== undefined) {
-    conditions.push(inArray(transactions.categoryId, categoryIdList));
-  }
-
-  return conditions;
+  return [
+    eq(transactions.userId, userId),
+    ...optionalConditionList.filter((condition): condition is SQL => condition !== undefined),
+  ];
 };
 
 const SORT_COLUMN_BY_KEY: Record<TransactionSortBy, AnyColumn> = {

@@ -35,4 +35,10 @@ describe('FindTrendQueryDto', () => {
 
     expect(actualErrorList).toContain('dateFrom');
   });
+
+  it('rejects a shaped-but-invalid calendar date', async () => {
+    const actualErrorList = await validateQuery({ dateFrom: '2024-02-30', dateTo: '2025-02-28' });
+
+    expect(actualErrorList).toContain('dateFrom');
+  });
 });

@@ -1,0 +1,1 @@
+export const TRANSACTION_SEARCH_MAX_LENGTH = 200;

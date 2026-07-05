@@ -17,16 +17,21 @@ import type { TransactionType } from '../../../database/schemas/enums';
 
 import { TRANSACTION_TYPE_LIST, transactionTypeEnum } from '../../../database/schemas/enums';
 import { OPENAPI_ENUM_NAME } from '../../../shared/constants/openapi-enum-name';
+import { IsCalendarDate } from '../../../shared/validators/is-calendar-date.decorator';
+import { IsOrderedDateRange } from '../../../shared/validators/is-ordered-date-range.decorator';
 
+@IsOrderedDateRange('dateFrom', 'dateTo')
 export class TransactionFilterQueryDto {
   @ApiPropertyOptional({ example: '2025-02-01' })
   @IsOptional()
   @Matches(CALENDAR_DATE_PATTERN)
+  @IsCalendarDate()
   dateFrom?: string;
 
   @ApiPropertyOptional({ example: '2025-02-28' })
   @IsOptional()
   @Matches(CALENDAR_DATE_PATTERN)
+  @IsCalendarDate()
   dateTo?: string;
 
   @ApiPropertyOptional({

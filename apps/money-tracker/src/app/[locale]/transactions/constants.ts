@@ -7,3 +7,5 @@ export const CATEGORY_SEARCH_PARAM = 'categoryId';
 export const SORT_BY_SEARCH_PARAM = 'sortBy';
 
 export const SORT_ORDER_SEARCH_PARAM = 'sortOrder';
+
+export const SEARCH_SEARCH_PARAM = 'search';

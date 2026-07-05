@@ -100,6 +100,19 @@ describe('TransactionsService', () => {
     });
   });
 
+  it('forwards the search term to the repository', async () => {
+    const findAllByUserId = vi.fn().mockResolvedValue({ data: [], total: 0 });
+    const repository = { findAllByUserId };
+    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+
+    await service.findAll('user-id', { search: 'coffee' });
+
+    expect(findAllByUserId).toHaveBeenCalledWith(
+      'user-id',
+      expect.objectContaining({ search: 'coffee' }),
+    );
+  });
+
   it('throws NotFoundException when the category does not belong to the user', async () => {
     const findCategoryForUser = vi.fn().mockResolvedValue(null);
     const create = vi.fn();

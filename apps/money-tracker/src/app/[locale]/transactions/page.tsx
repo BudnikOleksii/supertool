@@ -77,6 +77,7 @@ const TransactionsPage: FC<Props> = async (props) => {
           locale={locale}
           type={params.type}
           categoryId={params.categoryId}
+          search={params.search}
           sortBy={params.sortBy}
           sortOrder={params.sortOrder}
           hasActiveFilters={checkHasActiveFilters(params)}

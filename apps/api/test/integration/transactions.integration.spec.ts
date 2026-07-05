@@ -858,3 +858,217 @@ describe('TransactionsService bulkDelete (Testcontainers Postgres)', () => {
     expect(secondResult.failedList).toEqual([{ id: created.id, reason: ErrorCode.NotFound }]);
   });
 });
+
+const SEARCH_WINDOW: MonthWindow = { dateFrom: '2025-06-01', dateTo: '2025-06-30' };
+const SEARCH_DATE = '2025-06-15';
+const SEARCH_AMOUNT = '10.00';
+
+const createOperatorNoteTransaction = async (note: string): Promise<TransactionResponseDto> => {
+  const category = await loadOperatorChildCategory();
+
+  return getService().create(operatorId, {
+    type: category.type,
+    amount: SEARCH_AMOUNT,
+    currency: 'UAH',
+    categoryId: category.id,
+    date: SEARCH_DATE,
+    note,
+  });
+};
+
+const insertSecondUserNoteTransaction = async (
+  note: string,
+): Promise<{ userId: string; transactionId: string }> => {
+  const userId = generateId();
+  const categoryId = generateId();
+  const transactionId = generateId();
+
+  await getDatabase()
+    .insert(users)
+    .values({ id: userId, name: 'Search User', email: `search-${userId}@example.com` });
+  await getDatabase()
+    .insert(transactionCategories)
+    .values({ id: categoryId, userId, name: 'Search Category', type: 'expense' });
+  await getDatabase().insert(transactions).values({
+    id: transactionId,
+    userId,
+    categoryId,
+    type: 'expense',
+    amount: SEARCH_AMOUNT,
+    currency: 'UAH',
+    date: SEARCH_DATE,
+    note,
+  });
+
+  return { userId, transactionId };
+};
+
+const searchOperatorWindow = (
+  search: string,
+  overrides: Partial<FindAllByUserIdQueryShape> = {},
+): Promise<FindAllByUserIdResultShape> =>
+  getRepository().findAllByUserId(operatorId, {
+    dateFrom: SEARCH_WINDOW.dateFrom,
+    dateTo: SEARCH_WINDOW.dateTo,
+    search,
+    ...DEFAULT_SORT,
+    page: FIRST_PAGE,
+    limit: HIGH_LIMIT,
+    ...overrides,
+  });
+
+interface FindAllByUserIdQueryShape {
+  dateFrom?: string;
+  dateTo?: string;
+  type?: TransactionType;
+  categoryId?: string;
+  search?: string;
+  sortBy: typeof DEFAULT_SORT_BY;
+  sortOrder: TransactionSortOrder;
+  page: number;
+  limit: number;
+}
+
+interface FindAllByUserIdResultShape {
+  data: TransactionResponseDto[];
+  total: number;
+}
+
+const SEARCH_SEEDED_ROW_COUNT = 8;
+const SEARCH_COFFEE_MATCH_COUNT = 2;
+const SEARCH_SINGLE_MATCH = 1;
+const SEARCH_NO_MATCH = 0;
+const SEARCH_PAGE_LIMIT_ONE = 1;
+const NONCE_SLICE_START = 0;
+const NONCE_HEX_LENGTH = 10;
+
+let searchNonce = '';
+
+describe('TransactionsRepository search (Testcontainers Postgres)', () => {
+  beforeAll(async () => {
+    searchNonce = `mk${generateId().replaceAll('-', '').slice(NONCE_SLICE_START, NONCE_HEX_LENGTH)}`;
+
+    await createOperatorNoteTransaction(`${searchNonce}coffee-one`);
+    await createOperatorNoteTransaction(`${searchNonce}coffee-two`);
+    await createOperatorNoteTransaction(`${searchNonce}50%off`);
+    await createOperatorNoteTransaction(`${searchNonce}5000off`);
+    await createOperatorNoteTransaction(`${searchNonce}a_b`);
+    await createOperatorNoteTransaction(`${searchNonce}axb`);
+    await createOperatorNoteTransaction(`${searchNonce}Кава`);
+    await createOperatorNoteTransaction(`${searchNonce}'; DROP TABLE transactions;--`);
+  }, BOOT_TIMEOUT_MS);
+
+  it('matches all seeded rows for the unique nonce within the period (AC1)', async () => {
+    const { data, total } = await searchOperatorWindow(searchNonce);
+
+    expect(total).toBe(SEARCH_SEEDED_ROW_COUNT);
+    expect(data.every((row) => row.note.includes(searchNonce))).toBe(true);
+  });
+
+  it('matches the note case-insensitively (AC2/AC3)', async () => {
+    const { data, total } = await searchOperatorWindow(`${searchNonce}COFFEE`);
+
+    expect(total).toBe(SEARCH_COFFEE_MATCH_COUNT);
+    expect(data.every((row) => row.note.toLowerCase().includes('coffee'))).toBe(true);
+  });
+
+  it('treats LIKE metacharacters as literals, not wildcards (AC3)', async () => {
+    const percentResult = await searchOperatorWindow(`${searchNonce}50%`);
+    const underscoreResult = await searchOperatorWindow(`${searchNonce}a_b`);
+
+    expect(percentResult.total).toBe(SEARCH_SINGLE_MATCH);
+    expect(percentResult.data[FIRST_ROW_INDEX]?.note).toContain('50%off');
+    expect(underscoreResult.total).toBe(SEARCH_SINGLE_MATCH);
+    expect(underscoreResult.data[FIRST_ROW_INDEX]?.note).toContain('a_b');
+  });
+
+  it('matches Cyrillic note text case-insensitively (AC3)', async () => {
+    const { data, total } = await searchOperatorWindow(`${searchNonce}кава`);
+
+    expect(total).toBe(SEARCH_SINGLE_MATCH);
+    expect(data[FIRST_ROW_INDEX]?.note).toContain('Кава');
+  });
+
+  it('treats a SQL-injection payload as inert literal text (AC3)', async () => {
+    const { data, total } = await searchOperatorWindow(
+      `${searchNonce}'; DROP TABLE transactions;--`,
+    );
+
+    expect(total).toBe(SEARCH_SINGLE_MATCH);
+    expect(data[FIRST_ROW_INDEX]?.note).toContain('DROP TABLE');
+
+    const stillPresent = await searchOperatorWindow(searchNonce);
+    expect(stillPresent.total).toBe(SEARCH_SEEDED_ROW_COUNT);
+  });
+
+  it('returns an empty result with a correct total for a non-matching query (AC10)', async () => {
+    const { data, total } = await searchOperatorWindow(`${searchNonce}no-such-token`);
+
+    expect(data).toEqual([]);
+    expect(total).toBe(SEARCH_NO_MATCH);
+  });
+
+  it('ignores a whitespace-only search and returns the unfiltered period view (AC1)', async () => {
+    const searched = await searchOperatorWindow('   ');
+    const unfiltered = await searchOperatorWindow('');
+
+    expect(searched.total).toBe(unfiltered.total);
+    expect(searched.total).toBeGreaterThanOrEqual(SEARCH_SEEDED_ROW_COUNT);
+  });
+
+  it('composes search with the type filter and offset pagination (AC1)', async () => {
+    const category = await loadOperatorChildCategory();
+
+    const matchingType = await searchOperatorWindow(searchNonce, { type: category.type });
+    const oppositeType = await searchOperatorWindow(searchNonce, {
+      type: getOppositeType(category.type),
+    });
+    const firstPage = await searchOperatorWindow(`${searchNonce}coffee`, {
+      limit: SEARCH_PAGE_LIMIT_ONE,
+    });
+
+    expect(matchingType.total).toBe(SEARCH_SEEDED_ROW_COUNT);
+    expect(oppositeType.total).toBe(SEARCH_NO_MATCH);
+    expect(firstPage.data.length).toBe(SEARCH_PAGE_LIMIT_ONE);
+    expect(firstPage.total).toBe(SEARCH_COFFEE_MATCH_COUNT);
+  });
+
+  it('never returns another user rows for a matching search (FR21)', async () => {
+    const { userId, transactionId } = await insertSecondUserNoteTransaction(
+      `${searchNonce}coffee-other`,
+    );
+
+    const operatorResult = await searchOperatorWindow(`${searchNonce}coffee`);
+    const otherResult = await getRepository().findAllByUserId(userId, {
+      dateFrom: SEARCH_WINDOW.dateFrom,
+      dateTo: SEARCH_WINDOW.dateTo,
+      search: `${searchNonce}coffee`,
+      ...DEFAULT_SORT,
+      page: FIRST_PAGE,
+      limit: HIGH_LIMIT,
+    });
+
+    expect(operatorResult.data.some((row) => row.id === transactionId)).toBe(false);
+    expect(otherResult.data.map((row) => row.id)).toEqual([transactionId]);
+  });
+});
+
+describe('pg_trgm migration (Testcontainers Postgres)', () => {
+  it('installs the pg_trgm extension via migration 0006 (AC4)', async () => {
+    const result = await getPool().query<{ extname: string }>(
+      `SELECT extname FROM pg_extension WHERE extname = 'pg_trgm'`,
+    );
+
+    expect(result.rows).toHaveLength(1);
+  });
+
+  it('creates the GIN trigram index on the note column (AC4)', async () => {
+    const result = await getPool().query<{ indexdef: string }>(
+      `SELECT indexdef FROM pg_indexes WHERE indexname = 'transactions_note_trgm_idx'`,
+    );
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[FIRST_ROW_INDEX]?.indexdef).toContain('gin');
+    expect(result.rows[FIRST_ROW_INDEX]?.indexdef).toContain('gin_trgm_ops');
+  });
+});
