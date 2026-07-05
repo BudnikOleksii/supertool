@@ -362,3 +362,4 @@ Pre-QA checklist: confirmed the `:3000` (money-tracker) and `:3001` (api) dev se
 | Date | Change |
 | --- | --- |
 | 2026-07-05 | Implemented Story 5.6: new `analytics/by-category` aggregation endpoint (SQL subtree roll-up, string totals, decimal-safe, breakdown-reconciling) + regenerated client; `/transactions/by-category` landing accordion (per-node totals + counts) and `/transactions/by-category/[categoryId]` detail (reusing subtree-aware `transactionsFindAll`); new `transactionsByCategoryPage` i18n namespace (en+uk); enabled nav item; unit + integration + component tests; committed visual QA (both themes × 390/desktop). All gates green. Status → review. |
+| 2026-07-05 | Code review APPROVE (3 adversarial layers, 0 must-fix; 4 non-blocking nice-to-haves noted as PR follow-ups). PR opened: https://github.com/BudnikOleksii/supertool/pull/39 |
