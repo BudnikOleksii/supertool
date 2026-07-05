@@ -314,6 +314,7 @@ Findings: `documentElement.scrollWidth === innerWidth` (390 === 390) on both sig
 | Date | Change |
 |------|--------|
 | 2026-07-05 | Implemented story 7.1: first/last name as better-auth additional fields (sign-up + settings), derived `name` via shared `composeFullName`/`splitFullName`, migration 0007 + backfill, single-writer name recomposition in `UsersService`, regenerated client, focused `update-locale` action for the user-menu locale switch, and the D-F Testcontainers teardown-race fix (`stopIntegrationApp` across all integration specs). i18n EN+UK, full gates green, visual QA captured. Status → review. |
+| 2026-07-05 | Code review APPROVE (3 adversarial layers, 0 must-fix; better-auth client isolation + single-writer recomposition + backfill safety + teardown-fix completeness independently verified; 6 non-blocking nice-to-haves). PR opened: https://github.com/BudnikOleksii/supertool/pull/47 |
 
 ### Review Findings (bmad-code-review, 2026-07-05)
 
