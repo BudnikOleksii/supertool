@@ -1,7 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
+import { composeFullName } from '@supertool/shared/utils/full-name';
+
 import type { UpdateUserDto } from './dtos/update-user.dto';
 import type { UserResponseDto } from './dtos/user-response.dto';
+import type { UserUpdatePatch } from './users.repository';
 
 import { UsersRepository } from './users.repository';
 
@@ -20,12 +23,30 @@ export class UsersService {
   }
 
   async update(userId: string, dto: UpdateUserDto): Promise<UserResponseDto> {
-    const user = await this.usersRepository.updateScoped(userId, dto);
+    const patch = await this.buildUpdatePatch(userId, dto);
+    const user = await this.usersRepository.updateScoped(userId, patch);
 
     if (!user) {
       throw new NotFoundException();
     }
 
     return user;
+  }
+
+  private async buildUpdatePatch(userId: string, dto: UpdateUserDto): Promise<UserUpdatePatch> {
+    if (dto.firstName === undefined && dto.lastName === undefined) {
+      return dto;
+    }
+
+    const current = await this.usersRepository.findByIdScoped(userId);
+
+    if (!current) {
+      throw new NotFoundException();
+    }
+
+    const effectiveFirstName = dto.firstName ?? current.firstName;
+    const effectiveLastName = dto.lastName ?? current.lastName;
+
+    return { ...dto, name: composeFullName(effectiveFirstName, effectiveLastName) };
   }
 }

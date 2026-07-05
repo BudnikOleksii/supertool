@@ -8,10 +8,16 @@ import type { UserResponseDto } from './dtos/user-response.dto';
 import { DRIZZLE } from '../../database/database.constants';
 import { users } from '../../database/schemas/users';
 
+export interface UserUpdatePatch extends UpdateUserDto {
+  name?: string;
+}
+
 const USER_RESPONSE_COLUMNS = {
   id: users.id,
   email: users.email,
   name: users.name,
+  firstName: users.firstName,
+  lastName: users.lastName,
   role: users.role,
   locale: users.locale,
   defaultCurrency: users.defaultCurrency,
@@ -32,7 +38,7 @@ export class UsersRepository {
     return user;
   }
 
-  async updateScoped(userId: string, patch: UpdateUserDto): Promise<UserResponseDto | undefined> {
+  async updateScoped(userId: string, patch: UserUpdatePatch): Promise<UserResponseDto | undefined> {
     const [user] = await this.db
       .update(users)
       .set(buildUserUpdateValues(patch))
@@ -43,24 +49,14 @@ export class UsersRepository {
   }
 }
 
-const buildUserUpdateValues = (patch: UpdateUserDto): Partial<typeof users.$inferInsert> => {
-  const updateValues: Partial<typeof users.$inferInsert> = { updatedAt: new Date() };
-
-  if (patch.name !== undefined) {
-    updateValues.name = patch.name;
-  }
-
-  if (patch.locale !== undefined) {
-    updateValues.locale = patch.locale;
-  }
-
-  if (patch.defaultCurrency !== undefined) {
-    updateValues.defaultCurrency = patch.defaultCurrency;
-  }
-
-  if (patch.onboardingCompleted !== undefined) {
-    updateValues.onboardingCompleted = patch.onboardingCompleted;
-  }
-
-  return updateValues;
-};
+const buildUserUpdateValues = (patch: UserUpdatePatch): Partial<typeof users.$inferInsert> => ({
+  updatedAt: new Date(),
+  ...(patch.name !== undefined && { name: patch.name }),
+  ...(patch.firstName !== undefined && { firstName: patch.firstName }),
+  ...(patch.lastName !== undefined && { lastName: patch.lastName }),
+  ...(patch.locale !== undefined && { locale: patch.locale }),
+  ...(patch.defaultCurrency !== undefined && { defaultCurrency: patch.defaultCurrency }),
+  ...(patch.onboardingCompleted !== undefined && {
+    onboardingCompleted: patch.onboardingCompleted,
+  }),
+});

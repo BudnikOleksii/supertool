@@ -20,7 +20,7 @@ import { AppShell } from '@supertool/shell/src/components/app-shell/AppShell';
 import type { NavItem } from '@supertool/shell/src/components/app-shell/types';
 import { authClient } from '@supertool/widgets/src/auth/auth-client';
 
-import { updateProfile } from '../../actions/update-profile';
+import { updateLocale } from '../../actions/update-locale';
 import { ROUTES } from '../../constants/routes';
 
 const NAV_ITEM_LIST: NavItem[] = [
@@ -78,7 +78,7 @@ export const AppShellSection: FC<Props> = ({ userName, children }) => {
       return;
     }
 
-    await updateProfile({ name: userName, locale });
+    await updateLocale(locale);
   };
 
   return (

@@ -13,7 +13,13 @@ export class UpdateUserDto {
   @IsString()
   @MinLength(NAME_MIN_LENGTH)
   @MaxLength(NAME_MAX_LENGTH)
-  name?: string;
+  firstName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(NAME_MAX_LENGTH)
+  lastName?: string;
 
   @ApiPropertyOptional({ enum: LOCALE_CODE_LIST, enumName: OPENAPI_ENUM_NAME.localeCode })
   @IsOptional()

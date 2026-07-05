@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { runMigrations } from '../../src/database/run-migrations.js';
+import { stopIntegrationApp } from '../helpers/integration-app.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -36,7 +37,7 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
-  await container?.stop();
+  await stopIntegrationApp({ container });
 });
 
 describe('migrate-on-boot (Testcontainers Postgres)', () => {

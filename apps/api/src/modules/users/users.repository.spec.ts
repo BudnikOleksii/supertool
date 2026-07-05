@@ -51,10 +51,39 @@ describe('UsersRepository', () => {
     expect(set).toHaveBeenCalledWith({ onboardingCompleted: true, updatedAt: expect.any(Date) });
   });
 
+  it('updateScoped maps the firstName, lastName and composed name fields when provided', async () => {
+    const expectedUser = {
+      id: 'user-id',
+      email: 'a@b.com',
+      name: 'Ann Smith',
+      firstName: 'Ann',
+      lastName: 'Smith',
+      role: 'user',
+      locale: 'en',
+      defaultCurrency: null,
+    };
+    const { db, set } = createDbDouble([expectedUser]);
+    const repository = new UsersRepository(db);
+
+    const actual = await repository.updateScoped('user-id', {
+      firstName: 'Ann',
+      lastName: 'Smith',
+      name: 'Ann Smith',
+    });
+
+    expect(actual).toEqual(expectedUser);
+    expect(set).toHaveBeenCalledWith({
+      firstName: 'Ann',
+      lastName: 'Smith',
+      name: 'Ann Smith',
+      updatedAt: expect.any(Date),
+    });
+  });
+
   it('updateScoped returns undefined when no row matches the scoped user', async () => {
     const { db } = createDbDouble([]);
     const repository = new UsersRepository(db);
 
-    await expect(repository.updateScoped('missing-id', { name: 'Ghost' })).resolves.toBeUndefined();
+    await expect(repository.updateScoped('missing-id', { locale: 'en' })).resolves.toBeUndefined();
   });
 });

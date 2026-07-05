@@ -7,7 +7,11 @@ import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
 
 import { createAuthClient, extractSessionCookie } from '../helpers/auth-client.js';
 import { createHttpClient } from '../helpers/http-client.js';
-import { bootIntegrationApp, configureTestEnvironment } from '../helpers/integration-app.js';
+import {
+  bootIntegrationApp,
+  configureTestEnvironment,
+  stopIntegrationApp,
+} from '../helpers/integration-app.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -17,13 +21,27 @@ import {
 
 process.env.TESTCONTAINERS_RYUK_DISABLED = 'true';
 
-const USER_A = { name: 'Ann', email: 'ann@example.com', password: 'supersecret123' };
-const USER_B = { name: 'Bob', email: 'bob@example.com', password: 'supersecret456' };
+const USER_A = {
+  name: 'Ann Smith',
+  firstName: 'Ann',
+  lastName: 'Smith',
+  email: 'ann@example.com',
+  password: 'supersecret123',
+};
+const USER_B = {
+  name: 'Bob Brown',
+  firstName: 'Bob',
+  lastName: 'Brown',
+  email: 'bob@example.com',
+  password: 'supersecret456',
+};
 
 interface UserBody {
   id: string;
   email: string;
   name: string;
+  firstName: string | null;
+  lastName: string | null;
   role: string;
 }
 
@@ -52,8 +70,7 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
-  await app?.close();
-  await container?.stop();
+  await stopIntegrationApp({ app, container });
 });
 
 describe('auth boundary (Testcontainers Postgres)', () => {
@@ -101,6 +118,8 @@ describe('auth boundary (Testcontainers Postgres)', () => {
       id: expect.any(String),
       email: USER_A.email,
       name: USER_A.name,
+      firstName: USER_A.firstName,
+      lastName: USER_A.lastName,
       role: 'user',
       locale: 'en',
       defaultCurrency: null,

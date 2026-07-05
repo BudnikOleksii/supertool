@@ -8,7 +8,11 @@ import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
 
 import { buildTestUser, createAuthClient } from '../helpers/auth-client.js';
 import { createHttpClient } from '../helpers/http-client.js';
-import { bootIntegrationApp, configureTestEnvironment } from '../helpers/integration-app.js';
+import {
+  bootIntegrationApp,
+  configureTestEnvironment,
+  stopIntegrationApp,
+} from '../helpers/integration-app.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -22,6 +26,8 @@ interface UserBody {
   id: string;
   email: string;
   name: string;
+  firstName: string | null;
+  lastName: string | null;
   role: string;
   locale: string;
   defaultCurrency: string | null;
@@ -52,25 +58,55 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
-  await app?.close();
-  await container?.stop();
+  await stopIntegrationApp({ app, container });
 });
 
 describe('users profile update (Testcontainers Postgres)', () => {
-  it('persists a profile update and reflects it on a subsequent read', async () => {
+  it('persists first and last name and recomposes the display name on a subsequent read', async () => {
     const cookie = await registerAndSignIn(buildTestUser('persist'));
 
     const patchResponse = await patchJson(
       '/api/v1/users/me',
-      { name: 'Ann Updated', locale: 'uk', defaultCurrency: 'UAH' },
+      { firstName: 'Ann', lastName: 'Smith', locale: 'uk', defaultCurrency: 'UAH' },
       cookie,
     );
     const patchBody = await readJson<UserBody>(patchResponse);
-    const expectedProfile = { name: 'Ann Updated', locale: 'uk', defaultCurrency: 'UAH' };
+    const expectedProfile = {
+      firstName: 'Ann',
+      lastName: 'Smith',
+      name: 'Ann Smith',
+      locale: 'uk',
+      defaultCurrency: 'UAH',
+    };
 
     expect(patchResponse.status).toBe(HTTP_STATUS_CODE.Ok);
     expect(patchBody).toMatchObject(expectedProfile);
     expect(await readProfile(cookie)).toMatchObject(expectedProfile);
+  });
+
+  it('recomposes the display name from a partial PATCH that only changes the first name', async () => {
+    const cookie = await registerAndSignIn(buildTestUser('partial-patch'));
+
+    await patchJson('/api/v1/users/me', { firstName: 'Ann', lastName: 'Smith' }, cookie);
+    const patchResponse = await patchJson('/api/v1/users/me', { firstName: 'Anna' }, cookie);
+    const patchBody = await readJson<UserBody>(patchResponse);
+
+    expect(patchBody).toMatchObject({ firstName: 'Anna', lastName: 'Smith', name: 'Anna Smith' });
+    expect(await readProfile(cookie)).toMatchObject({
+      firstName: 'Anna',
+      lastName: 'Smith',
+      name: 'Anna Smith',
+    });
+  });
+
+  it('persists first and last name captured at sign-up and composes the display name', async () => {
+    const cookie = await registerAndSignIn(buildTestUser('signup-names'));
+
+    expect(await readProfile(cookie)).toMatchObject({
+      firstName: 'User',
+      lastName: 'signup-names',
+      name: 'User signup-names',
+    });
   });
 
   it('scopes the update to the session user and never touches another user', async () => {
@@ -79,13 +115,13 @@ describe('users profile update (Testcontainers Postgres)', () => {
     const cookieA = await registerAndSignIn(userA);
     const cookieB = await registerAndSignIn(userB);
 
-    await patchJson('/api/v1/users/me', { name: 'A Updated', locale: 'uk' }, cookieA);
-    await patchJson('/api/v1/users/me', { name: 'B Updated', locale: 'en' }, cookieB);
+    await patchJson('/api/v1/users/me', { firstName: 'Alice', lastName: 'Anderson' }, cookieA);
+    await patchJson('/api/v1/users/me', { firstName: 'Bob', lastName: 'Brown' }, cookieB);
 
     const [bodyA, bodyB] = await Promise.all([readProfile(cookieA), readProfile(cookieB)]);
 
-    expect(bodyA).toMatchObject({ email: userA.email, name: 'A Updated', locale: 'uk' });
-    expect(bodyB).toMatchObject({ email: userB.email, name: 'B Updated', locale: 'en' });
+    expect(bodyA).toMatchObject({ email: userA.email, name: 'Alice Anderson' });
+    expect(bodyB).toMatchObject({ email: userB.email, name: 'Bob Brown' });
     expect(bodyA.id).not.toBe(bodyB.id);
   });
 

@@ -8,6 +8,7 @@ import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { I18N_NAMESPACE } from '@supertool/shared/constants/i18n-namespace';
+import { composeFullName } from '@supertool/shared/utils/full-name';
 import { Button } from '@supertool/ui/src/components/atoms/button/Button';
 import { Input } from '@supertool/ui/src/components/atoms/input/Input';
 import {
@@ -44,7 +45,7 @@ export const SignUpForm: FC<SignUpFormProps> = ({ onSuccess, submitLabel }) => {
     formState: { errors },
   } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpFormSchema),
-    defaultValues: { name: '', email: '', password: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', password: '' },
     mode: 'onBlur',
   });
 
@@ -52,7 +53,9 @@ export const SignUpForm: FC<SignUpFormProps> = ({ onSuccess, submitLabel }) => {
     setFormErrorKey(null);
     startTransition(async () => {
       const { error } = await authClient.signUp.email({
-        name: values.name,
+        firstName: values.firstName,
+        ...(values.lastName && { lastName: values.lastName }),
+        name: composeFullName(values.firstName, values.lastName),
         email: values.email,
         password: values.password,
       });
@@ -71,22 +74,41 @@ export const SignUpForm: FC<SignUpFormProps> = ({ onSuccess, submitLabel }) => {
       <FieldSet>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="name">
-              <FieldTitle>{translate('name')}</FieldTitle>
+            <FieldLabel htmlFor="firstName">
+              <FieldTitle>{translate('firstName')}</FieldTitle>
             </FieldLabel>
             <FieldContent>
               <Input
-                id="name"
+                id="firstName"
                 type="text"
-                autoComplete="name"
-                placeholder={translate('namePlaceholder')}
-                error={Boolean(errors.name)}
-                aria-invalid={Boolean(errors.name)}
-                {...register('name')}
+                autoComplete="given-name"
+                placeholder={translate('firstNamePlaceholder')}
+                error={Boolean(errors.firstName)}
+                aria-invalid={Boolean(errors.firstName)}
+                {...register('firstName')}
               />
             </FieldContent>
-            {errors.name?.message && (
-              <FieldError errors={[{ message: translateError(errors.name.message) }]} />
+            {errors.firstName?.message && (
+              <FieldError errors={[{ message: translateError(errors.firstName.message) }]} />
+            )}
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="lastName">
+              <FieldTitle>{translate('lastName')}</FieldTitle>
+            </FieldLabel>
+            <FieldContent>
+              <Input
+                id="lastName"
+                type="text"
+                autoComplete="family-name"
+                placeholder={translate('lastNamePlaceholder')}
+                error={Boolean(errors.lastName)}
+                aria-invalid={Boolean(errors.lastName)}
+                {...register('lastName')}
+              />
+            </FieldContent>
+            {errors.lastName?.message && (
+              <FieldError errors={[{ message: translateError(errors.lastName.message) }]} />
             )}
           </Field>
           <Field>

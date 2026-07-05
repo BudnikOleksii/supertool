@@ -12,7 +12,8 @@ export const signInFormSchema = z.object({
 export type SignInFormValues = z.infer<typeof signInFormSchema>;
 
 export const signUpFormSchema = z.object({
-  name: z.string('nameRequired').trim().min(NAME_MIN_LENGTH, 'nameRequired'),
+  firstName: z.string('firstNameRequired').trim().min(NAME_MIN_LENGTH, 'firstNameRequired'),
+  lastName: z.string().trim().optional(),
   email: z.email('emailInvalid'),
   password: z.string('passwordRequired').min(MIN_PASSWORD_LENGTH, 'passwordMinLength'),
 });

@@ -1,8 +1,10 @@
 {
   "title": "Налаштування профілю",
   "description": "Змініть своє ім'я, мову та валюту за замовчуванням.",
-  "nameLabel": "Ім'я",
-  "namePlaceholder": "Ваше ім'я",
+  "firstNameLabel": "Ім'я",
+  "firstNamePlaceholder": "Ваше ім'я",
+  "lastNameLabel": "Прізвище",
+  "lastNamePlaceholder": "Ваше прізвище",
   "localeLabel": "Мова",
   "localeDescription": "Мова, якою відкривається платформа після входу.",
   "localeOption": {
@@ -17,7 +19,7 @@
   "submit": "Зберегти зміни",
   "updateSuccess": "Ваш профіль оновлено.",
   "errors": {
-    "nameRequired": "Введіть своє ім'я.",
+    "firstNameRequired": "Введіть своє ім'я.",
     "localeInvalid": "Оберіть підтримувану мову.",
     "currencyInvalid": "Оберіть підтримувану валюту.",
     "VALIDATION_ERROR": "Деякі дані некоректні. Перевірте поля та спробуйте ще раз.",

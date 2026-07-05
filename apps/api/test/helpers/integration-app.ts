@@ -1,6 +1,28 @@
 import type { INestApplication } from '@nestjs/common';
+import type { Pool } from 'pg';
+import type { StartedTestContainer } from 'testcontainers';
 
 import { Test } from '@nestjs/testing';
+
+interface StopIntegrationAppOptions {
+  app?: INestApplication | undefined;
+  container?: StartedTestContainer | undefined;
+  poolList?: (Pool | undefined)[] | undefined;
+}
+
+export const stopIntegrationApp = async ({
+  app,
+  container,
+  poolList = [],
+}: StopIntegrationAppOptions): Promise<void> => {
+  if (app) {
+    await app.close();
+  }
+
+  await Promise.all(poolList.map((pool) => pool?.end()));
+
+  await container?.stop();
+};
 
 export const configureTestEnvironment = (databaseUrl: string): void => {
   process.env.DATABASE_URL = databaseUrl;

@@ -19,6 +19,8 @@ export type UserResponseDto = {
     id: string;
     email: string;
     name: string;
+    firstName?: string | null;
+    lastName?: string | null;
     role: Role;
     locale: LocaleCode;
     defaultCurrency?: CurrencyCode | null;
@@ -37,7 +39,8 @@ export type ErrorResponseDto = {
 };
 
 export type UpdateUserDto = {
-    name?: string;
+    firstName?: string;
+    lastName?: string;
     locale?: LocaleCode;
     defaultCurrency?: CurrencyCode;
     onboardingCompleted?: boolean;

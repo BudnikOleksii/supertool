@@ -10,6 +10,7 @@ import { parseEnv } from '../../src/app/env.schema.js';
 import { deriveCategoryHierarchy } from '../../src/database/seeds/derive-category-hierarchy.js';
 import { loadSeedData } from '../../src/database/seeds/load-seed-data.js';
 import { assertDecimalSafeSums } from '../helpers/decimal-safe-sums.js';
+import { stopIntegrationApp } from '../helpers/integration-app.js';
 import {
   BOOT_TIMEOUT_MS,
   buildDatabaseUrl,
@@ -35,6 +36,8 @@ let databaseUrl = '';
 let recordList: SeedSourceRecord[] = [];
 let operatorId = '';
 let operatorRole = '';
+let operatorFirstName: string | null = null;
+let operatorLastName: string | null = null;
 let operatorOnboardingCompleted = false;
 
 const getPool = (): Pool => {
@@ -46,14 +49,23 @@ const getPool = (): Pool => {
 
 const loadOperator = async (
   email: string,
-): Promise<{ id: string; role: string; onboardingCompleted: boolean }> => {
+): Promise<{
+  id: string;
+  role: string;
+  firstName: string | null;
+  lastName: string | null;
+  onboardingCompleted: boolean;
+}> => {
   const result = await getPool().query<{
     id: string;
     role: string;
+    firstName: string | null;
+    lastName: string | null;
     onboardingCompleted: boolean;
-  }>(`SELECT id, role, onboarding_completed AS "onboardingCompleted" FROM users WHERE email = $1`, [
-    email,
-  ]);
+  }>(
+    `SELECT id, role, first_name AS "firstName", last_name AS "lastName", onboarding_completed AS "onboardingCompleted" FROM users WHERE email = $1`,
+    [email],
+  );
   const [operator] = result.rows;
   if (!operator) {
     throw new Error('Operator account was not created by the seed');
@@ -89,14 +101,14 @@ beforeAll(async () => {
   ({
     id: operatorId,
     role: operatorRole,
+    firstName: operatorFirstName,
+    lastName: operatorLastName,
     onboardingCompleted: operatorOnboardingCompleted,
   } = await loadOperator(parseEnv().SEED_OPERATOR_EMAIL));
 }, BOOT_TIMEOUT_MS);
 
 afterAll(async () => {
-  await pool?.end();
-  await authDatabasePool?.end();
-  await container?.stop();
+  await stopIntegrationApp({ container, poolList: [pool, authDatabasePool] });
 });
 
 describe('seed (Testcontainers Postgres)', () => {
@@ -157,6 +169,11 @@ describe('seed (Testcontainers Postgres)', () => {
 
   it('marks the operator as onboarding-completed', () => {
     expect(operatorOnboardingCompleted).toBe(true);
+  });
+
+  it('splits the seeded operator single-token name into first name only', () => {
+    expect(operatorFirstName).toBe('Operator');
+    expect(operatorLastName).toBeNull();
   });
 
   it('re-running the seed introduces zero duplicate rows (AC5, AC9a)', async () => {

@@ -1,8 +1,10 @@
 {
   "title": "Profile settings",
   "description": "Update your name, language, and default currency.",
-  "nameLabel": "Name",
-  "namePlaceholder": "Your name",
+  "firstNameLabel": "First name",
+  "firstNamePlaceholder": "Your first name",
+  "lastNameLabel": "Last name",
+  "lastNamePlaceholder": "Your last name",
   "localeLabel": "Language",
   "localeDescription": "The language the platform opens in when you sign in.",
   "localeOption": {
@@ -17,7 +19,7 @@
   "submit": "Save changes",
   "updateSuccess": "Your profile has been updated.",
   "errors": {
-    "nameRequired": "Enter your name.",
+    "firstNameRequired": "Enter your first name.",
     "localeInvalid": "Choose a supported language.",
     "currencyInvalid": "Choose a supported currency.",
     "VALIDATION_ERROR": "Some details are invalid. Check the fields and try again.",

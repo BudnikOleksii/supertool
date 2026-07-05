@@ -1,5 +1,7 @@
 export interface TestUser {
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 }
@@ -17,6 +19,8 @@ interface AuthClient {
 
 export const buildTestUser = (suffix: string): TestUser => ({
   name: `User ${suffix}`,
+  firstName: 'User',
+  lastName: suffix,
   email: `${suffix}@example.com`,
   password: 'supersecret123',
 });
