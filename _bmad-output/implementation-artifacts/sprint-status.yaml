@@ -37,8 +37,8 @@
 
 generated: 2026-06-10
 last_updated: 2026-07-05
-# (6-4 → done 2026-07-05: PR #44 squash-merged after review APPROVE + CI + CodeRabbit;
-#  status edit rides into the 6-5 story branch per repo pattern — never committed to main directly)
+# (6-5 → done 2026-07-05: PR #45 squash-merged — all Epic 6 stories done → epic-6 closed;
+#  epic-6 retrospective runs on branch TOOLS-epic-6/retrospective; status edits ride into that branch)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -106,13 +106,13 @@ development_status:
   epic-5-retrospective: done
 
   # Epic 6: Manage Transactions at Scale
-  epic-6: in-progress
+  epic-6: done
   6-1-transactions-list-ux-enrichment: done
   6-2-bulk-delete-transactions: done
   6-3-export-transactions-csv-json: done
   6-4-search-transactions: done
-  6-5-analytics-response-caching: review
-  epic-6-retrospective: optional
+  6-5-analytics-response-caching: done
+  epic-6-retrospective: done
 
   # Epic 7: Account & Landing
   epic-7: backlog
