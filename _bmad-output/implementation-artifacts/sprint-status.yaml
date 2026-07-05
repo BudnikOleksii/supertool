@@ -37,8 +37,8 @@
 
 generated: 2026-06-10
 last_updated: 2026-07-05
-# (5-5 → done 2026-07-05: PR #38 squash-merged after review APPROVE + CI + CodeRabbit;
-#  status edit rides into the 5-6 story branch per repo pattern — never committed to main directly)
+# (5-6 → done 2026-07-05: PR #39 squash-merged — all Epic 5 stories done → epic-5 closed;
+#  epic-5 retrospective runs on branch TOOLS-epic-5/retrospective; status edits ride into that branch)
 project: supertool
 project_key: NOKEY
 tracking_system: file-system
@@ -96,14 +96,14 @@ development_status:
   epic-4-retrospective: done
 
   # Epic 5: Import Your Data & See Your Money
-  epic-5: in-progress
+  epic-5: done
   5-1-transaction-import-endpoint: done
   5-2-standalone-import-page: done
   5-3-onboarding-flow: done
   5-4-dashboard-analytics-endpoints-top-categories-daily-spending: done
   5-5-dashboard-widgets-top-categories-daily-spending-recent-transactions-filter-bar: done
-  5-6-transactions-by-category-drill-down: review
-  epic-5-retrospective: optional
+  5-6-transactions-by-category-drill-down: done
+  epic-5-retrospective: done
 
   # Epic 6: Manage Transactions at Scale
   epic-6: backlog
