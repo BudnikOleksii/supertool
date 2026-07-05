@@ -9,7 +9,10 @@ import type { TransactionResponseDto } from './dtos/transaction-response.dto';
 import type { UpdateTransactionDto } from './dtos/update-transaction.dto';
 import type { TransactionsRepository } from './transactions.repository';
 
+import { AnalyticsCacheService } from '../analytics/analytics-cache.service';
 import { TransactionsService } from './transactions.service';
+
+const buildAnalyticsCache = (): AnalyticsCacheService => new AnalyticsCacheService();
 
 const buildTransaction = (id: string): TransactionResponseDto => ({
   id,
@@ -30,7 +33,10 @@ describe('TransactionsService', () => {
     const expectedData = [buildTransaction('transaction-1')];
     const findAllByUserId = vi.fn().mockResolvedValue({ data: expectedData, total: 1 });
     const repository = { findAllByUserId };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const actual = await service.findAll('user-id', {});
 
@@ -53,7 +59,10 @@ describe('TransactionsService', () => {
   it('forwards explicit pagination and date window to the repository', async () => {
     const findAllByUserId = vi.fn().mockResolvedValue({ data: [], total: 0 });
     const repository = { findAllByUserId };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const inputQuery = { dateFrom: '2025-02-01', dateTo: '2025-02-28', page: 2, limit: 10 };
     const actual = await service.findAll('user-id', inputQuery);
@@ -74,7 +83,10 @@ describe('TransactionsService', () => {
   it('forwards supplied filters and sort to the repository', async () => {
     const findAllByUserId = vi.fn().mockResolvedValue({ data: [], total: 0 });
     const repository = { findAllByUserId };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const inputQuery = {
       dateFrom: '2025-02-01',
@@ -103,7 +115,10 @@ describe('TransactionsService', () => {
   it('forwards the search term to the repository', async () => {
     const findAllByUserId = vi.fn().mockResolvedValue({ data: [], total: 0 });
     const repository = { findAllByUserId };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     await service.findAll('user-id', { search: 'coffee' });
 
@@ -117,7 +132,10 @@ describe('TransactionsService', () => {
     const findCategoryForUser = vi.fn().mockResolvedValue(null);
     const create = vi.fn();
     const repository = { findCategoryForUser, create };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const inputDto: CreateTransactionDto = {
       type: 'expense',
@@ -135,7 +153,10 @@ describe('TransactionsService', () => {
     const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'income' });
     const create = vi.fn();
     const repository = { findCategoryForUser, create };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const inputDto: CreateTransactionDto = {
       type: 'expense',
@@ -156,7 +177,10 @@ describe('TransactionsService', () => {
     const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'expense' });
     const create = vi.fn().mockResolvedValue(expectedTransaction);
     const repository = { findCategoryForUser, create };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const inputDto: CreateTransactionDto = {
       type: 'expense',
@@ -187,7 +211,10 @@ describe('TransactionsService findOne/update/delete', () => {
     const expectedTransaction = buildTransaction('transaction-1');
     const findOneByUserIdAndId = vi.fn().mockResolvedValue(expectedTransaction);
     const repository = { findOneByUserIdAndId };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const actual = await service.findOne('user-id', 'transaction-1');
 
@@ -198,7 +225,10 @@ describe('TransactionsService findOne/update/delete', () => {
   it('throws NotFoundException on findOne when the transaction is not found for the user', async () => {
     const findOneByUserIdAndId = vi.fn().mockResolvedValue(null);
     const repository = { findOneByUserIdAndId };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     await expect(service.findOne('user-id', 'missing')).rejects.toBeInstanceOf(NotFoundException);
   });
@@ -208,7 +238,10 @@ describe('TransactionsService findOne/update/delete', () => {
     const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'expense' });
     const updateScoped = vi.fn().mockResolvedValue(expectedTransaction);
     const repository = { findCategoryForUser, updateScoped };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const inputDto: UpdateTransactionDto = {
       type: 'expense',
@@ -236,7 +269,10 @@ describe('TransactionsService findOne/update/delete', () => {
     const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'income' });
     const updateScoped = vi.fn();
     const repository = { findCategoryForUser, updateScoped };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const inputDto: UpdateTransactionDto = {
       type: 'expense',
@@ -256,7 +292,10 @@ describe('TransactionsService findOne/update/delete', () => {
     const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'expense' });
     const updateScoped = vi.fn().mockResolvedValue(null);
     const repository = { findCategoryForUser, updateScoped };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     const inputDto: UpdateTransactionDto = {
       type: 'expense',
@@ -274,7 +313,10 @@ describe('TransactionsService findOne/update/delete', () => {
   it('deletes the transaction when a scoped row was removed', async () => {
     const deleteScoped = vi.fn().mockResolvedValue(true);
     const repository = { deleteScoped };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     await expect(service.delete('user-id', 'transaction-1')).resolves.toBeUndefined();
     expect(deleteScoped).toHaveBeenCalledWith('user-id', 'transaction-1');
@@ -283,8 +325,110 @@ describe('TransactionsService findOne/update/delete', () => {
   it('throws NotFoundException on delete when nothing was removed', async () => {
     const deleteScoped = vi.fn().mockResolvedValue(false);
     const repository = { deleteScoped };
-    const service = new TransactionsService(repository as unknown as TransactionsRepository);
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      buildAnalyticsCache(),
+    );
 
     await expect(service.delete('user-id', 'missing')).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe('TransactionsService analytics-cache invalidation', () => {
+  it('invalidates the acting user cache after a successful create', async () => {
+    const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'expense' });
+    const create = vi.fn().mockResolvedValue(buildTransaction('transaction-1'));
+    const repository = { findCategoryForUser, create };
+    const analyticsCache = buildAnalyticsCache();
+    const invalidateUser = vi.spyOn(analyticsCache, 'invalidateUser');
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      analyticsCache,
+    );
+
+    await service.create('user-id', {
+      type: 'expense',
+      amount: '12.50',
+      currency: 'UAH',
+      categoryId: 'category-id',
+      date: '2025-02-03',
+    });
+
+    expect(invalidateUser).toHaveBeenCalledWith('user-id');
+  });
+
+  it('does not invalidate when a create fails validation', async () => {
+    const findCategoryForUser = vi.fn().mockResolvedValue(null);
+    const create = vi.fn();
+    const repository = { findCategoryForUser, create };
+    const analyticsCache = buildAnalyticsCache();
+    const invalidateUser = vi.spyOn(analyticsCache, 'invalidateUser');
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      analyticsCache,
+    );
+
+    await expect(
+      service.create('user-id', {
+        type: 'expense',
+        amount: '12.50',
+        currency: 'UAH',
+        categoryId: 'missing-category',
+        date: '2025-02-03',
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(invalidateUser).not.toHaveBeenCalled();
+  });
+
+  it('invalidates the acting user cache after a successful update', async () => {
+    const findCategoryForUser = vi.fn().mockResolvedValue({ id: 'category-id', type: 'expense' });
+    const updateScoped = vi.fn().mockResolvedValue(buildTransaction('transaction-1'));
+    const repository = { findCategoryForUser, updateScoped };
+    const analyticsCache = buildAnalyticsCache();
+    const invalidateUser = vi.spyOn(analyticsCache, 'invalidateUser');
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      analyticsCache,
+    );
+
+    await service.update('user-id', 'transaction-1', {
+      type: 'expense',
+      amount: '99.99',
+      currency: 'UAH',
+      categoryId: 'category-id',
+      date: '2025-03-10',
+    });
+
+    expect(invalidateUser).toHaveBeenCalledWith('user-id');
+  });
+
+  it('invalidates the acting user cache after a successful delete', async () => {
+    const deleteScoped = vi.fn().mockResolvedValue(true);
+    const repository = { deleteScoped };
+    const analyticsCache = buildAnalyticsCache();
+    const invalidateUser = vi.spyOn(analyticsCache, 'invalidateUser');
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      analyticsCache,
+    );
+
+    await service.delete('user-id', 'transaction-1');
+
+    expect(invalidateUser).toHaveBeenCalledWith('user-id');
+  });
+
+  it('invalidates the acting user cache after a bulk delete', async () => {
+    const deleteManyScoped = vi.fn().mockResolvedValue(['transaction-1']);
+    const repository = { deleteManyScoped };
+    const analyticsCache = buildAnalyticsCache();
+    const invalidateUser = vi.spyOn(analyticsCache, 'invalidateUser');
+    const service = new TransactionsService(
+      repository as unknown as TransactionsRepository,
+      analyticsCache,
+    );
+
+    await service.bulkDelete('user-id', ['transaction-1']);
+
+    expect(invalidateUser).toHaveBeenCalledWith('user-id');
   });
 });

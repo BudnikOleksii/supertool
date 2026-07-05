@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { TransactionCategoriesRepository } from './transaction-categories.repository';
 
+import { AnalyticsCacheService } from '../analytics/analytics-cache.service';
 import { TransactionCategoriesService } from './transaction-categories.service';
 
 const FAKE_TX = { tx: true };
@@ -46,7 +47,10 @@ const buildRepository = (overrides: Partial<MockRepository> = {}): MockRepositor
 });
 
 const buildService = (repository: MockRepository): TransactionCategoriesService =>
-  new TransactionCategoriesService(repository as unknown as TransactionCategoriesRepository);
+  new TransactionCategoriesService(
+    repository as unknown as TransactionCategoriesRepository,
+    new AnalyticsCacheService(),
+  );
 
 const buildCategory = (over: Record<string, unknown> = {}) => ({
   id: 'c1',

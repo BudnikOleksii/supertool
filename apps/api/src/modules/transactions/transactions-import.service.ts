@@ -19,6 +19,7 @@ import { convertAmountToString } from '../../database/seeds/convert-amount';
 import { deriveCategoryHierarchy } from '../../database/seeds/derive-category-hierarchy';
 import { findNearDuplicateCategories } from '../../database/seeds/find-near-duplicate-categories';
 import { parseSeedDate } from '../../database/seeds/parse-seed-date';
+import { AnalyticsCacheService } from '../analytics/analytics-cache.service';
 import { TransactionsRepository } from './transactions.repository';
 
 const IMPORT_MAX_REPORTED_ROW_ERRORS = 50;
@@ -308,6 +309,7 @@ const buildUniqueNameListToCreate = (
 export class TransactionsImportService {
   constructor(
     @Inject(TransactionsRepository) private readonly transactionsRepository: TransactionsRepository,
+    @Inject(AnalyticsCacheService) private readonly analyticsCache: AnalyticsCacheService,
   ) {}
 
   async importTransactions(
@@ -316,6 +318,8 @@ export class TransactionsImportService {
   ): Promise<TransactionImportResponseDto> {
     const recordList = parseImportFile(file);
     const report = await this.transactionsRepository.runImport({ userId, recordList });
+
+    this.analyticsCache.invalidateUser(userId);
 
     return {
       inserted: report.inserted,

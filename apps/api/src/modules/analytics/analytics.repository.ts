@@ -128,7 +128,7 @@ export class AnalyticsRepository {
         AND t.date >= ${query.dateFrom}
         AND t.date <= ${query.dateTo}
       GROUP BY cr.root_id, cr.root_name
-      ORDER BY SUM(t.amount) DESC
+      ORDER BY SUM(t.amount) DESC, cr.root_name ASC, cr.root_id ASC
     `);
 
     const breakdownList = result.rows.map((row) => ({
@@ -209,7 +209,7 @@ export class AnalyticsRepository {
         AND t.date >= ${query.dateFrom}
         AND t.date <= ${query.dateTo}
       GROUP BY cr.root_id, cr.root_name
-      ORDER BY SUM(t.amount) DESC
+      ORDER BY SUM(t.amount) DESC, cr.root_name ASC, cr.root_id ASC
       LIMIT ${query.limit}
     `);
 

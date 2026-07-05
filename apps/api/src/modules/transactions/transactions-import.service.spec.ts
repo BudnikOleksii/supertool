@@ -7,6 +7,7 @@ import { TRANSACTION_IMPORT_MAX_ROWS } from '@supertool/shared/constants/transac
 import type { SeedReport } from '../../database/seeds/seed.types';
 import type { TransactionsRepository } from './transactions.repository';
 
+import { AnalyticsCacheService } from '../analytics/analytics-cache.service';
 import { TransactionsImportService } from './transactions-import.service';
 
 const EXPECTED_REPORTED_ROW_ERROR_CAP = 50;
@@ -53,7 +54,10 @@ const buildRepositoryDouble = () => ({
 });
 
 const buildService = (repositoryDouble: ReturnType<typeof buildRepositoryDouble>) =>
-  new TransactionsImportService(repositoryDouble as unknown as TransactionsRepository);
+  new TransactionsImportService(
+    repositoryDouble as unknown as TransactionsRepository,
+    new AnalyticsCacheService(),
+  );
 
 const checkIsRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;

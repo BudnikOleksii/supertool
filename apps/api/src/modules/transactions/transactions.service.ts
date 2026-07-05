@@ -21,6 +21,7 @@ import type { TransactionResponseDto } from './dtos/transaction-response.dto';
 import type { UpdateTransactionDto } from './dtos/update-transaction.dto';
 import type { TransactionExportResult } from './export/transaction-export-result';
 
+import { AnalyticsCacheService } from '../analytics/analytics-cache.service';
 import { buildExportFilename } from './export/build-export-filename';
 import { convertTransactionToExportRow } from './export/convert-transaction-to-export-row';
 import { formatTransactionsAsCsv } from './export/format-transactions-as-csv';
@@ -43,6 +44,7 @@ const getExportContentType = (format: TransactionExportFormat): string =>
 export class TransactionsService {
   constructor(
     @Inject(TransactionsRepository) private readonly transactionsRepository: TransactionsRepository,
+    @Inject(AnalyticsCacheService) private readonly analyticsCache: AnalyticsCacheService,
   ) {}
 
   async findAll(
@@ -112,7 +114,7 @@ export class TransactionsService {
   async create(userId: string, dto: CreateTransactionDto): Promise<TransactionResponseDto> {
     await this.assertCategoryMatchesType(userId, dto.categoryId, dto.type);
 
-    return this.transactionsRepository.create({
+    const created = await this.transactionsRepository.create({
       userId,
       categoryId: dto.categoryId,
       type: dto.type,
@@ -121,6 +123,10 @@ export class TransactionsService {
       date: dto.date,
       note: dto.note ?? '',
     });
+
+    this.analyticsCache.invalidateUser(userId);
+
+    return created;
   }
 
   async update(
@@ -143,6 +149,8 @@ export class TransactionsService {
       throw new NotFoundException({ code: ErrorCode.NotFound, message: 'Transaction not found' });
     }
 
+    this.analyticsCache.invalidateUser(userId);
+
     return updated;
   }
 
@@ -152,11 +160,15 @@ export class TransactionsService {
     if (!deleted) {
       throw new NotFoundException({ code: ErrorCode.NotFound, message: 'Transaction not found' });
     }
+
+    this.analyticsCache.invalidateUser(userId);
   }
 
   async bulkDelete(userId: string, idList: string[]): Promise<BulkDeleteResponseDto> {
     const deletedIdList = await this.transactionsRepository.deleteManyScoped(userId, idList);
     const deletedIdSet = new Set(deletedIdList);
+
+    this.analyticsCache.invalidateUser(userId);
 
     const failedList = idList
       .filter((id) => !deletedIdSet.has(id))
