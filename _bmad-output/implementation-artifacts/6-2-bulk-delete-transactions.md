@@ -313,6 +313,7 @@ Claude Opus 4.8 (1M context) — `claude-opus-4-8[1m]`.
 | ---------- | ---------------------------------------------------------------------- |
 | 2026-07-05 | Implemented story 6-2: bulk-delete endpoint + two-surface multi-select UI; all gates green; visual QA captured; status → review. |
 | 2026-07-05 | Adversarial code review (Blind Hunter + Edge Case Hunter + Acceptance Auditor). Verdict: CHANGES-REQUESTED — 1 must-fix (by-category out-of-range recovery) + nice-to-haves. Security/user-scoping and partial-failure correctness verified solid. |
+| 2026-07-05 | Must-fix resolved (by-category out-of-range page recovery mirrors the by-date guard; commit `8da09e3`); round-2 re-review APPROVE, no new issues; all gates green. PR opened: https://github.com/BudnikOleksii/supertool/pull/42 |
 
 ### Review Findings
 
