@@ -3,9 +3,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { TOP_CATEGORIES_DEFAULT_LIMIT } from '@supertool/shared/constants/analytics';
 import { NO_CURRENCY } from '@supertool/shared/constants/currency';
 
+import type { ByCategoryResponseDto } from './dtos/by-category-response.dto';
 import type { CategoryBreakdownResponseDto } from './dtos/category-breakdown-response.dto';
 import type { DailySpendingResponseDto } from './dtos/daily-spending-response.dto';
 import type { FindBreakdownQueryDto } from './dtos/find-breakdown-query.dto';
+import type { FindByCategoryQueryDto } from './dtos/find-by-category-query.dto';
 import type { FindDailySpendingQueryDto } from './dtos/find-daily-spending-query.dto';
 import type { FindSummaryQueryDto } from './dtos/find-summary-query.dto';
 import type { FindTopCategoriesQueryDto } from './dtos/find-top-categories-query.dto';
@@ -112,6 +114,25 @@ export class AnalyticsService {
     }
 
     return this.analyticsRepository.getDailySpending({
+      userId,
+      currency,
+      dateFrom: query.dateFrom,
+      dateTo: query.dateTo,
+    });
+  }
+
+  async getByCategory(
+    userId: string,
+    query: FindByCategoryQueryDto,
+  ): Promise<ByCategoryResponseDto> {
+    const user = await this.usersRepository.findByIdScoped(userId);
+    const currency = user?.defaultCurrency ?? null;
+
+    if (currency === null) {
+      return { categories: [], currency: NO_CURRENCY };
+    }
+
+    return this.analyticsRepository.getByCategoryTotals({
       userId,
       currency,
       dateFrom: query.dateFrom,

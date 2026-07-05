@@ -203,6 +203,20 @@ export type DailySpendingResponseDto = {
     currency: string;
 };
 
+export type ByCategoryNodeDto = {
+    categoryId: string;
+    categoryName: string;
+    parentId: string | null;
+    type: TransactionType;
+    total: string;
+    transactionCount: number;
+};
+
+export type ByCategoryResponseDto = {
+    categories: Array<ByCategoryNodeDto>;
+    currency: string;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -641,3 +655,26 @@ export type AnalyticsGetDailySpendingResponses = {
 };
 
 export type AnalyticsGetDailySpendingResponse = AnalyticsGetDailySpendingResponses[keyof AnalyticsGetDailySpendingResponses];
+
+export type AnalyticsGetByCategoryData = {
+    body?: never;
+    path?: never;
+    query: {
+        dateFrom: string;
+        dateTo: string;
+    };
+    url: '/api/v1/analytics/by-category';
+};
+
+export type AnalyticsGetByCategoryErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type AnalyticsGetByCategoryError = AnalyticsGetByCategoryErrors[keyof AnalyticsGetByCategoryErrors];
+
+export type AnalyticsGetByCategoryResponses = {
+    200: ByCategoryResponseDto;
+};
+
+export type AnalyticsGetByCategoryResponse = AnalyticsGetByCategoryResponses[keyof AnalyticsGetByCategoryResponses];

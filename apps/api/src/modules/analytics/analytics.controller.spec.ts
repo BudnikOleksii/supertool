@@ -120,4 +120,33 @@ describe('AnalyticsController', () => {
     ).resolves.toEqual(expectedResult);
     expect(getDailySpending).toHaveBeenCalledWith('user-id', inputQuery);
   });
+
+  it('forwards the session user id and query to the by-category service', async () => {
+    const expectedResult = {
+      categories: [
+        {
+          categoryId: 'cat-1',
+          categoryName: 'Food',
+          parentId: null,
+          type: 'expense',
+          total: '120.50',
+          transactionCount: 3,
+        },
+      ],
+      currency: 'UAH',
+    };
+    const getByCategory = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [AnalyticsController],
+      providers: [{ provide: AnalyticsService, useValue: { getByCategory } }],
+    }).compile();
+
+    const controller = moduleRef.get(AnalyticsController);
+    const inputQuery = { dateFrom: '2025-02-01', dateTo: '2025-02-28' };
+
+    await expect(controller.getByCategory(createSession('user-id'), inputQuery)).resolves.toEqual(
+      expectedResult,
+    );
+    expect(getByCategory).toHaveBeenCalledWith('user-id', inputQuery);
+  });
 });

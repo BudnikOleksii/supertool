@@ -14,10 +14,13 @@ import type { auth } from '../../auth/auth';
 import { ErrorResponseDto } from '../../shared/dtos/error-response.dto';
 import { AuthGuard } from '../../shared/guards/auth.guard';
 import { AnalyticsService } from './analytics.service';
+import { ByCategoryResponseDto } from './dtos/by-category-response.dto';
 import { CategoryBreakdownResponseDto } from './dtos/category-breakdown-response.dto';
 import { DailySpendingResponseDto } from './dtos/daily-spending-response.dto';
 // oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
 import { FindBreakdownQueryDto } from './dtos/find-breakdown-query.dto';
+// oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
+import { FindByCategoryQueryDto } from './dtos/find-by-category-query.dto';
 // oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
 import { FindDailySpendingQueryDto } from './dtos/find-daily-spending-query.dto';
 // oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
@@ -93,5 +96,17 @@ export class AnalyticsController {
     @Query() query: FindDailySpendingQueryDto,
   ): Promise<DailySpendingResponseDto> {
     return this.analyticsService.getDailySpending(session.user.id, query);
+  }
+
+  @Get('by-category')
+  @UseGuards(AuthGuard)
+  @ApiOkResponse({ type: ByCategoryResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiBadRequestResponse({ type: ErrorResponseDto })
+  async getByCategory(
+    @Session() session: UserSession<typeof auth>,
+    @Query() query: FindByCategoryQueryDto,
+  ): Promise<ByCategoryResponseDto> {
+    return this.analyticsService.getByCategory(session.user.id, query);
   }
 }

@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 
 import type { Database } from '../../database/database.types';
+import type { TransactionType } from '../../database/schemas/enums';
+import type { ByCategoryResponseDto } from './dtos/by-category-response.dto';
 import type { CategoryBreakdownResponseDto } from './dtos/category-breakdown-response.dto';
 import type { DailySpendingResponseDto } from './dtos/daily-spending-response.dto';
 import type { MonthlySummaryResponseDto } from './dtos/monthly-summary-response.dto';
@@ -51,6 +53,13 @@ interface TopCategoriesQuery {
 }
 
 interface DailySpendingQuery {
+  userId: string;
+  currency: string;
+  dateFrom: string;
+  dateTo: string;
+}
+
+interface ByCategoryTotalsQuery {
   userId: string;
   currency: string;
   dateFrom: string;
@@ -262,6 +271,59 @@ export class AnalyticsRepository {
     return {
       days: dayList,
       totalExpense: firstRow?.totalExpense ?? ZERO_AMOUNT,
+      currency: query.currency,
+    };
+  }
+
+  async getByCategoryTotals(query: ByCategoryTotalsQuery): Promise<ByCategoryResponseDto> {
+    const result = await this.db.execute<{
+      categoryId: string;
+      categoryName: string;
+      parentId: string | null;
+      type: TransactionType;
+      total: string;
+      transactionCount: number;
+    }>(sql`
+      WITH RECURSIVE category_subtree AS (
+        SELECT id AS node_id, id AS descendant_id
+        FROM transaction_categories
+        WHERE user_id = ${query.userId}
+        UNION ALL
+        SELECT cs.node_id, tc.id
+        FROM category_subtree cs
+        INNER JOIN transaction_categories tc ON tc.parent_id = cs.descendant_id
+        WHERE tc.user_id = ${query.userId}
+      )
+      SELECT
+        c.id        AS "categoryId",
+        c.name      AS "categoryName",
+        c.parent_id AS "parentId",
+        c.type::text AS type,
+        COALESCE(SUM(t.amount), 0)${moneyCast()} AS total,
+        COUNT(t.id)::int AS "transactionCount"
+      FROM transaction_categories c
+      LEFT JOIN category_subtree cs ON cs.node_id = c.id
+      LEFT JOIN transactions t
+        ON t.category_id = cs.descendant_id
+        AND t.user_id = ${query.userId}
+        AND t.currency = ${query.currency}
+        AND t.type::text = c.type::text
+        AND t.date >= ${query.dateFrom}
+        AND t.date <= ${query.dateTo}
+      WHERE c.user_id = ${query.userId}
+      GROUP BY c.id, c.name, c.parent_id, c.type
+      ORDER BY c.name ASC
+    `);
+
+    return {
+      categories: result.rows.map((row) => ({
+        categoryId: row.categoryId,
+        categoryName: row.categoryName,
+        parentId: row.parentId,
+        type: row.type,
+        total: row.total,
+        transactionCount: row.transactionCount,
+      })),
       currency: query.currency,
     };
   }

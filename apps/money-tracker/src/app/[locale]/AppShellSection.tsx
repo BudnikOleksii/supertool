@@ -35,7 +35,6 @@ const NAV_ITEM_LIST: NavItem[] = [
         href: ROUTES.transactionsByCategory,
         labelKey: 'transactionsByCategory',
         Icon: LayoutList,
-        disabled: true,
       },
       {
         href: ROUTES.transactionsRecurring,
