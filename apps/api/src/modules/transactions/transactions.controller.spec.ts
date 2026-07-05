@@ -193,6 +193,26 @@ describe('TransactionsController', () => {
     expect(remove).toHaveBeenCalledWith('user-id', 'transaction-1');
   });
 
+  it('forwards the session user id and id list to the service on bulkDelete', async () => {
+    const expectedResult = { deletedCount: 2, failedList: [] };
+    const bulkDelete = vi.fn().mockResolvedValue(expectedResult);
+    const moduleRef = await Test.createTestingModule({
+      controllers: [TransactionsController],
+      providers: [
+        { provide: TransactionsService, useValue: { bulkDelete } },
+        { provide: TransactionsImportService, useValue: {} },
+      ],
+    }).compile();
+
+    const controller = moduleRef.get(TransactionsController);
+    const inputIdList = ['transaction-1', 'transaction-2'];
+
+    await expect(
+      controller.bulkDelete(createSession('user-id'), { idList: inputIdList }),
+    ).resolves.toEqual(expectedResult);
+    expect(bulkDelete).toHaveBeenCalledWith('user-id', inputIdList);
+  });
+
   it('forwards the session user id and file to the import service on import', async () => {
     const expectedResult = {
       inserted: 2,

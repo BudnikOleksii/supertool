@@ -1,6 +1,9 @@
+import type { ReactNode } from 'react';
+
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { redirect } from '@supertool/next-shared/src/i18n/navigation/navigation';
 import type { TransactionResponseDto } from '@supertool/shared/generated/types.gen';
 
 import { fetchTransactions } from '../../../../../../../actions/fetch-transactions';
@@ -9,6 +12,10 @@ import { CategoryDetailList } from './CategoryDetailList';
 
 vi.mock('next-intl/server', () => ({
   getTranslations: async () => (key: string) => key,
+}));
+
+vi.mock('@supertool/next-shared/src/i18n/navigation/navigation', () => ({
+  redirect: vi.fn(),
 }));
 
 vi.mock('./CategoryDetailList.module.scss', () => ({
@@ -23,14 +30,27 @@ vi.mock('../../../../components/transaction-pagination/TransactionPagination', (
   TransactionPagination: () => null,
 }));
 
+vi.mock('../../../../../../../components/bulk-delete/BulkDeleteProvider', () => ({
+  BulkDeleteProvider: ({ children }: { children: ReactNode }) => children,
+}));
+
+vi.mock('../../../../../../../components/bulk-delete/TransactionSelectCheckbox', () => ({
+  TransactionSelectCheckbox: ({ label }: { id: string; label: string }) => (
+    <input type="checkbox" aria-label={label} />
+  ),
+}));
+
 const fetchTransactionsMock = vi.mocked(fetchTransactions);
+const redirectMock = vi.mocked(redirect);
 
 const renderList = CategoryDetailList;
 
 const LOCALE = 'en';
+const PERIOD = '2025-02';
 const PROPS = {
   dateFrom: '2025-02-01',
   dateTo: '2025-02-28',
+  period: PERIOD,
   categoryId: 'cat-1',
   page: 1,
   locale: LOCALE,
@@ -80,6 +100,40 @@ describe('CategoryDetailList', () => {
     render(await renderList(PROPS));
 
     expect(screen.getByText('detail.empty.title')).toBeTruthy();
+  });
+
+  it('redirects to the last valid page when the requested page is out of range', async () => {
+    fetchTransactionsMock.mockResolvedValue({
+      status: 'success',
+      transactions: { data: [], meta: { page: 3, limit: 50, total: 60 } },
+    });
+
+    await renderList({ ...PROPS, page: 3 });
+
+    expect(redirectMock).toHaveBeenCalledWith({
+      href: {
+        pathname: '/transactions/by-category/cat-1',
+        query: { period: PERIOD, page: '2' },
+      },
+      locale: LOCALE,
+    });
+  });
+
+  it('redirects to page one when the requested page is out of range and only one page remains', async () => {
+    fetchTransactionsMock.mockResolvedValue({
+      status: 'success',
+      transactions: { data: [], meta: { page: 2, limit: 50, total: 50 } },
+    });
+
+    await renderList({ ...PROPS, page: 2 });
+
+    expect(redirectMock).toHaveBeenCalledWith({
+      href: {
+        pathname: '/transactions/by-category/cat-1',
+        query: { period: PERIOD },
+      },
+      locale: LOCALE,
+    });
   });
 
   it('renders the error state when the request fails', async () => {

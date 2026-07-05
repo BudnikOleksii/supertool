@@ -9,6 +9,7 @@ import type {
 import { Badge } from '@supertool/ui/src/components/atoms/badge/Badge';
 import { Typography } from '@supertool/ui/src/components/atoms/typography/Typography';
 
+import { TransactionSelectCheckbox } from '../../../../../components/bulk-delete/TransactionSelectCheckbox';
 import { formatAmount } from '../../../../../utils/format-amount';
 import { formatTransactionDate } from '../../utils/format-transaction-date';
 import { getCategoryLabel } from '../../utils/get-category-label';
@@ -19,6 +20,7 @@ interface Props {
   transaction: TransactionResponseDto;
   locale: string;
   typeLabel: string;
+  selectLabel: string;
   period: string;
   page: number;
   type?: TransactionType | undefined;
@@ -31,6 +33,7 @@ export const TransactionCard: FC<Props> = ({
   transaction,
   locale,
   typeLabel,
+  selectLabel,
   period,
   page,
   type,
@@ -43,6 +46,7 @@ export const TransactionCard: FC<Props> = ({
 
   return (
     <li className={styles.card}>
+      <TransactionSelectCheckbox id={transaction.id} label={selectLabel} />
       <div className={styles.info}>
         <div className={styles.primary}>
           <Typography variant="body-m" fontWeight="semibold" className={styles.amount}>

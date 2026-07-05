@@ -345,6 +345,15 @@ export class TransactionsRepository {
     return (result.rowCount ?? NO_ROWS_AFFECTED) > NO_ROWS_AFFECTED;
   }
 
+  async deleteManyScoped(userId: string, idList: string[]): Promise<string[]> {
+    const deletedRows = await this.db
+      .delete(transactions)
+      .where(and(eq(transactions.userId, userId), inArray(transactions.id, idList)))
+      .returning({ id: transactions.id });
+
+    return deletedRows.map((row) => row.id);
+  }
+
   async findCategoryForUser(userId: string, categoryId: string): Promise<ScopedCategory | null> {
     const rows = await this.db
       .select({ id: transactionCategories.id, type: transactionCategories.type })

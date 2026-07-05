@@ -61,9 +61,25 @@
     "title": "Couldn’t load transactions",
     "description": "Something went wrong while loading this month. Please try again."
   },
+  "bulkDelete": {
+    "selectRow": "Select transaction",
+    "selectedCount": "{count, plural, one {# selected} other {# selected}}",
+    "selectAllVisible": "Select all",
+    "deselectAllVisible": "Deselect all",
+    "clearSelection": "Clear",
+    "deleteSelected": "Delete",
+    "confirmTitle": "Delete transactions?",
+    "confirmBody": "Delete {count, plural, one {# transaction} other {# transactions}}? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "partial": "Deleted {deleted, plural, one {# transaction} other {# transactions}}. {failed, plural, one {# could not be deleted and stays selected} other {# could not be deleted and stay selected}}.",
+    "totalFailure": "None of the {failed, plural, one {# transaction} other {# transactions}} could be deleted.",
+    "overCap": "You can select up to {cap} transactions at once."
+  },
   "errors": {
     "NOT_FOUND": "This transaction no longer exists.",
     "UNAUTHORIZED": "Your session has expired. Please sign in again.",
+    "VALIDATION_ERROR": "That selection can’t be deleted. Please adjust it and try again.",
     "UNKNOWN": "Something went wrong. Please try again."
   }
 }

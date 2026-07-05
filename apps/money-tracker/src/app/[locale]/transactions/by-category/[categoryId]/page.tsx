@@ -82,6 +82,7 @@ const TransactionsByCategoryDetailPage: FC<Props> = async (props) => {
         <CategoryDetailList
           dateFrom={dateFrom}
           dateTo={dateTo}
+          period={period}
           categoryId={categoryId}
           page={page}
           locale={locale}

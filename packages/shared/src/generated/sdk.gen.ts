@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client/index.js';
-import type { AnalyticsGetByCategoryData, AnalyticsGetByCategoryErrors, AnalyticsGetByCategoryResponses, AnalyticsGetCategoryBreakdownData, AnalyticsGetCategoryBreakdownErrors, AnalyticsGetCategoryBreakdownResponses, AnalyticsGetDailySpendingData, AnalyticsGetDailySpendingErrors, AnalyticsGetDailySpendingResponses, AnalyticsGetMonthlySummaryData, AnalyticsGetMonthlySummaryErrors, AnalyticsGetMonthlySummaryResponses, AnalyticsGetMonthlyTrendData, AnalyticsGetMonthlyTrendErrors, AnalyticsGetMonthlyTrendResponses, AnalyticsGetTopCategoriesData, AnalyticsGetTopCategoriesErrors, AnalyticsGetTopCategoriesResponses, HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateDefaultsData, TransactionCategoriesCreateDefaultsErrors, TransactionCategoriesCreateDefaultsResponses, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, TransactionsCreateData, TransactionsCreateErrors, TransactionsCreateResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, TransactionsFindOneData, TransactionsFindOneErrors, TransactionsFindOneResponses, TransactionsImportData, TransactionsImportErrors, TransactionsImportPreviewData, TransactionsImportPreviewErrors, TransactionsImportPreviewResponses, TransactionsImportResponses, TransactionsRemoveData, TransactionsRemoveErrors, TransactionsRemoveResponses, TransactionsUpdateData, TransactionsUpdateErrors, TransactionsUpdateResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
+import type { AnalyticsGetByCategoryData, AnalyticsGetByCategoryErrors, AnalyticsGetByCategoryResponses, AnalyticsGetCategoryBreakdownData, AnalyticsGetCategoryBreakdownErrors, AnalyticsGetCategoryBreakdownResponses, AnalyticsGetDailySpendingData, AnalyticsGetDailySpendingErrors, AnalyticsGetDailySpendingResponses, AnalyticsGetMonthlySummaryData, AnalyticsGetMonthlySummaryErrors, AnalyticsGetMonthlySummaryResponses, AnalyticsGetMonthlyTrendData, AnalyticsGetMonthlyTrendErrors, AnalyticsGetMonthlyTrendResponses, AnalyticsGetTopCategoriesData, AnalyticsGetTopCategoriesErrors, AnalyticsGetTopCategoriesResponses, HealthCheckData, HealthCheckResponses, TransactionCategoriesCreateData, TransactionCategoriesCreateDefaultsData, TransactionCategoriesCreateDefaultsErrors, TransactionCategoriesCreateDefaultsResponses, TransactionCategoriesCreateErrors, TransactionCategoriesCreateResponses, TransactionCategoriesFindAllData, TransactionCategoriesFindAllErrors, TransactionCategoriesFindAllResponses, TransactionCategoriesRemoveData, TransactionCategoriesRemoveErrors, TransactionCategoriesRemoveResponses, TransactionCategoriesUpdateData, TransactionCategoriesUpdateErrors, TransactionCategoriesUpdateResponses, TransactionsBulkDeleteData, TransactionsBulkDeleteErrors, TransactionsBulkDeleteResponses, TransactionsCreateData, TransactionsCreateErrors, TransactionsCreateResponses, TransactionsFindAllData, TransactionsFindAllErrors, TransactionsFindAllResponses, TransactionsFindOneData, TransactionsFindOneErrors, TransactionsFindOneResponses, TransactionsImportData, TransactionsImportErrors, TransactionsImportPreviewData, TransactionsImportPreviewErrors, TransactionsImportPreviewResponses, TransactionsImportResponses, TransactionsRemoveData, TransactionsRemoveErrors, TransactionsRemoveResponses, TransactionsUpdateData, TransactionsUpdateErrors, TransactionsUpdateResponses, UsersMeData, UsersMeErrors, UsersMeResponses, UsersUpdateMeData, UsersUpdateMeErrors, UsersUpdateMeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -119,6 +119,17 @@ export class TransactionsApiService {
             ...options,
             headers: {
                 'Content-Type': null,
+                ...options.headers
+            }
+        });
+    }
+    
+    public static transactionsBulkDelete<ThrowOnError extends boolean = false>(options: Options<TransactionsBulkDeleteData, ThrowOnError>): RequestResult<TransactionsBulkDeleteResponses, TransactionsBulkDeleteErrors, ThrowOnError> {
+        return (options.client ?? client).post<TransactionsBulkDeleteResponses, TransactionsBulkDeleteErrors, ThrowOnError>({
+            url: '/api/v1/transactions/bulk-delete',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
                 ...options.headers
             }
         });

@@ -40,12 +40,15 @@ export const TransactionList: FC<Props> = async ({
 }) => {
   const translate = await getTranslations(I18N_NAMESPACE.transactionsPage);
 
+  const selectLabel = translate('bulkDelete.selectRow');
+
   const renderCard = (transaction: TransactionResponseDto) => (
     <TransactionCard
       key={transaction.id}
       transaction={transaction}
       locale={locale}
       typeLabel={translate(`type.${transaction.type}`)}
+      selectLabel={selectLabel}
       period={period}
       page={page}
       type={type}

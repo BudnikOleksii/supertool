@@ -40,6 +40,8 @@ import type { auth } from '../../auth/auth';
 
 import { ErrorResponseDto } from '../../shared/dtos/error-response.dto';
 import { AuthGuard } from '../../shared/guards/auth.guard';
+import { BulkDeleteResponseDto } from './dtos/bulk-delete-response.dto';
+import { BulkDeleteTransactionsDto } from './dtos/bulk-delete-transactions.dto';
 import { CreateTransactionDto } from './dtos/create-transaction.dto';
 // oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
 import { FindTransactionsQueryDto } from './dtos/find-transactions-query.dto';
@@ -144,6 +146,20 @@ export class TransactionsController {
     @UploadedFile() file: Express.Multer.File | undefined,
   ): Promise<TransactionImportPreviewResponseDto> {
     return this.transactionsImportService.previewImport(session.user.id, requireImportFile(file));
+  }
+
+  @Post('bulk-delete')
+  @UseGuards(AuthGuard)
+  @HttpCode(HTTP_STATUS_CODE.Ok)
+  @ApiBody({ type: BulkDeleteTransactionsDto })
+  @ApiOkResponse({ type: BulkDeleteResponseDto })
+  @ApiBadRequestResponse({ type: ErrorResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  async bulkDelete(
+    @Session() session: UserSession<typeof auth>,
+    @Body() dto: BulkDeleteTransactionsDto,
+  ): Promise<BulkDeleteResponseDto> {
+    return this.transactionsService.bulkDelete(session.user.id, dto.idList);
   }
 
   @Get(':id')
