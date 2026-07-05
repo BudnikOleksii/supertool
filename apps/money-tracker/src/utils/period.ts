@@ -96,3 +96,9 @@ export const getNextPeriod = ({ year, month }: PeriodParts): string => {
 
   return formatPeriod({ year, month: month + ADJACENT_STEP });
 };
+
+export const getPreviousYearPeriod = ({ year, month }: PeriodParts): string =>
+  formatPeriod({ year: year - ADJACENT_STEP, month });
+
+export const getNextYearPeriod = ({ year, month }: PeriodParts): string =>
+  formatPeriod({ year: year + ADJACENT_STEP, month });

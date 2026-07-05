@@ -6,6 +6,7 @@ import type {
   TransactionResponseDto,
 } from '@supertool/shared/generated/types.gen';
 
+import { getTodayDate } from '../../utils/get-today-date';
 import { TransactionForm } from './TransactionForm';
 
 const { createTransaction, updateTransaction } = vi.hoisted(() => ({
@@ -134,6 +135,61 @@ describe('TransactionForm', () => {
     expect((screen.getByLabelText('noteLabel') as HTMLInputElement).value).toBe('Groceries');
     expect(screen.getByRole('button', { name: 'categoryLabel' }).textContent).toContain('Food');
     screen.getByRole('button', { name: 'save' });
+  });
+
+  it('keeps the original transaction date in edit mode', () => {
+    render(
+      <TransactionForm
+        categoryList={CATEGORY_LIST}
+        defaultCurrency={null}
+        transaction={EXISTING_TRANSACTION}
+      />,
+    );
+
+    expect((screen.getByLabelText('dateLabel') as HTMLInputElement).value).toBe('2025-02-03');
+  });
+
+  it('pre-fills a duplicate with the source fields but resets the date to today', () => {
+    render(
+      <TransactionForm
+        categoryList={CATEGORY_LIST}
+        defaultCurrency={null}
+        copyFrom={EXISTING_TRANSACTION}
+      />,
+    );
+
+    expect((screen.getByLabelText('amountLabel') as HTMLInputElement).value).toBe('1234.56');
+    expect((screen.getByLabelText('noteLabel') as HTMLInputElement).value).toBe('Groceries');
+    expect(screen.getByRole('button', { name: 'categoryLabel' }).textContent).toContain('Food');
+    expect((screen.getByLabelText('dateLabel') as HTMLInputElement).value).toBe(getTodayDate());
+    expect((screen.getByLabelText('dateLabel') as HTMLInputElement).value).not.toBe('2025-02-03');
+    screen.getByRole('button', { name: 'submit' });
+  });
+
+  it('creates a new transaction when submitting a duplicate', async () => {
+    createTransaction.mockResolvedValue({ status: 'success' });
+    render(
+      <TransactionForm
+        categoryList={CATEGORY_LIST}
+        defaultCurrency={null}
+        copyFrom={EXISTING_TRANSACTION}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'submit' }));
+
+    await waitFor(() => {
+      expect(createTransaction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: '1234.56',
+          categoryId: 'food',
+          type: 'expense',
+          date: getTodayDate(),
+        }),
+        'en',
+      );
+    });
+    expect(updateTransaction).not.toHaveBeenCalled();
   });
 
   it('routes a valid edit submission to updateTransaction with the transaction id', async () => {

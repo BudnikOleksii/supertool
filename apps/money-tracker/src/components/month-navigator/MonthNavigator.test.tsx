@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { MonthStepper } from './MonthStepper';
+import { MonthNavigator } from './MonthNavigator';
 
 const { replace, searchParams } = vi.hoisted(() => ({
   replace: vi.fn(),
@@ -22,14 +22,14 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-describe('MonthStepper', () => {
+describe('MonthNavigator', () => {
   afterEach(() => {
     vi.clearAllMocks();
     searchParams.value = new URLSearchParams();
   });
 
   it('navigates to the previous month', () => {
-    render(<MonthStepper period="2025-03" />);
+    render(<MonthNavigator period="2025-03" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'previous' }));
 
@@ -40,7 +40,7 @@ describe('MonthStepper', () => {
   });
 
   it('navigates to the next month', () => {
-    render(<MonthStepper period="2025-03" />);
+    render(<MonthNavigator period="2025-03" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'next' }));
 
@@ -51,7 +51,7 @@ describe('MonthStepper', () => {
   });
 
   it('rolls over to the next January from December', () => {
-    render(<MonthStepper period="2025-12" />);
+    render(<MonthNavigator period="2025-12" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'next' }));
 
@@ -61,11 +61,45 @@ describe('MonthStepper', () => {
     );
   });
 
+  it('jumps to the previous year while preserving the month', () => {
+    render(<MonthNavigator period="2025-03" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'previousYear' }));
+
+    expect(replace).toHaveBeenCalledWith(
+      { pathname: '/transactions', query: { period: '2024-03' } },
+      { scroll: false },
+    );
+  });
+
+  it('jumps to the next year while preserving the month', () => {
+    render(<MonthNavigator period="2025-03" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'nextYear' }));
+
+    expect(replace).toHaveBeenCalledWith(
+      { pathname: '/transactions', query: { period: '2026-03' } },
+      { scroll: false },
+    );
+  });
+
+  it('resets the page when jumping across a year', () => {
+    searchParams.value = new URLSearchParams('page=4');
+    render(<MonthNavigator period="2025-03" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'nextYear' }));
+
+    expect(replace).toHaveBeenCalledWith(
+      { pathname: '/transactions', query: { period: '2026-03' } },
+      { scroll: false },
+    );
+  });
+
   it('preserves active filters and sort while resetting the page on a step', () => {
     searchParams.value = new URLSearchParams(
       'type=expense&categoryId=cat-1&sortBy=amount&sortOrder=asc&page=3',
     );
-    render(<MonthStepper period="2025-03" />);
+    render(<MonthNavigator period="2025-03" />);
 
     fireEvent.click(screen.getByRole('button', { name: 'previous' }));
 
