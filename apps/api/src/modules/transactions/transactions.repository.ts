@@ -17,6 +17,7 @@ import {
 } from 'drizzle-orm';
 import { PinoLogger } from 'nestjs-pino';
 
+import { MAX_EXPORT_ROWS } from '@supertool/shared/constants/transaction-export';
 import type {
   TransactionSortBy,
   TransactionSortOrder,
@@ -47,13 +48,19 @@ const splitIntoChunks = (valueList: string[], chunkSize: number): string[][] => 
   return chunkList;
 };
 
-interface FindAllByUserIdQuery {
+interface TransactionFilterQuery {
   dateFrom?: string | undefined;
   dateTo?: string | undefined;
   type?: TransactionType | undefined;
   categoryId?: string | undefined;
+}
+
+interface TransactionSortQuery {
   sortBy: TransactionSortBy;
   sortOrder: TransactionSortOrder;
+}
+
+interface FindAllByUserIdQuery extends TransactionFilterQuery, TransactionSortQuery {
   page: number;
   limit: number;
 }
@@ -62,6 +69,15 @@ interface FindAllByUserIdResult {
   data: TransactionResponseDto[];
   total: number;
 }
+
+interface FindAllForExportQuery extends TransactionFilterQuery, TransactionSortQuery {}
+
+interface FindAllForExportResult {
+  rowList: TransactionResponseDto[];
+  isTruncated: boolean;
+}
+
+const EXPORT_ROW_PROBE = 1;
 
 interface CreateTransactionInput {
   userId: string;
@@ -117,7 +133,7 @@ const TRANSACTION_LIST_COLUMNS = {
 
 const buildScopedConditions = (
   userId: string,
-  query: FindAllByUserIdQuery,
+  query: TransactionFilterQuery,
   categoryIdList: string[] | undefined,
 ): SQL[] => {
   const conditions: SQL[] = [eq(transactions.userId, userId)];
@@ -258,6 +274,28 @@ export class TransactionsRepository {
     const [rows, totalResult] = await Promise.all([dataQuery, countQuery]);
 
     return { data: rows.map(mapRowToResponse), total: totalResult[0]?.total ?? 0 };
+  }
+
+  async findAllForExport(
+    userId: string,
+    query: FindAllForExportQuery,
+  ): Promise<FindAllForExportResult> {
+    const categoryIdList =
+      query.categoryId === undefined
+        ? undefined
+        : await this.getCategorySubtreeIds(userId, query.categoryId);
+
+    const whereClause = and(...buildScopedConditions(userId, query, categoryIdList));
+
+    const rows = await this.selectJoinedTransactions()
+      .where(whereClause)
+      .orderBy(...buildOrderBy(query.sortBy, query.sortOrder))
+      .limit(MAX_EXPORT_ROWS + EXPORT_ROW_PROBE);
+
+    const isTruncated = rows.length > MAX_EXPORT_ROWS;
+    const cappedRows = isTruncated ? rows.slice(0, MAX_EXPORT_ROWS) : rows;
+
+    return { rowList: cappedRows.map(mapRowToResponse), isTruncated };
   }
 
   private async getCategorySubtreeIds(userId: string, categoryId: string): Promise<string[]> {

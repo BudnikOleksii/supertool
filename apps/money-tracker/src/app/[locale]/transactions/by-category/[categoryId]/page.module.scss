@@ -31,6 +31,19 @@
   gap: var(--spacing-2);
 }
 
+.controls {
+  display: flex;
+
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-3);
+
+  @include breakpoints.media-m {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
 .backLink {
   display: inline-flex;
 

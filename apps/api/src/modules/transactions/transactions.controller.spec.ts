@@ -303,3 +303,62 @@ describe('TransactionsController', () => {
     }
   });
 });
+
+const bootExportController = async (
+  exportTransactions: ReturnType<typeof vi.fn>,
+): Promise<TransactionsController> => {
+  const moduleRef = await Test.createTestingModule({
+    controllers: [TransactionsController],
+    providers: [
+      { provide: TransactionsService, useValue: { exportTransactions } },
+      { provide: TransactionsImportService, useValue: {} },
+    ],
+  }).compile();
+
+  return moduleRef.get(TransactionsController);
+};
+
+describe('TransactionsController export', () => {
+  it('forwards the session, format, and query and sets the download headers', async () => {
+    const exportResult = {
+      content: 'Date,Category\r\n',
+      contentType: 'text/csv; charset=utf-8',
+      filename: 'transactions-2025-02-01_2025-02-28.csv',
+      isTruncated: false,
+    };
+    const exportTransactions = vi.fn().mockResolvedValue(exportResult);
+    const controller = await bootExportController(exportTransactions);
+    const inputQuery = { format: 'csv' as const, dateFrom: '2025-02-01', dateTo: '2025-02-28' };
+    const setHeader = vi.fn();
+
+    await expect(
+      controller.export(createSession('user-id'), inputQuery, { setHeader }),
+    ).resolves.toBe(exportResult.content);
+    expect(exportTransactions).toHaveBeenCalledWith({
+      userId: 'user-id',
+      format: 'csv',
+      filters: inputQuery,
+    });
+    expect(setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv; charset=utf-8');
+    expect(setHeader).toHaveBeenCalledWith(
+      'Content-Disposition',
+      'attachment; filename="transactions-2025-02-01_2025-02-28.csv"',
+    );
+    expect(setHeader).not.toHaveBeenCalledWith('X-Result-Truncated', 'true');
+  });
+
+  it('sets the truncation header when the export is capped', async () => {
+    const exportTransactions = vi.fn().mockResolvedValue({
+      content: '[]',
+      contentType: 'application/json; charset=utf-8',
+      filename: 'transactions-2026-07-05.json',
+      isTruncated: true,
+    });
+    const controller = await bootExportController(exportTransactions);
+    const setHeader = vi.fn();
+
+    await controller.export(createSession('user-id'), { format: 'json' as const }, { setHeader });
+
+    expect(setHeader).toHaveBeenCalledWith('X-Result-Truncated', 'true');
+  });
+});

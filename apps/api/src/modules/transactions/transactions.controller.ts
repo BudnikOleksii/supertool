@@ -12,6 +12,7 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -26,6 +27,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiPayloadTooLargeResponse,
+  ApiProduces,
   ApiTags,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -34,6 +36,7 @@ import { Session } from '@thallesp/nestjs-better-auth';
 
 import { ErrorCode } from '@supertool/shared/constants/error-codes';
 import { HTTP_STATUS_CODE } from '@supertool/shared/constants/http-status-code';
+import { EXPORT_TRUNCATED_HEADER } from '@supertool/shared/constants/transaction-export';
 import { TRANSACTION_IMPORT_MAX_FILE_SIZE_BYTES } from '@supertool/shared/constants/transaction-import';
 
 import type { auth } from '../../auth/auth';
@@ -44,6 +47,8 @@ import { BulkDeleteResponseDto } from './dtos/bulk-delete-response.dto';
 import { BulkDeleteTransactionsDto } from './dtos/bulk-delete-transactions.dto';
 import { CreateTransactionDto } from './dtos/create-transaction.dto';
 // oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
+import { ExportTransactionsQueryDto } from './dtos/export-transactions-query.dto';
+// oxlint-disable-next-line typescript/consistent-type-imports -- runtime import: ValidationPipe needs the @Query paramtype metadata, which SWC erases from type-only imports
 import { FindTransactionsQueryDto } from './dtos/find-transactions-query.dto';
 import { TransactionImportPreviewResponseDto } from './dtos/transaction-import-preview-response.dto';
 import { TransactionImportResponseDto } from './dtos/transaction-import-response.dto';
@@ -52,6 +57,10 @@ import { TransactionResponseDto } from './dtos/transaction-response.dto';
 import { UpdateTransactionDto } from './dtos/update-transaction.dto';
 import { TransactionsImportService } from './transactions-import.service';
 import { TransactionsService } from './transactions.service';
+
+interface ExportHttpResponse {
+  setHeader: (name: string, value: string) => void;
+}
 
 const IMPORT_FILE_BODY_SCHEMA = {
   schema: {
@@ -160,6 +169,33 @@ export class TransactionsController {
     @Body() dto: BulkDeleteTransactionsDto,
   ): Promise<BulkDeleteResponseDto> {
     return this.transactionsService.bulkDelete(session.user.id, dto.idList);
+  }
+
+  @Get('export')
+  @UseGuards(AuthGuard)
+  @ApiProduces('text/csv', 'application/json')
+  @ApiOkResponse({ schema: { type: 'string' } })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiBadRequestResponse({ type: ErrorResponseDto })
+  async export(
+    @Session() session: UserSession<typeof auth>,
+    @Query() query: ExportTransactionsQueryDto,
+    @Res({ passthrough: true }) res: ExportHttpResponse,
+  ): Promise<string> {
+    const result = await this.transactionsService.exportTransactions({
+      userId: session.user.id,
+      format: query.format,
+      filters: query,
+    });
+
+    res.setHeader('Content-Type', result.contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
+
+    if (result.isTruncated) {
+      res.setHeader(EXPORT_TRUNCATED_HEADER, 'true');
+    }
+
+    return result.content;
   }
 
   @Get(':id')

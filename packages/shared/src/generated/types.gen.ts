@@ -150,6 +150,8 @@ export type BulkDeleteResponseDto = {
     failedList: Array<BulkDeleteFailureDto>;
 };
 
+export type TransactionExportFormat = 'csv' | 'json';
+
 export type UpdateTransactionDto = {
     type: TransactionType;
     amount: string;
@@ -505,6 +507,34 @@ export type TransactionsBulkDeleteResponses = {
 };
 
 export type TransactionsBulkDeleteResponse = TransactionsBulkDeleteResponses[keyof TransactionsBulkDeleteResponses];
+
+export type TransactionsExportData = {
+    body?: never;
+    path?: never;
+    query: {
+        dateFrom?: string;
+        dateTo?: string;
+        type?: TransactionType;
+        categoryId?: string;
+        sortBy?: TransactionSortBy;
+        sortOrder?: SortOrder;
+        format: TransactionExportFormat;
+    };
+    url: '/api/v1/transactions/export';
+};
+
+export type TransactionsExportErrors = {
+    400: ErrorResponseDto;
+    401: ErrorResponseDto;
+};
+
+export type TransactionsExportError = TransactionsExportErrors[keyof TransactionsExportErrors];
+
+export type TransactionsExportResponses = {
+    200: string;
+};
+
+export type TransactionsExportResponse = TransactionsExportResponses[keyof TransactionsExportResponses];
 
 export type TransactionsRemoveData = {
     body?: never;
