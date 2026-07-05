@@ -283,3 +283,13 @@ Modified:
 ### Change Log
 
 - 2026-07-05: Implemented Story 7.2 (change password) — better-auth `authClient.changePassword` `ChangePasswordForm` widget on the settings page, single-source `passwordFieldSchema` reused across all three auth forms, confirm-password field, `INVALID_PASSWORD`/`PASSWORD_TOO_SHORT` error mapping, `/change-password` auth rate-limit rule, en+uk i18n, widget + integration tests, 16-shot visual-QA matrix. All gates green; OpenAPI drift gate no-op. Status → review.
+
+## Review Findings
+
+Adversarial code review (bmad-code-review, 2026-07-05) — Blind Hunter + Edge Case Hunter + Acceptance Auditor. Gates re-run green (type-check, lint, i18n parity); generated client byte-identical (zero drift); no `package.json` change. All 7 ACs and all audited hard rules PASS. No must-fix findings. **Verdict: APPROVE.**
+
+- [ ] [Review][Patch] Stale success Alert & stale form-level error persist across a re-submit that fails client-side validation [packages/widgets/src/components/change-password-form/ChangePasswordForm.tsx] — `setFormErrorKey(null)` / `setIsSuccess(false)` live inside the RHF valid-callback, so a subsequent submit that fails zod (short new pw, or confirm≠new) never clears them: the green "password updated" Alert co-renders with the new field error, and a stale `invalidCurrentPassword` co-renders with `passwordsMismatch`. Fix: clear both at the top of `submit` before `handleSubmit`, or on field change. LOW/MEDIUM (contradictory but non-destructive UI). Confirmed by blind+edge layers.
+- [ ] [Review][Patch] Test-coverage gaps [packages/widgets/src/components/change-password-form/ChangePasswordForm.test.tsx] — no regression test for the second-submit stale-state transition above; no explicit "passwords never echoed/logged" assertion despite AC5 wording (guarantee holds implicitly via `type="password"` + no `console.*`). Nice-to-have.
+- [x] [Review][Defer] No `try/catch` around `authClient.changePassword` — a network-layer rejection (offline/DNS/CORS) escapes the `startTransition` async callback unmapped to `generic`. Inherited from the pre-approved `SignInForm` pattern and applies repo-wide; deferred, pre-existing pattern. Optional defensive `catch → setFormErrorKey('generic')`.
+
+Dismissed as noise (3): `currentPassword` min-length message is spec-mandated by D-4 (`currentPassword: passwordFieldSchema`) and harmless; visual-QA filenames abbreviated (`mismatch--*`/`wrong-current--*`) vs spec labels are cosmetic and all 16 files present; D-9 (new===current allowed) is a pre-approved operator decision.
