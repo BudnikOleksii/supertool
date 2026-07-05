@@ -74,6 +74,7 @@ export const auth = betterAuth({
     customRules: {
       '/sign-in/email': { window: AUTH_RATE_LIMIT_WINDOW_SECONDS, max: AUTH_RATE_LIMIT_MAX },
       '/sign-up/email': { window: AUTH_RATE_LIMIT_WINDOW_SECONDS, max: AUTH_RATE_LIMIT_MAX },
+      '/change-password': { window: AUTH_RATE_LIMIT_WINDOW_SECONDS, max: AUTH_RATE_LIMIT_MAX },
     },
   },
 });

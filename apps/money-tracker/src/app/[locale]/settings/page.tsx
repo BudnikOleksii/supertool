@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@supertool/ui/src/components/molecules/card/Card';
+import { ChangePasswordForm } from '@supertool/widgets/src/components/change-password-form/ChangePasswordForm';
 
 import { resolveOnboardedProfile } from '../../../utils/resolve-onboarded-profile';
 import { ProfileForm } from './components/profile-form/ProfileForm';
@@ -37,6 +38,15 @@ const SettingsPage: FC<Props> = async (props) => {
         </CardHeader>
         <CardContent>
           <ProfileForm profile={profile} />
+        </CardContent>
+      </Card>
+      <Card className={styles.card}>
+        <CardHeader>
+          <CardTitle>{translate('changePasswordTitle')}</CardTitle>
+          <CardDescription>{translate('changePasswordDescription')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChangePasswordForm />
         </CardContent>
       </Card>
     </div>

@@ -18,6 +18,8 @@
   "defaultCurrencyEmptyMessage": "Валют не знайдено",
   "submit": "Зберегти зміни",
   "updateSuccess": "Ваш профіль оновлено.",
+  "changePasswordTitle": "Зміна паролю",
+  "changePasswordDescription": "Змініть пароль, який ви використовуєте для входу.",
   "errors": {
     "firstNameRequired": "Введіть своє ім'я.",
     "localeInvalid": "Оберіть підтримувану мову.",
