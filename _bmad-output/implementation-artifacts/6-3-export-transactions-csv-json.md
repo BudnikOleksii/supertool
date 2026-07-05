@@ -295,6 +295,22 @@ Modified:
 - `packages/shared/src/generated/{index.ts,sdk.gen.ts,types.gen.ts}` (regenerated client)
 - `_bmad-output/implementation-artifacts/sprint-status.yaml`
 
+## Review Findings
+
+Adversarial code review (bmad-code-review, 2026-07-05) — Blind Hunter + Edge Case Hunter + Acceptance Auditor over `4cfe68a..HEAD`. Gates re-run and green: type-check, lint, stylelint, fmt:check, test, i18n:parity. Generated-client drift confirmed additive-only (`transactionsFindAll` byte-identical). **No MUST-FIX findings. Verdict: APPROVE.**
+
+Verified correct (no defect): CSV RFC-4180 quoting + formula-injection neutralization with no exploitable bypass (guard on original first char, then quoting — `'` prefix survives); money string fidelity end-to-end (no `parseFloat`/`Number`/`Intl`/float math); bare `YYYY-MM-DD` dates; user-scoping via shared `buildScopedConditions`/`getCategorySubtreeIds` (integration test proves cross-user exclusion); truncation off-by-one correct (`.limit(MAX+1)`, `length > MAX`); Content-Disposition filename safe (`@Matches(CALENDAR_DATE_PATTERN)`); error-code mapping works under `parseAs:'text'` (client JSON-parses error bodies independently); i18n en/uk parity; no new dependency; no `example/` imports; AC 1-12 all met.
+
+Non-blocking (nice-to-have / deferred):
+
+- [ ] [Review][Patch] `downloadBlob` revokes the object URL synchronously right after `anchor.click()` — defer revoke (e.g. `setTimeout`) to avoid rare Firefox download cancellation for large exports [apps/money-tracker/src/app/[locale]/transactions/components/export-menu/download-blob.ts:16]
+- [x] [Review][Defer] `X-Result-Truncated` header is not consumed by the frontend (no truncation notice) — explicitly out-of-scope per story; backend sets + unit-tests it; seed (1,880 rows) is far under the 10,000 cap [apps/money-tracker/src/actions/export-transactions.ts]
+- [x] [Review][Defer] CSV injection guard is applied to all columns including `Amount`; a leading-`-` amount would be mutated to `'-…` — latent only (DB `amount > 0` check + positive-amount validators make it non-triggerable); scope the guard to free-text columns if signed amounts ever land [apps/api/src/modules/transactions/export/format-transactions-as-csv.ts]
+- [x] [Review][Defer] Leading-whitespace formula bypass (` =CMD`) not neutralized (only `charAt(0)` checked) — AC3 requires first-char only; Excel/LibreOffice do not evaluate leading-space, Google-Sheets edge case; low real-world impact [apps/api/src/modules/transactions/export/format-transactions-as-csv.ts:16]
+- [x] [Review][Defer] `parseSeedDate` accepts impossible calendar days (e.g. `2025-02-30`, day bounded only to 1-31) — pre-existing weakness shared with the MM/DD/YYYY branch, not introduced by the ISO widening; Postgres rejects at insert [apps/api/src/database/seeds/parse-seed-date.ts]
+
+Dismissed as noise: "single export per file" nit on cohesive helper+const modules (matches repo practice, not a barrel); AC12 8-vs-12 capture count (documented deviation, menu-open shots include the header); `buildExportFilename` one-sided-date fallback (frontend always supplies both dates).
+
 ## Change Log
 
 | Date       | Change                                                                 |
