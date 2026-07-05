@@ -263,6 +263,21 @@ All figures are in `users.defaultCurrency`. No currency control, param, or fallb
 - [Source: _bmad-output/implementation-artifacts/visual-qa/spike-reference-parity/reference/transactions--by-category--{desktop,mobile}.png, transactions--category-detail--desktop.png — parity target]
 - [Source: example/track-my-life/apps/money-tracker/.../transactions/by-category/** + example/tracker-backend-api/src/modules/transactions/ by-category endpoint — reference to adapt, ED1]
 
+## Review Findings
+
+Adversarial code review (Blind Hunter + Edge Case Hunter + Acceptance Auditor), diff `1e5fa02..HEAD`, 2026-07-05. Verdict: **APPROVE** — no MUST-FIX findings. All 7 ACs met; hard rules (D1 money-strings, NFR6 generated-client-only, D7 layering, FR19/FR20 i18n parity, NFR1 tests, NFR2 no-new-dep, ED1 no example imports) all clean. SQL roll-up verified correct (subtree closure, no double-count, user/currency/period scoping, decimal-safe breakdown reconciliation).
+
+Nice-to-have follow-ups (none merge-blocking):
+
+- [ ] [Review][Patch] Out-of-range `?page=` on the detail view shows the "no transactions" empty state before `TransactionPagination`, leaving no in-page control to recover (reachable only via stale/shared URLs; browser-back works) [apps/money-tracker/src/app/[locale]/transactions/by-category/[categoryId]/components/category-detail-list/CategoryDetailList.tsx:61]
+- [ ] [Review][Patch] Landing empty-state copy implies period-based emptiness, but `categories.length === 0` only fires for a user with no categories / `NO_CURRENCY`; a zero-transaction month renders every category at `0.00` (intentional per D-6, but copy could mislead) [apps/money-tracker/messages/en/transactions-by-category-page.json]
+- [ ] [Review][Patch] Landing accordion shows no income/expense type indicator; income and expense totals sit intermixed alphabetically looking identical (the detail list badges type; the reference badges INCOME/EXPENSE) [apps/money-tracker/src/app/[locale]/transactions/by-category/components/by-category-accordion/ByCategoryAccordion.tsx:89]
+- [ ] [Review][Patch] Childless top-level category still renders an expand affordance opening an empty panel (cosmetic; detail chevron is the meaningful action) [apps/money-tracker/src/app/[locale]/transactions/by-category/components/by-category-accordion/ByCategoryAccordion.tsx:113]
+- [x] [Review][Defer] Accordion renders only 2 levels; 3rd-level categories are not individually navigable — consistent with the existing `CategoryTree` (also 2-level) and D-6; grandchild spend still rolls up into ancestor totals and is reachable via the subtree-aware detail page — deferred, conscious/pre-existing convention
+- [x] [Review][Defer] Task 10's "detail `title`" bullet is stale — no `detail.title` key was created; the detail heading derives from the resolved category name with a `translate('title')` fallback, so i18n parity is intact — deferred, story-file cosmetics only
+
+Dismissed as false positives (verified against project code): (1) "detail list does not roll up subtree" — `transactionsFindAll` IS subtree-aware via `getCategorySubtreeIds` (transactions.repository.ts:246); (2) "type-divergent transactions vanish from the roll-up" — `assertCategoryMatchesType` (transactions.service.ts:114) enforces `transaction.type === category.type` on create/update, and `assertSameType` enforces child-type === parent-type, so the `t.type = c.type` join never drops legitimate rows; (3) "type-scoping narrows AC1" — pre-approved by D-2 and required for FR18 reconciliation; (4) ">100-level depth cap divergence" — unreachable in practice.
+
 ## Dev Agent Record
 
 ### Agent Model Used
